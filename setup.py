@@ -1,6 +1,6 @@
 from distutils.core import setup
 
-pkg = 'Enigma2 Software Defined Radio'
+pkg = 'SDGRadio'
 setup (name = 'enigma2-plugin-extensions-sdgradio',
        version = '1.0',
        description = 'Enigma2 Software Defined Radio',
