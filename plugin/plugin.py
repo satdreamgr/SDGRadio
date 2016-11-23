@@ -28,10 +28,7 @@ config.sdgradio.j = ConfigText(default = "108.0")
 
 try:
 	from enigma import addFont
-	font_shortname="mssdr-digitali.ttf"
-	fontpath = '/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/fonts'
-	font_fullpath = fontpath + '/' + font_shortname
-	addFont(font_fullpath, 'Digital', 90, 1)
+	addFont('/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/fonts/mssdr-digitali.ttf', 'Digital', 90, 1)
 except:
 	print "[SDGRadio] failed to add font"
 
