@@ -2,7 +2,7 @@ from Components.AVSwitch import AVSwitch
 from Components.ActionMap import ActionMap
 from Components.Label import Label
 from Components.Pixmap import Pixmap
-from Components.config import config, ConfigSubsection, ConfigText, ConfigInteger
+from Components.config import config, ConfigSubsection, ConfigText, ConfigInteger, ConfigBoolean
 from Plugins.Plugin import PluginDescriptor
 from Screens.Console import Console
 from Screens.MessageBox import MessageBox
@@ -10,6 +10,7 @@ from Screens.Screen import Screen
 from Tools.BoundFunction import boundFunction
 from enigma import eConsoleAppContainer
 
+import json
 from decimal import Decimal
 
 config.sdgradio = ConfigSubsection()
@@ -25,6 +26,7 @@ config.sdgradio.g = ConfigText(default = "100.0")
 config.sdgradio.h = ConfigText(default = "102.0")
 config.sdgradio.i = ConfigText(default = "107.0")
 config.sdgradio.j = ConfigText(default = "108.0")
+config.sdgradio.rds = ConfigBoolean(default = False)
 
 try:
 	from enigma import addFont
@@ -38,7 +40,7 @@ BTN_MEM_UP = "/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/btn_mem_0%
 class SDGRadioScreen(Screen):
 	skin="""
 	<screen name="SDGRadioScreen" position="center,center" size="1280,720" title="SDG Radio" backgroundColor="transparent" flags="wfNoBorder">
-		<ePixmap pixmap="/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/radio.png" position="880,170" size="128,128" transparent="0" zPosition="8" alphatest="on" />
+		<ePixmap pixmap="/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/radio.png" position="845,155" size="128,128" transparent="0" zPosition="8" alphatest="on" />
 		<widget source="Title" render="Label" position="230,68" size="820,50" backgroundColor="#50000000" transparent="1" zPosition="5" font="Regular; 28" valign="center" halign="center" noWrap="1" foregroundColor="#00f47d19" />
 		<ePixmap pixmap="/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/fleched.png" position="145,81" size="32,32" transparent="0" zPosition="8" alphatest="on" />
 		<ePixmap pixmap="/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/flecheg.png" position="1054,81" size="32,32" transparent="0" zPosition="8" alphatest="on" />
@@ -69,12 +71,13 @@ class SDGRadioScreen(Screen):
 		<ePixmap pixmap="/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/line1.png" position="155,500" size="135,1" scale="1" zPosition="10" alphatest="blend" />
 		<widget name="key_red" position="340,600" size="200,50" backgroundColor="#20000000" zPosition="1" transparent="1" font="Regular; 22" halign="center" valign="center" foregroundColor="#00fefefe" />
 		<widget name="key_green" position="540,600" size="200,50" backgroundColor="#20000000" zPosition="1" transparent="1" font="Regular; 22" halign="center" valign="center" foregroundColor="#00fefefe" />
+		<widget name="key_yellow" position="740,600" size="200,50" backgroundColor="#20000000" zPosition="1" transparent="1" font="Regular; 22" halign="center" valign="center" foregroundColor="#00fefefe" />
 		<widget name="key_blue" position="940,600" size="200,50" backgroundColor="#20000000" zPosition="1" transparent="1" font="Regular;22" halign="center" valign="center" foregroundColor="#00fefefe" />
 		<ePixmap pixmap="/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/key_info.png" position="200,610" size="40,30" alphatest="blend" transparent="1" zPosition="1" />
-		<ePixmap pixmap="/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/flecheg.png" position="324,524" size="40,30" alphatest="blend" transparent="1" zPosition="1" />
-		<ePixmap pixmap="/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/fleched.png" position="406,524" size="40,30" alphatest="blend" transparent="1" zPosition="1" />
-		<ePixmap pixmap="/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/flecheh.png" position="365,495" size="40,30" alphatest="blend" transparent="1" zPosition="1" />
-		<ePixmap pixmap="/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/flecheb.png" position="365,552" size="40,30" alphatest="blend" transparent="1" zPosition="1" />
+		<ePixmap pixmap="/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/flecheg.png" position="324,524" size="40,30" alphatest="blend" transparent="1" zPosition="2" />
+		<ePixmap pixmap="/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/fleched.png" position="406,524" size="40,30" alphatest="blend" transparent="1" zPosition="2" />
+		<ePixmap pixmap="/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/flecheh.png" position="365,495" size="40,30" alphatest="blend" transparent="1" zPosition="2" />
+		<ePixmap pixmap="/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/flecheb.png" position="365,552" size="40,30" alphatest="blend" transparent="1" zPosition="2" />
 		<ePixmap pixmap="/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/line2.png" position="349,140" size="750,1" scale="1" zPosition="10" alphatest="blend" />
 		<ePixmap pixmap="/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/radio-frequency.png" position="380,180" size="679,369" scale="1" zPosition="0" alphatest="blend" />
 		<ePixmap name="" position="161,282" size="128,128" pixmap="/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/radio-button-group.png" zPosition="4" transparent="0" alphatest="blend" />
@@ -89,6 +92,8 @@ class SDGRadioScreen(Screen):
 		<widget name="mem_8" position="849,554" size="40,30" alphatest="on" />
 		<widget name="mem_9" position="894,554" size="40,30" alphatest="on" />
 		<widget name="freq" position="380,180" size="320,120" valign="center" halign="center" zPosition="2" foregroundColor="#00389416" font="Digital;160" transparent="0" backgroundColor="#00000000" />
+		<widget name="prog_type" position="760,280" size="300,30" valign="center" halign="center" zPosition="2" foregroundColor="#00389416" font="Regular;30" transparent="0" backgroundColor="#00000000" />
+		<widget name="radiotext" position="380,500" size="680,26" valign="center" halign="center" zPosition="2" foregroundColor="#00389416" font="Regular;24" transparent="0" backgroundColor="#00000000" />
 		<widget source="global.CurrentTime" render="Label" position="0,0" size="0,0" halign="center" valign="center" noWrap="1" zPosition="1" foregroundColor="#00fefefe" font="Digital;120" transparent="1">
 			<convert type="ClockToText">WithSeconds</convert>
 		</widget>
@@ -101,8 +106,14 @@ class SDGRadioScreen(Screen):
 			self["mem_%d" % i] = Pixmap()
 
 		self["freq"] = Label()
+		self["radiotext"] = Label()
+		self["prog_type"] = Label()
 		self["key_red"] = Label(_("Exit"))
 		self["key_green"] = Label(_("Save"))
+		if config.sdgradio.rds.value:
+			self["key_yellow"] = Label(_("RDS On"))
+		else:
+			self["key_yellow"] = Label(_("RDS Off"))
 		self["key_blue"] = Label(_("Log"))
 		self["info"] = Label(_("Info"))
 
@@ -145,7 +156,7 @@ class SDGRadioScreen(Screen):
 			"info": self.info,
 			#"red": self.red,
 			"green": self.green,
-			#"yellow": self.yellow
+			"yellow": self.yellow,
 			"blue": self.blue,
 		}, -1)
 
@@ -155,11 +166,37 @@ class SDGRadioScreen(Screen):
 	def PlayRadio(self, freq):
 		self.doConsoleStop()
 		self.Console = eConsoleAppContainer()
-		self.Console.dataAvail.append(self.cbDataAvail)
+		#self.Console.dataAvail.append(self.cbDataAvail)
+		self.Console.stderrAvail.append(self.cbStderrAvail)
 		#self.Console.appClosed.append(self.cbAppClosed)
-		cmd = "sleep 0.5 && rtl_fm -f %sM -M wbfm -s 200000 -r 48000 - | gst-launch-1.0 fdsrc ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=48000 ! dvbaudiosink" % freq
+		if config.sdgradio.rds.value:
+			cmd = "sleep 0.5 && rtl_fm -f %sM -M fm -l 0 -A std -p 0 -s 171k -g 40 -F 9  - | redsea -e | gst-launch-1.0 fdsrc ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=171000 ! audioresample ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=48000 ! dvbaudiosink" % freq
+		else:
+			cmd = "sleep 0.5 && rtl_fm -f %sM -M wbfm -s 200000 -r 48000 - | gst-launch-1.0 fdsrc ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=48000 ! dvbaudiosink" % freq
 		print "[SDGRadio] PlayRadio cmd: %s" % cmd
 		self.Console.execute(cmd)
+
+	def RDSProcess(self, data):
+		try:
+			rds = json.loads(data)
+			if "ps" in rds and self.getTitle() != rds["ps"].encode('utf8'):
+				self.setTitle(rds["ps"].encode('utf8'))
+			if "radiotext" in rds and self["radiotext"].getText() != rds["radiotext"].encode('utf8'):
+				self["radiotext"].setText(rds["radiotext"].encode('utf8'))
+			if "partial_radiotext" in rds and self["radiotext"].getText() != rds["partial_radiotext"].encode('utf8'):
+				self["radiotext"].setText(rds["partial_radiotext"].encode('utf8'))
+			if "prog_type" in rds and self["prog_type"].getText() != rds["prog_type"].encode('utf8'):
+				self["prog_type"].setText(rds["prog_type"].encode('utf8'))
+		except Exception as e:
+			print "[SDGRadio] RDSProcess Exception: %s" % e
+
+	def cbStderrAvail(self, data):
+		#print "[SDGRadio] cbStderrAvail ", data
+		if "{" in data and "}" in data and ":" in data:
+			self.RDSProcess(data)
+		self.log.append(data)
+		if len(self.log) > 15:
+			self.log.pop(0)
 
 	def cbDataAvail(self, data):
 		print "[SDGRadio] cbDataAvail %s" % data
@@ -168,19 +205,21 @@ class SDGRadioScreen(Screen):
 			self.log.pop()
 
 	def doConsoleStop(self):
-		if self.Console is not None:
+		if self.Console:
 			self.Console.sendCtrlC()
-			for i in range(0, 10):
-				self.Console.sendEOF()
+			self.Console.sendEOF()
 			if self.Console.running():
 				self.Console.kill()
 			self.Console = None
+			self.log = []
 
 	def ShowPicture(self):
 		self.startup()
 
 	def ButtonSelect(self, number, freq):
 		self["freq"].setText(freq)
+		self["radiotext"].setText("")
+		self["prog_type"].setText("")
 		self.setTitle("SDG Radio %s" % freq)
 		self.PlayRadio(freq)
 		config.sdgradio.last.value = freq
@@ -252,6 +291,17 @@ class SDGRadioScreen(Screen):
 		print "[SDGRadio] info"
 		self.doConsoleStop()
 		self.session.open(Console,_("Info"),["sleep 0.5 && rtl_eeprom"])
+
+	def yellow(self):
+		print "[SDGRadio] yellow"
+		config.sdgradio.rds.value = not config.sdgradio.rds.value
+		config.sdgradio.rds.save()
+		if config.sdgradio.rds.value:
+			self["key_yellow"].setText(_("RDS On"))
+		else:
+			self["key_yellow"].setText(_("RDS Off"))
+		self.doConsoleStop()
+		self.startup()
 
 	def blue(self):
 		print "[SDGRadio] blue"
