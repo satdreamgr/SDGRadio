@@ -195,7 +195,7 @@ class SDGRadioScreen(Screen):
 		if "{" in data and "}" in data and ":" in data:
 			self.RDSProcess(data)
 		self.log.append(data)
-		if len(self.log) > 15:
+		if len(self.log) > 20:
 			self.log.pop(0)
 
 	def cbDataAvail(self, data):
@@ -306,7 +306,7 @@ class SDGRadioScreen(Screen):
 	def blue(self):
 		print "[SDGRadio] blue"
 		text = "".join(self.log)
-		self.session.open(MessageBox, text, MessageBox.TYPE_INFO, simple=True)	
+		self.session.open(Console,_("Log"),["cat << EOF\n%s\nEOF" % text])
 
 def main(session, **kwargs):
 	session.open(SDGRadioScreen)
