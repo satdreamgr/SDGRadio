@@ -130,7 +130,7 @@ class SDGRadioScreen(Screen):
 
 		#self.Scale = AVSwitch().getFramebufferScale()
 
-		self["actions"] = ActionMap(["SetupActions", "DirectionActions", "WizardActions", "ColorActions", "MenuActions", "ChannelSelectEPGActions"],
+		self["actions"] = ActionMap(["SetupActions", "DirectionActions", "WizardActions", "ColorActions", "MenuActions", "ChannelSelectEPGActions", "ChannelSelectBaseActions"],
 		{
 			"cancel": self.cancel, # add the RC Command "cancel" to close your Screen
 			"0": boundFunction(self.buttonNumber, 0),
@@ -143,8 +143,8 @@ class SDGRadioScreen(Screen):
 			"7": boundFunction(self.buttonNumber, 7),
 			"8": boundFunction(self.buttonNumber, 8),
 			"9": boundFunction(self.buttonNumber, 9),
-			"up": self.up,
-			"down": self.down,
+			"up": boundFunction(self.up, "0.1"),
+			"down": boundFunction(self.down, "0.1"),
 			"left": self.left,
 			"right": self.right,
 			"ok": self.ok,
@@ -157,6 +157,10 @@ class SDGRadioScreen(Screen):
 			"green": self.green,
 			"yellow": self.yellow,
 			"blue": self.blue,
+			"nextBouquet": boundFunction(self.up, "0.0001"),
+			"prevBouquet": boundFunction(self.down, "0.0001"),
+			"nextMarker": boundFunction(self.up, "0.001"),
+			"prevMarker": boundFunction(self.down, "0.001"),
 		}, -1)
 
 		self.Console = None
@@ -245,11 +249,11 @@ class SDGRadioScreen(Screen):
 			newfreq = Decimal("108.0")
 		self["freq"].setText(str(newfreq))
 
-	def up(self):
-		self.freqChange(Decimal("0.1"))
+	def up(self, value):
+		self.freqChange(Decimal(value))
 
-	def down(self):
-		self.freqChange(-Decimal("0.1"))
+	def down(self, value):
+		self.freqChange(-Decimal(value))
 
 	def left(self):
 		self.freqChange(-Decimal("1"))
