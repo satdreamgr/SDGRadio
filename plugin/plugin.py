@@ -11,6 +11,7 @@ from Tools.BoundFunction import boundFunction
 from enigma import eConsoleAppContainer
 
 import json
+import time
 from decimal import Decimal
 
 config.sdgradio = ConfigSubsection()
@@ -168,14 +169,15 @@ class SDGRadioScreen(Screen):
 
 	def PlayRadio(self, freq):
 		self.doConsoleStop()
+		time.sleep(0.3)
 		self.Console = eConsoleAppContainer()
 		#self.Console.dataAvail.append(self.cbDataAvail)
 		self.Console.stderrAvail.append(self.cbStderrAvail)
 		#self.Console.appClosed.append(self.cbAppClosed)
 		if config.sdgradio.rds.value:
-			cmd = "sleep 0.5 && rtl_fm -f %sM -M fm -l 0 -A std -p 0 -s 171k -g 40 -F 9  - | redsea -e | gst-launch-1.0 fdsrc ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=171000 ! audioresample ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=48000 ! dvbaudiosink" % freq
+			cmd = "rtl_fm -f %sM -M fm -l 0 -A std -p 0 -s 171k -g 40 -F 9  - | redsea -e | gst-launch-1.0 fdsrc ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=171000 ! audioresample ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=48000 ! dvbaudiosink" % freq
 		else:
-			cmd = "sleep 0.5 && rtl_fm -f %sM -M wbfm -s 200000 -r 48000 - | gst-launch-1.0 fdsrc ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=48000 ! dvbaudiosink" % freq
+			cmd = "rtl_fm -f %sM -M wbfm -s 200000 -r 48000 - | gst-launch-1.0 fdsrc ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=48000 ! dvbaudiosink" % freq
 		print "[SDGRadio] PlayRadio cmd: %s" % cmd
 		self.Console.execute(cmd)
 
