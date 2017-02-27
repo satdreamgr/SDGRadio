@@ -134,7 +134,7 @@ class SDGRadioScreen(Screen):
 
 		self["actions"] = ActionMap(["SetupActions", "DirectionActions", "WizardActions", "ColorActions", "MenuActions", "ChannelSelectEPGActions", "ChannelSelectBaseActions"],
 		{
-			"cancel": self.cancel, # add the RC Command "cancel" to close your Screen
+			"back": self.cancel, # add the RC Command "cancel" to close your Screen
 			"0": boundFunction(self.buttonNumber, 0),
 			"1": boundFunction(self.buttonNumber, 1),
 			"2": boundFunction(self.buttonNumber, 2),
