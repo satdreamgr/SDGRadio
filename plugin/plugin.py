@@ -2,7 +2,7 @@ from Components.AVSwitch import AVSwitch
 from Components.ActionMap import ActionMap
 from Components.Label import Label
 from Components.Pixmap import Pixmap
-from Components.config import config, ConfigSubsection, ConfigText, ConfigInteger, ConfigBoolean
+from Components.config import config, ConfigSubsection, ConfigText, ConfigInteger, ConfigBoolean, ConfigSelection
 from Plugins.Plugin import PluginDescriptor
 from Screens.Console import Console
 from Screens.MessageBox import MessageBox
@@ -28,6 +28,7 @@ config.sdgradio.h = ConfigText(default = "102.0")
 config.sdgradio.i = ConfigText(default = "107.0")
 config.sdgradio.j = ConfigText(default = "108.0")
 config.sdgradio.rds = ConfigBoolean(default = False)
+config.sdgradio.modulation = ConfigSelection(choices=[("fm", _("FM")), ("am", _("AM")), ("lsb", _("LSB")), ("usb", _("USB"))], default="fm")
 
 try:
 	from enigma import addFont
@@ -108,7 +109,7 @@ class SDGRadioScreen(Screen):
 		self["freq"] = Label()
 		self["radiotext"] = Label()
 		self["prog_type"] = Label()
-		self["key_red"] = Label(_("Exit"))
+		self["key_red"] = Label(config.sdgradio.modulation.getText())
 		self["key_green"] = Label(_("Save"))
 		if config.sdgradio.rds.value:
 			self["key_yellow"] = Label(_("RDS On"))
@@ -133,7 +134,7 @@ class SDGRadioScreen(Screen):
 
 		self["actions"] = ActionMap(["SetupActions", "DirectionActions", "WizardActions", "ColorActions", "MenuActions", "ChannelSelectEPGActions", "ChannelSelectBaseActions"],
 		{
-			"cancel": self.cancel, # add the RC Command "cancel" to close your Screen
+			"back": self.cancel, # add the RC Command "cancel" to close your Screen
 			"0": boundFunction(self.buttonNumber, 0),
 			"1": boundFunction(self.buttonNumber, 1),
 			"2": boundFunction(self.buttonNumber, 2),
@@ -154,7 +155,7 @@ class SDGRadioScreen(Screen):
 			"leftRepeated": self.left,
 			"rightRepeated": self.right,
 			"info": self.info,
-			#"red": self.red,
+			"red": self.red,
 			"green": self.green,
 			"yellow": self.yellow,
 			"blue": self.blue,
@@ -174,8 +175,17 @@ class SDGRadioScreen(Screen):
 		#self.Console.dataAvail.append(self.cbDataAvail)
 		self.Console.stderrAvail.append(self.cbStderrAvail)
 		#self.Console.appClosed.append(self.cbAppClosed)
-		if config.sdgradio.rds.value:
-			cmd = "rtl_fm -f %sM -M fm -l 0 -A std -p 0 -s 171k -g 40 -F 9  - | redsea -e | gst-launch-1.0 fdsrc ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=171000 ! audioresample ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=48000 ! dvbaudiosink" % freq
+		if config.sdgradio.modulation.value == "fm":
+			if config.sdgradio.rds.value:
+				cmd = "rtl_fm -f %sM -M fm -l 0 -A std -s 171k -g 40 -E deemp -F 0 - | redsea -e | gst-launch-1.0 fdsrc ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=171000 ! audioresample ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=48000 ! dvbaudiosink" % freq
+			else:
+				cmd = "rtl_fm -f %sM -M fm -A std -s 10k -g 40 - | gst-launch-1.0 fdsrc ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=10000 ! audioresample ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=48000 ! dvbaudiosink" % freq
+		elif config.sdgradio.modulation.value == "am":
+			cmd = "rtl_fm -f %sM -M am -A std -s 10k -g 40 - | gst-launch-1.0 fdsrc ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=10000 ! audioresample ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=48000 ! dvbaudiosink" % freq
+		elif config.sdgradio.modulation.value == "lsb":
+			cmd = "rtl_fm -f %sM -M lsb -A std -s 3k -g 40 - | gst-launch-1.0 fdsrc ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=3000 ! audioresample ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=48000 ! dvbaudiosink" % freq
+		elif config.sdgradio.modulation.value == "usb":
+			cmd = "rtl_fm -f %sM -M usb -A std -s 3k -g 40 - | gst-launch-1.0 fdsrc ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=3000 ! audioresample ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=48000 ! dvbaudiosink" % freq
 		else:
 			cmd = "rtl_fm -f %sM -M wbfm -s 200000 -r 48000 - | gst-launch-1.0 fdsrc ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=48000 ! dvbaudiosink" % freq
 		print "[SDGRadio] PlayRadio cmd: %s" % cmd
@@ -245,10 +255,16 @@ class SDGRadioScreen(Screen):
 	def freqChange(self, value):
 		freq = self["freq"].getText()
 		newfreq = Decimal(freq) + value
-		if newfreq < Decimal("87.5"):
-			newfreq = Decimal("87.5")
-		if newfreq > Decimal("108.0"):
-			newfreq = Decimal("108.0")
+		if config.sdgradio.modulation == "fm":
+			if newfreq < Decimal("87.5"):
+				newfreq = Decimal("87.5")
+			if newfreq > Decimal("108.0"):
+				newfreq = Decimal("108.0")
+		else:
+			if newfreq < Decimal("0.0"):
+				newfreq = Decimal("0.0")
+			if newfreq > Decimal("1766.0"):
+				newfreq = Decimal("1766.0")
 		self["freq"].setText(str(newfreq))
 
 	def up(self, value):
@@ -268,6 +284,18 @@ class SDGRadioScreen(Screen):
 		lastfreq = config.sdgradio.last.value
 		if Decimal(freq) != Decimal(lastfreq):
 			self.ButtonSelect(config.sdgradio.lastbutton.value, freq)
+
+	def red(self):
+		print "[SDGRadio] red"
+		config.sdgradio.modulation.selectNext()
+		self["key_red"].setText(config.sdgradio.modulation.getText())
+		if config.sdgradio.modulation == "fm":
+			if config.sdgradio.rds.value:
+				self["key_yellow"].setText(_("RDS On"))
+			else:
+				self["key_yellow"].setText(_("RDS Off"))
+		else:
+			self["key_yellow"].setText("")
 
 	def green(self):
 		print "[SDGRadio] green"
