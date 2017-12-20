@@ -266,9 +266,9 @@ class SDGRadioScreen(Screen):
 			if newfreq > Decimal("108.0"):
 				newfreq = Decimal("108.0")
 		elif config.sdgradio.modulation == "dab":
-			if newfreq < Decimal("174.928")
+			if newfreq < Decimal("174.928"):
 				newfreq = Decimal("174.928")
-			if newfreq > Decimal("239.2")
+			if newfreq > Decimal("239.2"):
 				newfreq = Decimal("239.2")
 			newfreq = min(filter(lambda x: x >= newfreq, DAB_FREQ.keys()))
 		else:
