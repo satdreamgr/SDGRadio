@@ -13,6 +13,7 @@ from enigma import eConsoleAppContainer
 import json
 import time
 from decimal import Decimal
+from collections import OrderedDict
 
 config.sdgradio = ConfigSubsection()
 config.sdgradio.last = ConfigText(default = "87.5")
@@ -28,7 +29,9 @@ config.sdgradio.h = ConfigText(default = "102.0")
 config.sdgradio.i = ConfigText(default = "107.0")
 config.sdgradio.j = ConfigText(default = "108.0")
 config.sdgradio.rds = ConfigBoolean(default = False)
-config.sdgradio.modulation = ConfigSelection(choices=[("fm", _("FM")), ("am", _("AM")), ("lsb", _("LSB")), ("usb", _("USB"))], default="fm")
+config.sdgradio.modulation = ConfigSelection(choices=[("fm", _("FM")), ("am", _("AM")), ("lsb", _("LSB")), ("usb", _("USB")), ("dab", _("DAB/DAB+"))], default="fm")
+
+DAB_FREQ = OrderedDict([(Decimal('174.928'), '5A'), (Decimal('176.64'), '5B'), (Decimal('178.352'), '5C'), (Decimal('180.064'), '5D'), (Decimal('181.936'), '6A'), (Decimal('183.648'), '6B'), (Decimal('185.36'), '6C'), (Decimal('187.072'), '6D'), (Decimal('188.928'), '7A'), (Decimal('190.64'), '7B'), (Decimal('192.352'), '7C'), (Decimal('194.064'), '7D'), (Decimal('195.936'), '8A'), (Decimal('197.648'), '8B'), (Decimal('199.36'), '8C'), (Decimal('201.072'), '8D'), (Decimal('202.928'), '9A'), (Decimal('204.64'), '9B'), (Decimal('206.352'), '9C'), (Decimal('208.064'), '9D'), (Decimal('209.936'), '10A'), (Decimal('211.648'), '10B'), (Decimal('213.36'), '10C'), (Decimal('215.072'), '10D'), (Decimal('216.928'), '11A'), (Decimal('218.64'), '11B'), (Decimal('220.352'), '11C'), (Decimal('222.064'), '11D'), (Decimal('223.936'), '12A'), (Decimal('225.648'), '12B'), (Decimal('227.36'), '12C'), (Decimal('229.072'), '12D'), (Decimal('230.748'), '13A'), (Decimal('232.496'), '13B'), (Decimal('234.208'), '13C'), (Decimal('235.776'), '13D'), (Decimal('237.488'), '13E'), (Decimal('239.2'), '13F')])
 
 try:
 	from enigma import addFont
@@ -186,6 +189,8 @@ class SDGRadioScreen(Screen):
 			cmd = "rtl_fm -f %sM -M lsb -A std -s 3k -g 40 - | gst-launch-1.0 fdsrc ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=3000 ! audioresample ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=48000 ! dvbaudiosink" % freq
 		elif config.sdgradio.modulation.value == "usb":
 			cmd = "rtl_fm -f %sM -M usb -A std -s 3k -g 40 - | gst-launch-1.0 fdsrc ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=3000 ! audioresample ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=48000 ! dvbaudiosink" % freq
+		elif config.sdgradio.modulation.value == "dab":
+			cmd = "dab-rtlsdr-3 -C %s -W15 | gst-launch-1.0 fdsrc ! audio/x-raw, format=S16LE, channels=2, layout=interleaved, rate=48000 ! dvbaudiosink" % DAB_FREQ.get(freq, '5A')
 		else:
 			cmd = "rtl_fm -f %sM -M wbfm -s 200000 -r 48000 - | gst-launch-1.0 fdsrc ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=48000 ! dvbaudiosink" % freq
 		print "[SDGRadio] PlayRadio cmd: %s" % cmd
@@ -260,6 +265,12 @@ class SDGRadioScreen(Screen):
 				newfreq = Decimal("87.5")
 			if newfreq > Decimal("108.0"):
 				newfreq = Decimal("108.0")
+		elif config.sdgradio.modulation == "dab":
+			if newfreq < Decimal("174.928")
+				newfreq = Decimal("174.928")
+			if newfreq > Decimal("239.2")
+				newfreq = Decimal("239.2")
+			newfreq = min(filter(lambda x: x >= newfreq, DAB_FREQ.keys()))
 		else:
 			if newfreq < Decimal("0.0"):
 				newfreq = Decimal("0.0")
