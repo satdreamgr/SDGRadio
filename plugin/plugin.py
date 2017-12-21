@@ -190,7 +190,7 @@ class SDGRadioScreen(Screen):
 		elif config.sdgradio.modulation.value == "usb":
 			cmd = "rtl_fm -f %sM -M usb -A std -s 3k -g 40 - | gst-launch-1.0 fdsrc ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=3000 ! audioresample ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=48000 ! dvbaudiosink" % freq
 		elif config.sdgradio.modulation.value == "dab":
-			cmd = "dab-rtlsdr-3 -C %s -W15 | gst-launch-1.0 fdsrc ! audio/x-raw, format=S16LE, channels=2, layout=interleaved, rate=48000 ! dvbaudiosink" % DAB_FREQ.get(freq, '5A')
+			cmd = "dab-rtlsdr-3 -C %s -W15 | gst-launch-1.0 fdsrc ! audio/x-raw, format=S16LE, channels=2, layout=interleaved, rate=48000 ! dvbaudiosink" % DAB_FREQ.get(Decimal(freq), '5A')
 		else:
 			cmd = "rtl_fm -f %sM -M wbfm -s 200000 -r 48000 - | gst-launch-1.0 fdsrc ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=48000 ! dvbaudiosink" % freq
 		print "[SDGRadio] PlayRadio cmd: %s" % cmd
@@ -260,12 +260,12 @@ class SDGRadioScreen(Screen):
 	def freqChange(self, value):
 		freq = self["freq"].getText()
 		newfreq = Decimal(freq) + value
-		if config.sdgradio.modulation == "fm":
+		if config.sdgradio.modulation.value == "fm":
 			if newfreq < Decimal("87.5"):
 				newfreq = Decimal("87.5")
 			if newfreq > Decimal("108.0"):
 				newfreq = Decimal("108.0")
-		elif config.sdgradio.modulation == "dab":
+		elif config.sdgradio.modulation.value == "dab":
 			if newfreq < Decimal("174.928"):
 				newfreq = Decimal("174.928")
 			if newfreq > Decimal("239.2"):
@@ -300,7 +300,8 @@ class SDGRadioScreen(Screen):
 		print "[SDGRadio] red"
 		config.sdgradio.modulation.selectNext()
 		self["key_red"].setText(config.sdgradio.modulation.getText())
-		if config.sdgradio.modulation == "fm":
+		self.freqChange(Decimal(0))
+		if config.sdgradio.modulation.value == "fm":
 			if config.sdgradio.rds.value:
 				self["key_yellow"].setText(_("RDS On"))
 			else:
