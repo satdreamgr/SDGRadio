@@ -357,7 +357,7 @@ class SDGRadioScreen(Screen):
 			else:
 				self["key_yellow"].setText(_("RDS Off"))
 		elif config.sdgradio.modulation.value == "dab":
-			self["key_yellow"].setText(_("Next"))
+			self["key_yellow"].setText(_("Next Station"))
 		else:
 			self["key_yellow"].setText("")
 
