@@ -236,6 +236,7 @@ class SDGRadioScreen(Screen):
 
 	def ButtonSelect(self, number, freq):
 		self["freq"].setText(freq)
+		self.freqChange(Decimal(0))
 		self["radiotext"].setText("")
 		self["prog_type"].setText("")
 		self.setTitle("SDG Radio %s" % freq)
@@ -300,6 +301,7 @@ class SDGRadioScreen(Screen):
 	def red(self):
 		print "[SDGRadio] red"
 		config.sdgradio.modulation.selectNext()
+		config.sdgradio.modulation.save()
 		self["key_red"].setText(config.sdgradio.modulation.getText())
 		self.freqChange(Decimal(0))
 
