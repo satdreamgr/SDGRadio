@@ -114,10 +114,7 @@ class SDGRadioScreen(Screen):
 		self["prog_type"] = Label()
 		self["key_red"] = Label(config.sdgradio.modulation.getText())
 		self["key_green"] = Label(_("Save"))
-		if config.sdgradio.rds.value:
-			self["key_yellow"] = Label(_("RDS On"))
-		else:
-			self["key_yellow"] = Label(_("RDS Off"))
+		self["key_yellow"] = Label()
 		self["key_blue"] = Label(_("Log"))
 		self["info"] = Label(_("Info"))
 
@@ -172,6 +169,7 @@ class SDGRadioScreen(Screen):
 		self.onLayoutFinish.append(self.ShowPicture)
 
 	def PlayRadio(self, freq):
+		self.yellow_text()
 		self.doConsoleStop()
 		time.sleep(0.3)
 		self.Console = eConsoleAppContainer()
@@ -301,13 +299,6 @@ class SDGRadioScreen(Screen):
 		config.sdgradio.modulation.selectNext()
 		self["key_red"].setText(config.sdgradio.modulation.getText())
 		self.freqChange(Decimal(0))
-		if config.sdgradio.modulation.value == "fm":
-			if config.sdgradio.rds.value:
-				self["key_yellow"].setText(_("RDS On"))
-			else:
-				self["key_yellow"].setText(_("RDS Off"))
-		else:
-			self["key_yellow"].setText("")
 
 	def green(self):
 		print "[SDGRadio] green"
@@ -339,19 +330,31 @@ class SDGRadioScreen(Screen):
 
 	def yellow(self):
 		print "[SDGRadio] yellow"
-		config.sdgradio.rds.value = not config.sdgradio.rds.value
-		config.sdgradio.rds.save()
-		if config.sdgradio.rds.value:
-			self["key_yellow"].setText(_("RDS On"))
-		else:
-			self["key_yellow"].setText(_("RDS Off"))
-		self.doConsoleStop()
-		self.startup()
+		self.yellow_text()
+		if config.sdgradio.modulation.value == "fm":
+			config.sdgradio.rds.value = not config.sdgradio.rds.value
+			config.sdgradio.rds.save()
+			self.doConsoleStop()
+			self.startup()
+		elif config.sdgradio.modulation.value == "dab":
+			if self.Console:
+				self.Console.write("\n") # new line switches to next program
 
 	def blue(self):
 		print "[SDGRadio] blue"
 		text = "".join(self.log)
 		self.session.open(Console,_("Log"),["cat << EOF\n%s\nEOF" % text])
+
+	def yellow_text(self):
+		if config.sdgradio.modulation.value == "fm":
+			if config.sdgradio.rds.value:
+				self["key_yellow"].setText(_("RDS On"))
+			else:
+				self["key_yellow"].setText(_("RDS Off"))
+		elif config.sdgradio.modulation.value == "dab":
+			self["key_yellow"].setText(_("Next"))
+		else:
+			self["key_yellow"].setText("")
 
 def main(session, **kwargs):
 	session.open(SDGRadioScreen)
