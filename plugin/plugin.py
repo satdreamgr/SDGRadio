@@ -268,7 +268,10 @@ class SDGRadioScreen(Screen):
 				newfreq = Decimal("174.928")
 			if newfreq > Decimal("239.2"):
 				newfreq = Decimal("239.2")
-			newfreq = min(filter(lambda x: x >= newfreq, DAB_FREQ.keys()))
+			if newfreq > Decimal(freq):
+				newfreq = min(filter(lambda x: x >= newfreq, DAB_FREQ.keys()))
+			else:
+				newfreq = max(filter(lambda x: x <= newfreq, DAB_FREQ.keys()))
 		else:
 			if newfreq < Decimal("0.0"):
 				newfreq = Decimal("0.0")
