@@ -4,6 +4,7 @@ from Components.Label import Label
 from Components.Pixmap import Pixmap
 from Components.config import config, ConfigSubsection, ConfigText, ConfigInteger, ConfigBoolean, ConfigSelection
 from Plugins.Plugin import PluginDescriptor
+from Screens.ChoiceBox import ChoiceBox
 from Screens.Console import Console
 from Screens.MessageBox import MessageBox
 from Screens.Screen import Screen
@@ -93,7 +94,7 @@ class SDGRadioScreen(Screen):
 	<widget name="mem_7" position="252,425" size="40,30" alphatest="on" zPosition="2" />
 	<widget name="mem_8" position="182,463" size="40,30" alphatest="on" zPosition="2" />
 	<widget name="mem_9" position="232,463" size="40,30" alphatest="on" zPosition="2" />
-	<widget name="freq" position="631,187" size="320,120" valign="center" halign="center" zPosition="2" foregroundColor="#ff1100" font="Digital;160" transparent="1" backgroundColor="#ff1100" />
+	<widget name="freq" position="580,187" size="400,120" valign="center" halign="center" zPosition="2" foregroundColor="#ff1100" font="Digital;160" transparent="1" backgroundColor="#ff1100" />
 	<widget name="prog_type" position="651,370" size="300,30" valign="center" halign="center" zPosition="2" foregroundColor="#ff1100" font="Regular;30" transparent="1" backgroundColor="#ff1100" />
 	<widget name="radiotext" position="316,483" size="590,60" valign="center" halign="center" zPosition="2" foregroundColor="#ff1100" font="Regular;24" transparent="1" backgroundColor="#ff1100" noWrap="1" />
 	<widget source="global.CurrentTime" render="Label" position="0,0" size="0,0" halign="center" valign="center" noWrap="1" zPosition="1" foregroundColor="white" font="Digital;120" transparent="1">
@@ -126,6 +127,9 @@ class SDGRadioScreen(Screen):
 
 		# log messages
 		self.log = []
+
+		# dab program list
+		self.programs = []
 
 		# display radio mvi
 		eConsoleAppContainer().execute("showiframe /usr/share/enigma2/radio.mvi")
@@ -163,17 +167,17 @@ class SDGRadioScreen(Screen):
 			"prevBouquet": boundFunction(self.down, "0.0001"),
 			"nextMarker": boundFunction(self.up, "0.001"),
 			"prevMarker": boundFunction(self.down, "0.001"),
+			"menu": self.showPrograms,
 		}, -1)
 
 		self.Console = None
-		self.onLayoutFinish.append(self.ShowPicture)
+		self.onLayoutFinish.append(self.startup)
 
 	def PlayRadio(self, freq):
 		self.yellow_text()
 		self.doConsoleStop()
 		time.sleep(0.3)
 		self.Console = eConsoleAppContainer()
-		#self.Console.dataAvail.append(self.cbDataAvail)
 		self.Console.stderrAvail.append(self.cbStderrAvail)
 		#self.Console.appClosed.append(self.cbAppClosed)
 		if config.sdgradio.modulation.value == "fm":
@@ -188,7 +192,7 @@ class SDGRadioScreen(Screen):
 		elif config.sdgradio.modulation.value == "usb":
 			cmd = "rtl_fm -f %sM -M usb -A std -s 3k -g 40 - | gst-launch-1.0 fdsrc ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=3000 ! audioresample ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=48000 ! dvbaudiosink" % freq
 		elif config.sdgradio.modulation.value == "dab":
-			cmd = "dab-rtlsdr-3 -C %s -W15 | gst-launch-1.0 fdsrc ! audio/x-raw, format=S16LE, channels=2, layout=interleaved, rate=48000 ! dvbaudiosink" % DAB_FREQ.get(Decimal(freq), '5A')
+			cmd = "dab-rtlsdr-sdgradio -C %s -W15 | gst-launch-1.0 fdsrc ! audio/x-raw, format=S16LE, channels=2, layout=interleaved, rate=48000 ! dvbaudiosink" % DAB_FREQ.get(Decimal(freq), '5A')
 		else:
 			cmd = "rtl_fm -f %sM -M wbfm -s 200000 -r 48000 - | gst-launch-1.0 fdsrc ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=48000 ! dvbaudiosink" % freq
 		print "[SDGRadio] PlayRadio cmd: %s" % cmd
@@ -205,6 +209,8 @@ class SDGRadioScreen(Screen):
 				self["radiotext"].setText(rds["partial_radiotext"].encode('utf8'))
 			if "prog_type" in rds and self["prog_type"].getText() != rds["prog_type"].encode('utf8'):
 				self["prog_type"].setText(rds["prog_type"].encode('utf8'))
+			if "programName" in rds and "programId" in rds:
+				self.programs.append((rds["programName"].encode('utf8'), rds["programId"]))
 		except Exception as e:
 			print "[SDGRadio] RDSProcess Exception: %s" % e
 
@@ -212,15 +218,10 @@ class SDGRadioScreen(Screen):
 		#print "[SDGRadio] cbStderrAvail ", data
 		if "{" in data and "}" in data and ":" in data:
 			self.RDSProcess(data)
-		self.log.append(data)
-		if len(self.log) > 20:
+		if not data in self.log:
+			self.log.append(data)
+		if len(self.log) > 200:
 			self.log.pop(0)
-
-	def cbDataAvail(self, data):
-		print "[SDGRadio] cbDataAvail %s" % data
-		self.log.append(data)
-		if len(self.log) > 15:
-			self.log.pop()
 
 	def doConsoleStop(self):
 		if self.Console:
@@ -230,9 +231,7 @@ class SDGRadioScreen(Screen):
 				self.Console.kill()
 			self.Console = None
 			self.log = []
-
-	def ShowPicture(self):
-		self.startup()
+			self.programs = []
 
 	def ButtonSelect(self, number, freq):
 		self["freq"].setText(freq)
@@ -360,6 +359,19 @@ class SDGRadioScreen(Screen):
 			self["key_yellow"].setText(_("Next Station"))
 		else:
 			self["key_yellow"].setText("")
+
+	def showPrograms(self):
+		print "[SDGRadio] showPrograms"
+		if config.sdgradio.modulation.value == "dab" and self.Console:
+			if self.programs:
+				self.session.openWithCallback(self.programAction, ChoiceBox, title=_("Select Radio Program"), list=self.programs, windowTitle=_("Radio Programs"))
+			else:
+				self.session.open(MessageBox, _("No Programs"), MessageBox.TYPE_ERROR)
+
+	def programAction(self, choice):
+		print "[SDGRadio] programAction"
+		if choice and self.Console:
+			self.Console.write("%s\n" % choice[1])
 
 def main(session, **kwargs):
 	session.open(SDGRadioScreen)
