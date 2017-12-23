@@ -94,7 +94,7 @@ class SDGRadioScreen(Screen):
 	<widget name="mem_7" position="252,425" size="40,30" alphatest="on" zPosition="2" />
 	<widget name="mem_8" position="182,463" size="40,30" alphatest="on" zPosition="2" />
 	<widget name="mem_9" position="232,463" size="40,30" alphatest="on" zPosition="2" />
-	<widget name="freq" position="580,187" size="400,120" valign="center" halign="center" zPosition="2" foregroundColor="#ff1100" font="Digital;160" transparent="1" backgroundColor="#ff1100" />
+	<widget name="freq" position="560,187" size="440,120" valign="center" halign="center" zPosition="2" foregroundColor="#ff1100" font="Digital;160" transparent="1" backgroundColor="#ff1100" />
 	<widget name="prog_type" position="651,370" size="300,30" valign="center" halign="center" zPosition="2" foregroundColor="#ff1100" font="Regular;30" transparent="1" backgroundColor="#ff1100" />
 	<widget name="radiotext" position="316,483" size="590,60" valign="center" halign="center" zPosition="2" foregroundColor="#ff1100" font="Regular;24" transparent="1" backgroundColor="#ff1100" noWrap="1" />
 	<widget source="global.CurrentTime" render="Label" position="0,0" size="0,0" halign="center" valign="center" noWrap="1" zPosition="1" foregroundColor="white" font="Digital;120" transparent="1">
@@ -184,7 +184,7 @@ class SDGRadioScreen(Screen):
 			if config.sdgradio.rds.value:
 				cmd = "rtl_fm -f %sM -M fm -l 0 -A std -s 171k -g 40 -E deemp -F 0 - | redsea -e | gst-launch-1.0 fdsrc ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=171000 ! audioresample ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=48000 ! dvbaudiosink" % freq
 			else:
-				cmd = "rtl_fm -f %sM -M fm -A std -s 10k -g 40 - | gst-launch-1.0 fdsrc ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=10000 ! audioresample ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=48000 ! dvbaudiosink" % freq
+				cmd = "rtl_fm -f %sM -M fm -l 0 -A std -s 171k -g 40 -E deemp -F 0 - | gst-launch-1.0 fdsrc ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=171000 ! audioresample ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=48000 ! dvbaudiosink" % freq
 		elif config.sdgradio.modulation.value == "am":
 			cmd = "rtl_fm -f %sM -M am -A std -s 10k -g 40 - | gst-launch-1.0 fdsrc ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=10000 ! audioresample ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=48000 ! dvbaudiosink" % freq
 		elif config.sdgradio.modulation.value == "lsb":
@@ -192,7 +192,7 @@ class SDGRadioScreen(Screen):
 		elif config.sdgradio.modulation.value == "usb":
 			cmd = "rtl_fm -f %sM -M usb -A std -s 3k -g 40 - | gst-launch-1.0 fdsrc ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=3000 ! audioresample ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=48000 ! dvbaudiosink" % freq
 		elif config.sdgradio.modulation.value == "dab":
-			cmd = "dab-rtlsdr-sdgradio -C %s -W15 | gst-launch-1.0 fdsrc ! audio/x-raw, format=S16LE, channels=2, layout=interleaved, rate=48000 ! dvbaudiosink" % DAB_FREQ.get(Decimal(freq), '5A')
+			cmd = "dab-rtlsdr-sdgradio -C %s -W30 | gst-launch-1.0 fdsrc ! audio/x-raw, format=S16LE, channels=2, layout=interleaved, rate=48000 ! dvbaudiosink" % DAB_FREQ.get(Decimal(freq), '5A')
 		else:
 			cmd = "rtl_fm -f %sM -M wbfm -s 200000 -r 48000 - | gst-launch-1.0 fdsrc ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=48000 ! dvbaudiosink" % freq
 		print "[SDGRadio] PlayRadio cmd: %s" % cmd
@@ -364,7 +364,7 @@ class SDGRadioScreen(Screen):
 		print "[SDGRadio] showPrograms"
 		if config.sdgradio.modulation.value == "dab" and self.Console:
 			if self.programs:
-				self.session.openWithCallback(self.programAction, ChoiceBox, title=_("Select Radio Program"), list=self.programs, windowTitle=_("Radio Programs"))
+				self.session.openWithCallback(self.programAction, ChoiceBox, title=_("Select Radio Program"), list=self.programs)
 			else:
 				self.session.open(MessageBox, _("No Programs"), MessageBox.TYPE_ERROR)
 
