@@ -222,8 +222,8 @@ class SDGRadioScreen(Screen):
 				continue
 			if "{" in line and "}" in line and ":" in line:
 				self.RDSProcess(line)
-			if not line in self.log:
-				self.log.append(line)
+		if not data in self.log:
+			self.log.append(data)
 		while len(self.log) > 200:
 			self.log.pop(0)
 
