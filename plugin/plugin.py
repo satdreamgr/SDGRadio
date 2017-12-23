@@ -217,11 +217,14 @@ class SDGRadioScreen(Screen):
 
 	def cbStderrAvail(self, data):
 		#print "[SDGRadio] cbStderrAvail ", data
-		if "{" in data and "}" in data and ":" in data:
-			self.RDSProcess(data)
-		if not data in self.log:
-			self.log.append(data)
-		if len(self.log) > 200:
+		for line in data.splitlines():
+			if not line:
+				continue
+			if "{" in line and "}" in line and ":" in line:
+				self.RDSProcess(line)
+			if not line in self.log:
+				self.log.append(line)
+		while len(self.log) > 200:
 			self.log.pop(0)
 
 	def doConsoleStop(self):
