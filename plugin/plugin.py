@@ -13,6 +13,7 @@ from enigma import eConsoleAppContainer
 
 import json
 import time
+import binascii
 from decimal import Decimal
 from collections import OrderedDict
 
@@ -213,7 +214,7 @@ class SDGRadioScreen(Screen):
 			if "programName" in rds and "programId" in rds:
 				self.programs.append((rds["programName"].decode('utf8').encode('utf8'), rds["programId"]))
 		except Exception as e:
-			str = "[SDGRadio] RDSProcess Exception: %s" % e
+			str = "[SDGRadio] RDSProcess Exception: %s data: %s" % (e, binascii.hexlify(data))
 			self.log.append(str)
 			print str
 
