@@ -211,7 +211,7 @@ class SDGRadioScreen(Screen):
 			if "prog_type" in rds and self["prog_type"].getText() != rds["prog_type"].encode('utf8'):
 				self["prog_type"].setText(rds["prog_type"].encode('utf8'))
 			if "programName" in rds and "programId" in rds:
-				self.programs.append((rds["programName"].encode('utf8'), rds["programId"]))
+				self.programs.append((rds["programName"].decode('utf8').encode('utf8'), rds["programId"]))
 		except Exception as e:
 			str = "[SDGRadio] RDSProcess Exception: %s" % e
 			self.log.append(str)
