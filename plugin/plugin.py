@@ -213,7 +213,9 @@ class SDGRadioScreen(Screen):
 			if "programName" in rds and "programId" in rds:
 				self.programs.append((rds["programName"].encode('utf8'), rds["programId"]))
 		except Exception as e:
-			print "[SDGRadio] RDSProcess Exception: %s" % e
+			str = "[SDGRadio] RDSProcess Exception: %s" % e
+			self.log.append(str)
+			print str
 
 	def cbStderrAvail(self, data):
 		#print "[SDGRadio] cbStderrAvail ", data
