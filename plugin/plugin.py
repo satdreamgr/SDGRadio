@@ -202,7 +202,7 @@ class SDGRadioScreen(Screen):
 
 	def RDSProcess(self, data):
 		try:
-			rds = json.loads(data)
+			rds = json.loads(data.decode('utf8', 'ignore'))
 			if "ps" in rds and self.getTitle() != rds["ps"].encode('utf8'):
 				self.setTitle(rds["ps"].encode('utf8'))
 			if "radiotext" in rds and self["radiotext"].getText() != rds["radiotext"].encode('utf8'):
@@ -212,7 +212,7 @@ class SDGRadioScreen(Screen):
 			if "prog_type" in rds and self["prog_type"].getText() != rds["prog_type"].encode('utf8'):
 				self["prog_type"].setText(rds["prog_type"].encode('utf8'))
 			if "programName" in rds and "programId" in rds:
-				self.programs.append((rds["programName"].decode('utf8').encode('utf8'), rds["programId"]))
+				self.programs.append((rds["programName"].encode('utf8'), rds["programId"]))
 		except Exception as e:
 			str = "[SDGRadio] RDSProcess Exception: %s data: %s" % (e, binascii.hexlify(data))
 			self.log.append(str)
