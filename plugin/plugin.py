@@ -194,7 +194,7 @@ class SDGRadioScreen(Screen):
 		elif config.sdgradio.modulation.value == "usb":
 			cmd = "rtl_fm -f %sM -M usb -A std -s 3k -g 40 - | gst-launch-1.0 fdsrc ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=3000 ! audioresample ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=48000 ! dvbaudiosink" % freq
 		elif config.sdgradio.modulation.value == "dab":
-			cmd = "dab-rtlsdr-sdgradio -C %s -W30 -Q | gst-launch-1.0 fdsrc ! audio/x-raw, format=S16LE, channels=2, layout=interleaved, rate=48000 ! dvbaudiosink" % DAB_FREQ.get(Decimal(freq), '5A')
+			cmd = "dab-rtlsdr-sdgradio -C %s -W30 -Q | gst-launch-1.0 fdsrc ! queue ! faad ! dvbaudiosink" % DAB_FREQ.get(Decimal(freq), '5A')
 		else:
 			cmd = "rtl_fm -f %sM -M wbfm -s 200000 -r 48000 - | gst-launch-1.0 fdsrc ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=48000 ! dvbaudiosink" % freq
 		print "[SDGRadio] PlayRadio cmd: %s" % cmd
