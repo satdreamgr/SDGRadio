@@ -1,8 +1,10 @@
 from Components.AVSwitch import AVSwitch
 from Components.ActionMap import ActionMap
+from Components.ConfigList import ConfigListScreen
 from Components.Label import Label
 from Components.Pixmap import Pixmap
-from Components.config import config, ConfigSubsection, ConfigText, ConfigInteger, ConfigBoolean, ConfigSelection
+from Components.Sources.StaticText import StaticText
+from Components.config import config, ConfigSubsection, ConfigText, ConfigInteger, ConfigBoolean, ConfigSelection, getConfigListEntry
 from Plugins.Plugin import PluginDescriptor
 from Screens.ChoiceBox import ChoiceBox
 from Screens.Console import Console
@@ -45,6 +47,43 @@ except:
 
 BTN_MEM_DOWN = "/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/btn_mem_0%d_down.png"
 BTN_MEM_UP = "/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/btn_mem_0%d_up.png"
+
+class SDGRadioSetup(ConfigListScreen, Screen):
+	def __init__(self, session):
+		Screen.__init__(self, session)
+		self.session = session
+		self.skinName = ['SDGRadioSetup', 'Setup']
+		self['key_red'] = StaticText(_('Cancel'))
+		self['key_green'] = StaticText(_('Ok'))
+		self['description'] = Label('')
+		self['setupActions'] = ActionMap(['SetupActions', 'ColorActions'],
+			{
+				'cancel': self.keyCancel,
+				'red': self.keyCancel,
+				'ok': self.ok,
+				'green': self.ok
+			}, -2)
+		configlist = []
+
+		ConfigListScreen.__init__(self, configlist, session=session)
+
+		configlist.append(getConfigListEntry(_('PPM Offset:'),
+			config.sdgradio.ppmoffset,
+			_('Use PPM Offset to correct oscillator frequency. Get value using rtl_test -p or kalibrate')))
+
+		configlist.append(getConfigListEntry(_('PCM:'),
+			config.sdgradio.pcm,
+			_('Output PCM instead of AAC/MPEG when using DAB/DAB+')))
+
+		self['config'].list = configlist
+		self['config'].l.setList(configlist)
+		self.onLayoutFinish.append(self.layoutFinished)
+
+	def layoutFinished(self):
+		self.setTitle(_('SDGRadio setup'))
+
+	def ok(self):
+		self.keySave()
 
 class SDGRadioScreen(Screen):
 	skin="""
@@ -171,7 +210,8 @@ class SDGRadioScreen(Screen):
 			"prevBouquet": boundFunction(self.down, "0.0001"),
 			"nextMarker": boundFunction(self.up, "0.001"),
 			"prevMarker": boundFunction(self.down, "0.001"),
-			"menu": self.showPrograms,
+			"menu": self.showMenu,
+			"file": self.showPrograms,
 		}, -1)
 
 		self.Console = None
@@ -386,6 +426,10 @@ class SDGRadioScreen(Screen):
 		print "[SDGRadio] programAction"
 		if choice and self.Console:
 			self.Console.write("%s\n" % choice[1])
+
+	def showMenu(self):
+		print "[SDGRadio] showMenu"
+		self.session.open(SDGRadioSetup)
 
 def main(session, **kwargs):
 	session.open(SDGRadioScreen)
