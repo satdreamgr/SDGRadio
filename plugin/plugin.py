@@ -247,7 +247,7 @@ class SDGRadioScreen(Screen):
 
 	def RDSProcess(self, data):
 		try:
-			rds = json.loads(data.decode('utf8', 'ignore'))
+			rds = json.loads(data)
 			if "ps" in rds and self.getTitle() != rds["ps"].encode('utf8'):
 				self.setTitle(rds["ps"].encode('utf8'))
 			if "radiotext" in rds and self["radiotext"].getText() != rds["radiotext"].encode('utf8'):
