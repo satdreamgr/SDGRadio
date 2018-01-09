@@ -15,8 +15,8 @@ SRCREV = "${AUTOREV}"
 
 S = "${WORKDIR}/git"
 
-DEPENDS = "liquid-dsp"
+DEPENDS = "liquid-dsp virtual/libiconv"
 
-inherit autotools-brokensep
+inherit autotools-brokensep pkgconfig gettext
 
-EXTRA_OECONF += "--disable-tmc"
+EXTRA_OECONF += "--disable-tmc --without-sndfile --without-macports"
