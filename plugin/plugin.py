@@ -137,7 +137,8 @@ class SDGRadioScreen(Screen):
 	<widget name="mem_7" position="252,425" size="40,30" alphatest="on" zPosition="2" />
 	<widget name="mem_8" position="182,463" size="40,30" alphatest="on" zPosition="2" />
 	<widget name="mem_9" position="232,463" size="40,30" alphatest="on" zPosition="2" />
-	<widget name="freq" position="560,187" size="440,120" valign="center" halign="center" zPosition="2" foregroundColor="#ff1100" font="Digital;160" transparent="1" backgroundColor="#ff1100" />
+	<widget name="dab_channel" position="260,187" size="240,120" valign="center" halign="center" zPosition="2" foregroundColor="#ff1100" font="Digital;120" transparent="1" backgroundColor="#ff1100" />
+	<widget name="freq" position="560,187" size="440,120" valign="center" halign="center" zPosition="2" foregroundColor="#ff1100" font="Digital;120" transparent="1" backgroundColor="#ff1100" />
 	<widget name="prog_type" position="651,370" size="300,30" valign="center" halign="center" zPosition="2" foregroundColor="#ff1100" font="Regular;30" transparent="1" backgroundColor="#ff1100" />
 	<widget name="radiotext" position="316,460" size="590,110" valign="center" halign="center" zPosition="2" foregroundColor="#ff1100" font="Regular;24" transparent="1" backgroundColor="#ff1100" />
 	<widget source="global.CurrentTime" render="Label" position="0,0" size="0,0" halign="center" valign="center" noWrap="1" zPosition="1" foregroundColor="white" font="Digital;120" transparent="1">
@@ -154,6 +155,7 @@ class SDGRadioScreen(Screen):
 			self["mem_%d" % i] = Pixmap()
 
 		self["freq"] = Label()
+		self["dab_channel"] = Label()
 		self["radiotext"] = Label()
 		self["prog_type"] = Label()
 		self["key_red"] = Label(config.sdgradio.modulation.getText())
@@ -332,6 +334,7 @@ class SDGRadioScreen(Screen):
 			if newfreq > Decimal("1766.0"):
 				newfreq = Decimal("1766.0")
 		self["freq"].setText(str(newfreq))
+		self["dab_channel"].setText(DAB_FREQ.get(newfreq, ''))
 
 	def up(self, value):
 		self.freqChange(Decimal(value))
