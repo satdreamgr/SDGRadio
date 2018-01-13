@@ -11,8 +11,9 @@ from Screens.Console import Console
 from Screens.MessageBox import MessageBox
 from Screens.Screen import Screen
 from Tools.BoundFunction import boundFunction
-from enigma import eConsoleAppContainer
+from enigma import eConsoleAppContainer, ePicLoad
 
+import os
 import json
 import time
 import binascii
@@ -157,6 +158,7 @@ class SDGRadioScreen(Screen):
 	</widget>
 	<ePixmap pixmap="/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/key_ok.png" position="205,277" size="40,32" transparent="0" zPosition="10" alphatest="on" />
 	<eLabel name="Select" text="Select" position="151,210" size="146,22" foregroundColor="white" font="Regular; 22" zPosition="5" halign="center" />
+	<widget name="pic" position="925,435" size="200,150" halign="center" alphatest="on" backgroundColor="#20000000" zPosition="20" />
 	</screen>"""
 
 	def __init__(self, session):
@@ -174,6 +176,8 @@ class SDGRadioScreen(Screen):
 		self["key_yellow"] = Label()
 		self["key_blue"] = Label(_("Log"))
 		self["info"] = Label(_("Info"))
+
+		self["pic"] = Pixmap()
 
 		# get currently playing service
 		self.oldService = self.session.nav.getCurrentlyPlayingServiceReference()
@@ -263,6 +267,7 @@ class SDGRadioScreen(Screen):
 			rds = json.loads(data)
 			if "ps" in rds and self.getTitle() != rds["ps"].encode('utf8'):
 				self.setTitle(rds["ps"].encode('utf8'))
+				self["pic"].hide()
 			if "radiotext" in rds and self["radiotext"].getText() != rds["radiotext"].encode('utf8'):
 				self["radiotext"].setText(rds["radiotext"].encode('utf8'))
 			if "partial_radiotext" in rds and self["radiotext"].getText() != rds["partial_radiotext"].encode('utf8'):
@@ -274,6 +279,8 @@ class SDGRadioScreen(Screen):
 				self["prog_type"].setText(txt.encode('utf8'))
 			if "programName" in rds and "programId" in rds:
 				self.programs.append((rds["programName"].encode('utf8'), rds["programId"]))
+			if "mot" in rds:
+				self.showPicture(rds["mot"].encode('utf8'))
 		except Exception as e:
 			str = "[SDGRadio] RDSProcess Exception: %s data: %s" % (e, binascii.hexlify(data))
 			self.log.append(str)
@@ -445,6 +452,25 @@ class SDGRadioScreen(Screen):
 	def showMenu(self):
 		print "[SDGRadio] showMenu"
 		self.session.open(SDGRadioSetup)
+
+	def showPicture(self, image):
+		if os.path.exists(image):
+			sc = AVSwitch().getFramebufferScale()
+			self.picloads = ePicLoad()
+			self.picloads.PictureData.get().append(boundFunction(self.showPictureFinish, image))
+			self.picloads.setPara((
+				self["pic"].instance.size().width(),
+				self["pic"].instance.size().height(),
+				sc[0], sc[1], False, 1, '#00000000'))
+			self.picloads.startDecode(image)
+
+	def showPictureFinish(self, image, picInfo = None):
+		ptr = self.picloads.getData()
+		if ptr:
+			self["pic"].instance.setPixmap(ptr.__deref__())
+			self["pic"].show()
+			del self.picloads
+			os.remove(image)
 
 def main(session, **kwargs):
 	session.open(SDGRadioScreen)
