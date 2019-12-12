@@ -83,21 +83,21 @@ except:
 class SDGRadioSetup(ConfigListScreen, Screen):
 	def __init__(self, session):
 		Screen.__init__(self, session)
-		self.session = session
+		self.setTitle(_('SDGRadio setup'))
 		self.skinName = ['SDGRadioSetup', 'Setup']
 		self['key_red'] = StaticText(_('Cancel'))
 		self['key_green'] = StaticText(_('Ok'))
-		self['description'] = Label('')
-		self['setupActions'] = ActionMap(['SetupActions', 'ColorActions'],
+		self['description'] = Label('') # this is filled automatically when enigma calls setupSummary
+		self['setupActions'] = ActionMap(['OkCancelActions', 'ColorActions'],
 			{
 				'cancel': self.keyCancel,
 				'red': self.keyCancel,
-				'ok': self.ok,
-				'green': self.ok
+				'ok': self.keySave,
+				'green': self.keySave
 			}, -2)
 		configlist = []
 
-		ConfigListScreen.__init__(self, configlist, session=session)
+		ConfigListScreen.__init__(self, configlist, session)
 
 		configlist.append(getConfigListEntry(_('PPM Offset:'),
 			config.sdgradio.ppmoffset,
@@ -161,13 +161,6 @@ class SDGRadioSetup(ConfigListScreen, Screen):
 
 		self['config'].list = configlist
 		self['config'].l.setList(configlist)
-		self.onLayoutFinish.append(self.layoutFinished)
-
-	def layoutFinished(self):
-		self.setTitle(_('SDGRadio setup'))
-
-	def ok(self):
-		self.keySave()
 
 class SDGRadioScreen(Screen):
 	skin="""
