@@ -2,7 +2,7 @@ from Components.AVSwitch import AVSwitch
 from Components.ActionMap import ActionMap
 from Components.ConfigList import ConfigListScreen
 from Components.Label import Label
-from Components.Pixmap import Pixmap
+from Components.Pixmap import Pixmap, MultiPixmap
 from Components.Sources.StaticText import StaticText
 from Components.config import config, ConfigSubsection, ConfigText, ConfigInteger, ConfigBoolean, ConfigSelection, ConfigSlider, getConfigListEntry, ConfigYesNo
 from Plugins.Plugin import PluginDescriptor
@@ -21,9 +21,6 @@ import time
 import binascii
 from decimal import Decimal
 from collections import OrderedDict
-
-BTN_MEM_DOWN = "/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/btn_mem_0%d_down.png"
-BTN_MEM_UP = "/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/btn_mem_0%d_up.png"
 
 def space(text):
 	if text:
@@ -163,81 +160,46 @@ class SDGRadioSetup(ConfigListScreen, Screen):
 		self['config'].l.setList(configlist)
 
 class SDGRadioScreen(Screen):
-	skin="""
-	<screen name="SDGRadioScreen" position="center,center" size="1280,720" title="SDG Radio" backgroundColor="transparent" flags="wfNoBorder">
-	<widget source="Title" render="Label" position="230,68" size="820,50" backgroundColor="#50000000" transparent="1" zPosition="5" font="Regular; 28" valign="center" halign="center" noWrap="1" foregroundColor="#ff1100" />
-	<ePixmap pixmap="/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/fleched.png" position="145,81" size="32,32" transparent="0" zPosition="8" alphatest="on" />
-	<ePixmap pixmap="/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/flecheg.png" position="1054,81" size="32,32" transparent="0" zPosition="8" alphatest="on" />
-	<eLabel position="310,130" zPosition="-1" size="828,460" backgroundColor="transpBA" transparent="0" font="Regular; 0" foregroundColor="transparent" />
-	<ePixmap name="" pixmap="/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/logo.png" position="1098,84" size="24, 24" alphatest="blend" zPosition="10" />
-	<eLabel name="" position="140,64" size="1000,60" zPosition="-1" backgroundColor="NLPreBlack" />
-	<eLabel name="" position="140,594" size="1000,60" backgroundColor="NLPreBlack" zPosition="-1" />
-	<eLabel name="" position="140,124" size="165,471" backgroundColor="#000064c7" zPosition="0" />
-	<eLabel position="151,198" zPosition="1" size="146,310" backgroundColor="transpBA" transparent="0" />
-	<widget source="global.CurrentTime" render="Label" position="140,166" size="165,25" backgroundColor="#000064c7" transparent="1" font="Regular; 22" valign="center" halign="center" foregroundColor="white" zPosition="2">
-	<convert type="ClockToText">Format:%d-%m-%Y</convert>
-	</widget>
-	<widget source="global.CurrentTime" render="Label" position="140,133" size="165,25" backgroundColor="#000064c7" transparent="1" font="Regular; 22" valign="center" halign="center" foregroundColor="white" zPosition="2">
-	<convert type="ClockToText">Format:%A</convert>
-	</widget>
-	<widget source="global.CurrentTime" render="Label" position="140,529" size="110,40" backgroundColor="#000064c7" transparent="1" font="Regular; 32" halign="right" valign="center" zPosition="2" foregroundColor="white">
-	<convert type="ClockToText">Format:%-H:%M</convert>
-	</widget>
-	<widget source="global.CurrentTime" render="Label" position="247,533" size="45,20" font="Regular; 20" halign="left" valign="center" transparent="1" backgroundColor="#000064c7" foregroundColor="jeaune" zPosition="2">
-	<convert type="ClockToText">Format: :%S</convert>
-	</widget>
-	<eLabel name="" position="340,594" size="200,6" zPosition="0" backgroundColor="red" />
-	<eLabel name="" position="540,594" size="200,6" zPosition="1" backgroundColor="green" />
-	<eLabel name="" position="740,594" size="200,6" zPosition="2" backgroundColor="yellow" />
-	<eLabel name="" position="940,594" size="200,6" zPosition="2" backgroundColor="#000064c7" />
-	<eLabel name="" position="140,594" size="200,6" zPosition="2" backgroundColor="white" />
-	<ePixmap pixmap="/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/line1.png" position="155,205" size="135,1" scale="1" zPosition="10" alphatest="blend" />
-	<ePixmap pixmap="/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/line1.png" position="155,500" size="135,1" scale="1" zPosition="10" alphatest="blend" />
-	<widget name="key_red" position="340,600" size="200,50" backgroundColor="transpBA" zPosition="1" transparent="1" font="Regular; 22" halign="center" valign="center" foregroundColor="white" />
-	<widget name="key_green" position="540,600" size="200,50" backgroundColor="transpBA" zPosition="1" transparent="1" font="Regular; 22" halign="center" valign="center" foregroundColor="white" />
-	<widget name="key_yellow" position="740,600" size="200,50" backgroundColor="transpBA" zPosition="1" transparent="1" font="Regular; 22" halign="center" valign="center" foregroundColor="white" />
-	<widget name="key_blue" position="940,600" size="200,50" backgroundColor="transpBA" zPosition="1" transparent="1" font="Regular;22" halign="center" valign="center" foregroundColor="white" />
-	<ePixmap pixmap="/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/key_info.png" position="175,610" size="40,30" alphatest="blend" transparent="1" zPosition="1" />
-	<ePixmap pixmap="/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/key_menu.png" position="225,610" size="40,30" alphatest="blend" transparent="1" zPosition="1" />
-	<ePixmap pixmap="/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/key_pvr.png" position="275,610" size="40,30" alphatest="blend" transparent="1" zPosition="1" />
-	<ePixmap pixmap="/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/flecheg.png" position="157,277" size="40,30" alphatest="blend" transparent="1" zPosition="2" />
-	<ePixmap pixmap="/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/fleched.png" position="263,277" size="40,30" alphatest="blend" transparent="1" zPosition="2" />
-	<ePixmap pixmap="/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/flecheh.png" position="210,235" size="40,30" alphatest="blend" transparent="1" zPosition="2" />
-	<ePixmap pixmap="/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/flecheb.png" position="210,315" size="40,30" alphatest="blend" transparent="1" zPosition="2" />
-	<ePixmap pixmap="/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/radio-frequency.png" position="310,130" size="828,460" scale="1" zPosition="0" alphatest="blend" />
-	<widget name="mem_0" position="182,355" size="40,30" alphatest="on" zPosition="2" />
-	<widget name="mem_1" position="232,355" size="40,30" alphatest="on" zPosition="2" />
-	<widget name="mem_2" position="157,390" size="40,30" alphatest="on" zPosition="2" />
-	<widget name="mem_3" position="205,390" size="40,30" alphatest="on" zPosition="2" />
-	<widget name="mem_4" position="252,390" size="40,30" alphatest="on" zPosition="2" />
-	<widget name="mem_5" position="157,425" size="40,30" alphatest="on" zPosition="2" />
-	<widget name="mem_6" position="205,425" size="40,30" alphatest="on" zPosition="2" />
-	<widget name="mem_7" position="252,425" size="40,30" alphatest="on" zPosition="2" />
-	<widget name="mem_8" position="182,463" size="40,30" alphatest="on" zPosition="2" />
-	<widget name="mem_9" position="232,463" size="40,30" alphatest="on" zPosition="2" />
-	<widget name="dab_channel" position="260,187" size="240,120" valign="center" halign="center" zPosition="2" foregroundColor="#ff1100" font="Digital;120" transparent="1" backgroundColor="#ff1100" />
-	<widget name="freq" position="560,187" size="440,120" valign="center" halign="center" zPosition="2" foregroundColor="#ff1100" font="Digital;120" transparent="1" backgroundColor="#ff1100" />
-	<widget name="prog_type" position="650,370" size="300,40" valign="center" halign="center" zPosition="2" foregroundColor="#ff1100" font="Regular;30" transparent="1" backgroundColor="#ff1100" />
-	<widget name="radiotext" position="315,460" size="590,110" valign="center" halign="center" zPosition="2" foregroundColor="#ff1100" font="Regular;24" transparent="1" backgroundColor="#ff1100" />
-	<widget name="pi" position="320,140" size="150,40" valign="left" halign="center" zPosition="2" foregroundColor="#ff1100" font="Regular;28" transparent="1" backgroundColor="#ff1100" />
-	<widget name="traffic" position="500,140" size="100,40" valign="center" halign="center" zPosition="2" foregroundColor="#ff1100" font="Regular;28" transparent="1" backgroundColor="#ff1100" />
-	<widget name="af" position="600,140" size="50,40" valign="center" halign="center" zPosition="2" foregroundColor="#ff1100" font="Regular;28" transparent="1" backgroundColor="#ff1100" />
-	<widget name="eon" position="650,140" size="70,40" valign="center" halign="center" zPosition="2" foregroundColor="#ff1100" font="Regular;28" transparent="1" backgroundColor="#ff1100" />
-	<widget name="ct" position="720,140" size="50,40" valign="center" halign="center" zPosition="2" foregroundColor="#ff1100" font="Regular;28" transparent="1" backgroundColor="#ff1100" />
-	<widget name="rt+" position="770,140" size="50,40" valign="center" halign="center" zPosition="2" foregroundColor="#ff1100" font="Regular;28" transparent="1" backgroundColor="#ff1100" />
-	<widget source="global.CurrentTime" render="Label" position="0,0" size="0,0" halign="center" valign="center" noWrap="1" zPosition="1" foregroundColor="white" font="Digital;120" transparent="1">
-	<convert type="ClockToText">WithSeconds</convert>
-	</widget>
-	<ePixmap pixmap="/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/key_ok.png" position="205,277" size="40,32" transparent="0" zPosition="10" alphatest="on" />
-	<eLabel name="Select" text="Select" position="151,210" size="146,30" foregroundColor="white" font="Regular; 22" zPosition="5" halign="center" />
-	<widget name="pic" position="925,435" size="200,150" halign="center" alphatest="on" backgroundColor="#20000000" zPosition="20" />
-	</screen>"""
+	skin = """
+		<screen name="SDGRadioScreen" title="SDG radio" position="center,center" size="680,460">
+			<ePixmap pixmap="buttons/red.png" position="0,0" size="40,40" alphatest="blend"/>
+			<ePixmap pixmap="buttons/green.png" position="170,0" size="40,40" alphatest="blend"/>
+			<ePixmap pixmap="buttons/yellow.png" position="340,0" size="40,40" alphatest="blend"/>
+			<ePixmap pixmap="buttons/blue.png" position="510,0" size="40,40" alphatest="blend"/>
+			<widget source="key_red" render="Label" position="40,0" zPosition="1" size="130,40" font="Regular;20" valign="center" transparent="1"/>
+			<widget source="key_green" render="Label" position="210,0" zPosition="1" size="130,40" font="Regular;20" valign="center" transparent="1"/>
+			<widget source="key_yellow" render="Label" position="380,0" zPosition="1" size="130,40" font="Regular;20" valign="center" transparent="1"/>
+			<widget source="key_blue" render="Label" position="550,0" zPosition="1" size="130,40" font="Regular;20" valign="center" transparent="1"/>
+			<widget name="dab_channel" position="0,80" size="120,120" font="Digital;60" valign="center"/>
+			<widget name="freq" position="120,80" size="330,120" font="Digital;60" valign="center" halign="center"/>
+			<widget name="prog_type" position="0,200" size="450,40" font="Regular;24" valign="center" halign="center"/>
+			<widget name="pi" position="0,240" size="150,40" font="Regular;24" valign="center" halign="center"/>
+			<widget name="traffic" position="150,240" size="150,40" font="Regular;24" valign="center" halign="center"/>
+			<widget name="af" position="300,240" size="150,40" font="Regular;24" valign="center" halign="center"/>
+			<widget name="eon" position="0,280" size="150,40" font="Regular;24" valign="center" halign="center"/>
+			<widget name="ct" position="150,280" size="150,40" font="Regular;24" valign="center" halign="center"/>
+			<widget name="rt+" position="300,280" size="150,40" font="Regular;24" valign="center" halign="center"/>
+			<widget name="radiotext" position="0,320" size="680,80" font="Regular;24" valign="center" halign="center"/>
+			<widget name="pic" position="480,80" size="200,200" alphatest="blend"/>
+			<widget name="mem_0" pixmaps="/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/btn_mem_00_up.png,/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/btn_mem_00_down.png" position="190,420" size="40,40" alphatest="blend"/>
+			<widget name="mem_1" pixmaps="/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/btn_mem_01_up.png,/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/btn_mem_01_down.png" position="240,420" size="40,40" alphatest="blend"/>
+			<widget name="mem_2" pixmaps="/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/btn_mem_02_up.png,/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/btn_mem_02_down.png" position="290,420" size="40,40" alphatest="blend"/>
+			<widget name="mem_3" pixmaps="/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/btn_mem_03_up.png,/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/btn_mem_03_down.png" position="340,420" size="40,40" alphatest="blend"/>
+			<widget name="mem_4" pixmaps="/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/btn_mem_04_up.png,/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/btn_mem_04_down.png" position="390,420" size="40,40" alphatest="blend"/>
+			<widget name="mem_5" pixmaps="/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/btn_mem_05_up.png,/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/btn_mem_05_down.png" position="440,420" size="40,40" alphatest="blend"/>
+			<widget name="mem_6" pixmaps="/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/btn_mem_06_up.png,/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/btn_mem_06_down.png" position="490,420" size="40,40" alphatest="blend"/>
+			<widget name="mem_7" pixmaps="/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/btn_mem_07_up.png,/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/btn_mem_07_down.png" position="540,420" size="40,40" alphatest="blend"/>
+			<widget name="mem_8" pixmaps="/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/btn_mem_08_up.png,/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/btn_mem_08_down.png" position="590,420" size="40,40" alphatest="blend"/>
+			<widget name="mem_9" pixmaps="/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/btn_mem_09_up.png,/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/btn_mem_09_down.png" position="640,420" size="40,40" alphatest="blend"/>
+			<ePixmap pixmap="buttons/key_info.png" position="0,420" size="40,40" alphatest="blend"/>
+			<ePixmap pixmap="buttons/key_menu.png" position="50,420" size="40,40" alphatest="blend"/>
+		</screen>"""
 
 	def __init__(self, session):
 		Screen.__init__(self, session)
 
 		for i in range(0,10):
-			self["mem_%d" % i] = Pixmap()
+			self["mem_%d" % i] = MultiPixmap()
 
 		self["freq"] = Label()
 		self["dab_channel"] = Label()
@@ -249,11 +211,11 @@ class SDGRadioScreen(Screen):
 		self["ct"] = Label()
 		self["eon"] = Label()
 		self["rt+"] = Label()
-		self["key_red"] = Label(config.sdgradio.modulation.getText())
-		self["key_green"] = Label(_("Save"))
-		self["key_yellow"] = Label()
-		self["key_blue"] = Label(_("Log"))
-		self["info"] = Label(_("Info"))
+
+		self["key_red"] = StaticText(config.sdgradio.modulation.getText())
+		self["key_green"] = StaticText(_("Save"))
+		self["key_yellow"] = StaticText("")
+		self["key_blue"] = StaticText(_("Log"))
 
 		self["pic"] = Pixmap()
 
@@ -496,9 +458,9 @@ class SDGRadioScreen(Screen):
 			if i == number:
 				config.sdgradio.lastbutton.value = i
 				config.sdgradio.lastbutton.save()
-				self["mem_%d" % i].instance.setPixmapFromFile(BTN_MEM_DOWN % i)
+				self["mem_%d" % i].setPixmapNum(1)
 			else:
-				self["mem_%d" % i].instance.setPixmapFromFile(BTN_MEM_UP % i)
+				self["mem_%d" % i].setPixmapNum(0)
 
 	def buttonNumber(self, number):
 		print "[SDGRadio] buttonNumber %d" % number
