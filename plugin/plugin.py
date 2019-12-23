@@ -289,6 +289,7 @@ class SDGRadioScreen(Screen):
 		self.log = [] # log messages
 		self.programs = [] # DAB program list
 		self.console = None
+		self.getConfigOptions() # Load configuration
 		self.onLayoutFinish.append(self.startup)
 
 		self.oldService = self.session.nav.getCurrentlyPlayingServiceReference() # get currently playing service
@@ -305,22 +306,22 @@ class SDGRadioScreen(Screen):
 
 		if config.sdgradio.modulation.value == "fm":
 			if config.sdgradio.rds.value:
-				cmd = "rtl_fm -f %sM -M fm -l 0 -A std -s %sk -g %s -p %d %s %s %s %s %s -F 9 - | %s | gst-launch-1.0 fdsrc ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=%s000 ! audioresample ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=48000 ! dvbaudiosink" % (freq, config.sdgradio.fmbandwidth.value, config.sdgradio.fmgain.value, config.sdgradio.ppmoffset.value, self.getEdge(), self.getDc(), self.getDeemp(), self.getDirect(), self.getOffset(), self.rdsOptions(), config.sdgradio.fmbandwidth.value)
+				cmd = "rtl_fm -f %sM -M fm -l 0 -A std -s %sk -g %s -p %d %s %s %s %s %s -F 9 - | %s | gst-launch-1.0 fdsrc ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=%s000 ! audioresample ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=48000 ! dvbaudiosink" % (freq, self.fmbandwidth, self.fmgain, self.ppmoffset, self.getEdge(), self.getDc(), self.getDeemp(), self.getDirect(), self.getOffset(), self.rdsOptions(), self.fmbandwidth)
 			else:
-				cmd = "rtl_fm -f %sM -M fm -l 0 -A std -s %sk -g %s -p %d %s %s %s %s %s -F 0 - | gst-launch-1.0 fdsrc ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=%s000 ! audioresample ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=48000 ! dvbaudiosink" % (freq, config.sdgradio.fmbandwidth.value, config.sdgradio.fmgain.value, config.sdgradio.ppmoffset.value, self.getEdge(), self.getDc(), self.getDeemp(), self.getDirect(), self.getOffset(), config.sdgradio.fmbandwidth.value)
+				cmd = "rtl_fm -f %sM -M fm -l 0 -A std -s %sk -g %s -p %d %s %s %s %s %s -F 0 - | gst-launch-1.0 fdsrc ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=%s000 ! audioresample ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=48000 ! dvbaudiosink" % (freq, self.fmbandwidth, self.fmgain, self.ppmoffset, self.getEdge(), self.getDc(), self.getDeemp(), self.getDirect(), self.getOffset(), self.fmbandwidth)
 		elif config.sdgradio.modulation.value == "nfm":
-			cmd = "rtl_fm -f %sM -M fm -A std -s %sk -g %s -p %d %s %s %s %s %s - | gst-launch-1.0 fdsrc ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=%s000 ! audioresample ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=48000 ! dvbaudiosink" % (freq, config.sdgradio.bandwidth.value, config.sdgradio.gain.value, config.sdgradio.ppmoffset.value, self.getEdge(), self.getDc(), self.getDeemp(), self.getDirect(), self.getOffset(), config.sdgradio.bandwidth.value)
+			cmd = "rtl_fm -f %sM -M fm -A std -s %sk -g %s -p %d %s %s %s %s %s - | gst-launch-1.0 fdsrc ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=%s000 ! audioresample ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=48000 ! dvbaudiosink" % (freq, self.bandwidth, self.gain, self.ppmoffset, self.getEdge(), self.getDc(), self.getDeemp(), self.getDirect(), self.getOffset(), self.bandwidth)
 		elif config.sdgradio.modulation.value == "am":
-			cmd = "rtl_fm -f %sM -M am -A std -s %sk -g %s -p %d %s %s %s %s %s - | gst-launch-1.0 fdsrc ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=%s000 ! audioresample ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=48000 ! dvbaudiosink" % (freq, config.sdgradio.bandwidth.value, config.sdgradio.gain.value, config.sdgradio.ppmoffset.value, self.getEdge(), self.getDc(), self.getDeemp(), self.getDirect(), self.getOffset(), config.sdgradio.bandwidth.value)
+			cmd = "rtl_fm -f %sM -M am -A std -s %sk -g %s -p %d %s %s %s %s %s - | gst-launch-1.0 fdsrc ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=%s000 ! audioresample ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=48000 ! dvbaudiosink" % (freq, self.bandwidth, self.gain, self.ppmoffset, self.getEdge(), self.getDc(), self.getDeemp(), self.getDirect(), self.getOffset(), self.bandwidth)
 		elif config.sdgradio.modulation.value == "lsb":
-			cmd = "rtl_fm -f %sM -M lsb -A std -s %sk -g %s -p %d %s %s %s %s %s - | gst-launch-1.0 fdsrc ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=%s000 ! audioresample ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=48000 ! dvbaudiosink" % (freq, config.sdgradio.sbbandwidth.value, config.sdgradio.gain.value, config.sdgradio.ppmoffset.value, self.getEdge(), self.getDc(), self.getDeemp(), self.getDirect(), self.getOffset(), config.sdgradio.sbbandwidth.value)
+			cmd = "rtl_fm -f %sM -M lsb -A std -s %sk -g %s -p %d %s %s %s %s %s - | gst-launch-1.0 fdsrc ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=%s000 ! audioresample ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=48000 ! dvbaudiosink" % (freq, self.sbbandwidth, self.gain, self.ppmoffset, self.getEdge(), self.getDc(), self.getDeemp(), self.getDirect(), self.getOffset(), self.sbbandwidth)
 		elif config.sdgradio.modulation.value == "usb":
-			cmd = "rtl_fm -f %sM -M usb -A std -s %sk -g %s -p %d %s %s %s %s %s - | gst-launch-1.0 fdsrc ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=%s000 ! audioresample ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=48000 ! dvbaudiosink" % (freq, config.sdgradio.sbbandwidth.value, config.sdgradio.gain.value, config.sdgradio.ppmoffset.value, self.getEdge(), self.getDc(), self.getDeemp(), self.getDirect(), self.getOffset(), config.sdgradio.sbbandwidth.value)
+			cmd = "rtl_fm -f %sM -M usb -A std -s %sk -g %s -p %d %s %s %s %s %s - | gst-launch-1.0 fdsrc ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=%s000 ! audioresample ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=48000 ! dvbaudiosink" % (freq, self.sbbandwidth, self.gain, self.ppmoffset, self.getEdge(), self.getDc(), self.getDeemp(), self.getDirect(), self.getOffset(), self.sbbandwidth)
 		elif config.sdgradio.modulation.value == "dab":
-			if config.sdgradio.pcm.value:
-				cmd = "dab-rtlsdr-sdgradio-pcm -C %s -W30 -p %d %s | gst-launch-1.0 fdsrc ! audio/x-raw, format=S16LE, channels=2, layout=interleaved, rate=48000 ! dvbaudiosink" % (DAB_FREQ.get(Decimal(freq), "5A"), config.sdgradio.ppmoffset.value, self.getDabGain())
+			if self.pcm:
+				cmd = "dab-rtlsdr-sdgradio-pcm -C %s -W30 -p %d %s | gst-launch-1.0 fdsrc ! audio/x-raw, format=S16LE, channels=2, layout=interleaved, rate=48000 ! dvbaudiosink" % (DAB_FREQ.get(Decimal(freq), "5A"), self.ppmoffset, self.getDabGain())
 			else:
-				cmd = "dab-rtlsdr-sdgradio -C %s -W30 -p %d %s | gst-launch-1.0 fdsrc ! faad ! dvbaudiosink" % (DAB_FREQ.get(Decimal(freq), "5A"), config.sdgradio.ppmoffset.value, self.getDabGain())
+				cmd = "dab-rtlsdr-sdgradio -C %s -W30 -p %d %s | gst-launch-1.0 fdsrc ! faad ! dvbaudiosink" % (DAB_FREQ.get(Decimal(freq), "5A"), self.ppmoffset, self.getDabGain())
 		else:
 			cmd = "rtl_fm -f %sM -M wbfm -s 200000 -r 48000 - | gst-launch-1.0 fdsrc ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=48000 ! dvbaudiosink" % freq
 
@@ -395,32 +396,32 @@ class SDGRadioScreen(Screen):
 			print "[SDGRadio] %s" % msg
 
 	def rdsOptions(self):
-		if config.sdgradio.usepartial.value and not config.sdgradio.userbds.value:
+		if self.usepartial and not self.userbds:
 			return "redsea -e -p"
-		elif not config.sdgradio.usepartial.value and config.sdgradio.userbds.value or not config.sdgradio.usepartial.value and config.sdgradio.fmregion.value == "amer":
+		elif not self.usepartial and self.userbds or not self.usepartial and self.fmregion == "amer":
 			return "redsea -e -u"
-		elif config.sdgradio.usepartial.value and config.sdgradio.userbds.value or config.sdgradio.usepartial.value and config.sdgradio.fmregion.value == "amer":
+		elif self.usepartial and self.userbds or self.usepartial and self.fmregion == "amer":
 			return "redsea -e -p -u"
 		else:
 			return "redsea -e"
 
 	def getDabGain(self):
-		return "-G %s" % (config.sdgradio.gain.value) if config.sdgradio.gain.value != "automatic" else "-Q"
+		return "-G %s" % self.gain if self.gain != "automatic" else "-Q"
 
 	def getEdge(self):
-		return "-E edge" if config.sdgradio.edge.value is True else ""
+		return "-E edge" if self.edge is True else ""
 
 	def getDc(self):
-		return "-E dc" if config.sdgradio.dc.value is True else ""
+		return "-E dc" if self.dc is True else ""
 
 	def getDeemp(self):
-		return "-E deemp" if config.sdgradio.deemp.value is True else ""
+		return "-E deemp" if self.deemp is True else ""
 
 	def getDirect(self):
-		return "-E direct" if config.sdgradio.direct.value is True else ""
+		return "-E direct" if self.direct is True else ""
 
 	def getOffset(self):
-		return "-E offset" if config.sdgradio.offset.value is True else ""
+		return "-E offset" if self.offset is True else ""
 
 	def cbStderrAvail(self, data):
 		#print "[SDGRadio] cbStderrAvail ", data
@@ -474,27 +475,27 @@ class SDGRadioScreen(Screen):
 	def freqChange(self, value):
 		freq = self["freq"].getText()
 		newfreq = Decimal(freq) + value
-		if config.sdgradio.modulation.value == "fm" and config.sdgradio.fmregion.value == "ru":
+		if config.sdgradio.modulation.value == "fm" and self.fmregion == "ru":
 			if newfreq < Decimal("64.0"):
 				newfreq = Decimal("64.0")
 			if newfreq > Decimal("108.0"):
 				newfreq = Decimal("108.0")
-		elif config.sdgradio.modulation.value == "fm" and config.sdgradio.fmregion.value == "eu-int":
+		elif config.sdgradio.modulation.value == "fm" and self.fmregion == "eu-int":
 			if newfreq < Decimal("87.5"):
 				newfreq = Decimal("87.5")
 			if newfreq > Decimal("108.0"):
 				newfreq = Decimal("108.0")
-		elif config.sdgradio.modulation.value == "fm" and config.sdgradio.fmregion.value == "jp":
+		elif config.sdgradio.modulation.value == "fm" and self.fmregion == "jp":
 			if newfreq < Decimal("76.0"):
 				newfreq = Decimal("76.0")
 			if newfreq > Decimal("95.0"):
 				newfreq = Decimal("95.0")
-		elif config.sdgradio.modulation.value == "fm" and config.sdgradio.fmregion.value == "amer":
+		elif config.sdgradio.modulation.value == "fm" and self.fmregion == "amer":
 			if newfreq < Decimal("88.1"):
 				newfreq = Decimal("88.1")
 			if newfreq > Decimal("107.9"):
 				newfreq = Decimal("107.9")
-		elif config.sdgradio.modulation.value == "fm" and config.sdgradio.fmregion.value == "free":
+		elif config.sdgradio.modulation.value == "fm" and self.fmregion == "free":
 			if newfreq < Decimal("0.0"):
 				newfreq = Decimal("0.0")
 			if newfreq > Decimal("1766.0"):
@@ -598,8 +599,29 @@ class SDGRadioScreen(Screen):
 		if choice and self.console:
 			self.console.write("%s\n" % choice[1])
 
+	def getConfigOptions(self):
+		print "[SDG radio] Reading config options"
+		self.ppmoffset = config.sdgradio.ppmoffset.value
+		self.fmgain = config.sdgradio.fmgain.value
+		self.gain = config.sdgradio.gain.value
+		self.fmbandwidth = config.sdgradio.fmbandwidth.value
+		self.bandwidth = config.sdgradio.bandwidth.value
+		self.sbbandwidth = config.sdgradio.sbbandwidth.value
+		self.fmregion = config.sdgradio.fmregion.value
+		self.usepartial = config.sdgradio.usepartial.value
+		self.userbds = config.sdgradio.userbds.value
+		self.pcm = config.sdgradio.pcm.value
+		self.edge = config.sdgradio.edge.value
+		self.dc = config.sdgradio.dc.value
+		self.deemp = config.sdgradio.deemp.value
+		self.direct = config.sdgradio.direct.value
+		self.offset = config.sdgradio.offset.value
+
 	def showMenu(self):
-		self.session.open(SDGRadioSetup)
+		def showMenuCb(retval=True): # KeyCancel returns False, while KeySave returns None!
+			if retval is True:
+				self.getConfigOptions()
+		self.session.openWithCallback(showMenuCb, SDGRadioSetup)
 
 	def showPicture(self, image):
 		if os.path.exists(image):
