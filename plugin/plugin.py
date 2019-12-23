@@ -240,11 +240,11 @@ class SDGRadioScreen(Screen):
 		self["pic"] = Pixmap()
 
 		self["key_red"] = StaticText(config.sdgradio.modulation.getText())
-		self["key_green"] = StaticText(_("Save"))
+		#self["key_green"] = StaticText(_("Save"))
 		self["key_yellow"] = StaticText("")
 		self["key_blue"] = StaticText(_("Log"))
 
-		self["actions"] = ActionMap(["DirectionActions", "OkCancelActions", "ColorActions", "SetupActions", "MenuActions", "ChannelSelectBaseActions", "ChannelSelectEPGActions"],
+		self["actions"] = ActionMap(["SDGRadioActions"],
 		{
 			"cancel": self.cancel,
 			"ok": self.ok,
@@ -254,7 +254,7 @@ class SDGRadioScreen(Screen):
 			"file": self.showPrograms,
 
 			"red": self.red,
-			"green": self.green,
+			#"green": self.green,
 			"yellow": self.yellow,
 			"blue": self.blue,
 
@@ -268,6 +268,17 @@ class SDGRadioScreen(Screen):
 			"7": boundFunction(self.buttonNumber, 7),
 			"8": boundFunction(self.buttonNumber, 8),
 			"9": boundFunction(self.buttonNumber, 9),
+
+			"long0": boundFunction(self.storePreset, 0),
+			"long1": boundFunction(self.storePreset, 1),
+			"long2": boundFunction(self.storePreset, 2),
+			"long3": boundFunction(self.storePreset, 3),
+			"long4": boundFunction(self.storePreset, 4),
+			"long5": boundFunction(self.storePreset, 5),
+			"long6": boundFunction(self.storePreset, 6),
+			"long7": boundFunction(self.storePreset, 7),
+			"long8": boundFunction(self.storePreset, 8),
+			"long9": boundFunction(self.storePreset, 9),
 
 			"right": boundFunction(self.freqUp, "1"),
 			"left": boundFunction(self.freqDown, "1"),
@@ -284,7 +295,7 @@ class SDGRadioScreen(Screen):
 
 			"nextBouquet": boundFunction(self.freqUp, "0.0001"),
 			"prevBouquet": boundFunction(self.freqDown, "0.0001"),
-		}, -1)
+		}, -2)
 
 		self.log = [] # log messages
 		self.programs = [] # DAB program list
@@ -536,15 +547,14 @@ class SDGRadioScreen(Screen):
 		self.freqChange(Decimal(0))
 		self.yellowText()
 
-	def green(self):
+	def storePreset(self, number):
 		freq = self["freq"].getText()
-		lastbutton = config.sdgradio.lastbutton.value
-		if lastbutton >= 0 and lastbutton <= 9:
-			current_config = eval("config.sdgradio.%s" % chr(97 + lastbutton))
-			current_config.value = freq
-			current_config.save()
-		self.buttonSelect(lastbutton, freq)
-		self.session.open(MessageBox, _("Save"), MessageBox.TYPE_INFO, timeout=5, close_on_any_key=True)
+		preset = eval("config.sdgradio.%s" % chr(97 + number))
+		preset.value = freq
+		preset.save()
+		self.buttonSelect(number, freq)
+		msg = _("Selected frequency of %s MHz successfuly stored to memory preset %d.") % (freq, number)
+		self.session.open(MessageBox, msg, MessageBox.TYPE_INFO, timeout=5, close_on_any_key=True)
 
 	def startup(self):
 		self.yellowText()
