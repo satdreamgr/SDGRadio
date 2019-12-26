@@ -57,12 +57,9 @@ choicelist = [("automatic", _("auto"))]
 for i in range(0, 51): # 0 to 50
 	choicelist.append((str(i)))
 config.plugins.SDGRadio.gain = ConfigSelection(default="50", choices=choicelist)
-config.plugins.SDGRadio.bandwidth = ConfigSelectionNumber(1, 32, 1, 20)
 config.plugins.SDGRadio.fmbandwidth = ConfigSelectionNumber(50, 180, 1, 171)
+config.plugins.SDGRadio.bandwidth = ConfigSelectionNumber(1, 32, 1, 20)
 config.plugins.SDGRadio.sbbandwidth = ConfigSelectionNumber(1, 16, 1, 5)
-config.plugins.SDGRadio.pcm = ConfigYesNo(default=False)
-config.plugins.SDGRadio.usepartial = ConfigYesNo(default=False)
-config.plugins.SDGRadio.userbds = ConfigYesNo(default=False)
 config.plugins.SDGRadio.fmregion = ConfigSelection(default="eu-int", choices=[
 	("eu-int", _("Europe/World")),
 	("amer", _("America")),
@@ -70,6 +67,9 @@ config.plugins.SDGRadio.fmregion = ConfigSelection(default="eu-int", choices=[
 	("jp", _("Japan")),
 	("free", _("free tuning"))
 ])
+config.plugins.SDGRadio.usepartial = ConfigYesNo(default=False)
+config.plugins.SDGRadio.userbds = ConfigYesNo(default=False)
+config.plugins.SDGRadio.pcm = ConfigYesNo(default=False)
 config.plugins.SDGRadio.edge = ConfigYesNo(default=False)
 config.plugins.SDGRadio.dc = ConfigYesNo(default=False)
 config.plugins.SDGRadio.deemp = ConfigYesNo(default=False)
