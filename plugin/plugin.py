@@ -206,16 +206,16 @@ class SDGRadioScreen(Screen):
 			<widget name="rt+" position="300,280" size="150,40" font="Regular;24" valign="center" halign="center"/>
 			<widget name="radiotext" position="0,320" size="680,80" font="Regular;24" valign="center" halign="center"/>
 			<widget name="pic" position="480,80" size="200,200" alphatest="blend"/>
-			<widget name="mem_0" pixmaps="/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/mem_0_empty.png,/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/mem_0_stored.png,/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/mem_0_selected.png" position="190,420" size="40,40" alphatest="blend"/>
-			<widget name="mem_1" pixmaps="/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/mem_1_empty.png,/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/mem_1_stored.png,/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/mem_1_selected.png" position="240,420" size="40,40" alphatest="blend"/>
-			<widget name="mem_2" pixmaps="/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/mem_2_empty.png,/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/mem_2_stored.png,/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/mem_2_selected.png" position="290,420" size="40,40" alphatest="blend"/>
-			<widget name="mem_3" pixmaps="/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/mem_3_empty.png,/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/mem_3_stored.png,/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/mem_3_selected.png" position="340,420" size="40,40" alphatest="blend"/>
-			<widget name="mem_4" pixmaps="/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/mem_4_empty.png,/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/mem_4_stored.png,/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/mem_4_selected.png" position="390,420" size="40,40" alphatest="blend"/>
-			<widget name="mem_5" pixmaps="/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/mem_5_empty.png,/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/mem_5_stored.png,/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/mem_5_selected.png" position="440,420" size="40,40" alphatest="blend"/>
-			<widget name="mem_6" pixmaps="/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/mem_6_empty.png,/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/mem_6_stored.png,/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/mem_6_selected.png" position="490,420" size="40,40" alphatest="blend"/>
-			<widget name="mem_7" pixmaps="/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/mem_7_empty.png,/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/mem_7_stored.png,/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/mem_7_selected.png" position="540,420" size="40,40" alphatest="blend"/>
-			<widget name="mem_8" pixmaps="/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/mem_8_empty.png,/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/mem_8_stored.png,/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/mem_8_selected.png" position="590,420" size="40,40" alphatest="blend"/>
-			<widget name="mem_9" pixmaps="/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/mem_9_empty.png,/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/mem_9_stored.png,/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/mem_9_selected.png" position="640,420" size="40,40" alphatest="blend"/>
+			<widget name="mem_0" pixmaps="~/img/mem_0_empty.png,~/img/mem_0_stored.png,~/img/mem_0_selected.png" position="190,420" size="40,40" alphatest="blend"/>
+			<widget name="mem_1" pixmaps="~/img/mem_1_empty.png,~/img/mem_1_stored.png,~/img/mem_1_selected.png" position="240,420" size="40,40" alphatest="blend"/>
+			<widget name="mem_2" pixmaps="~/img/mem_2_empty.png,~/img/mem_2_stored.png,~/img/mem_2_selected.png" position="290,420" size="40,40" alphatest="blend"/>
+			<widget name="mem_3" pixmaps="~/img/mem_3_empty.png,~/img/mem_3_stored.png,~/img/mem_3_selected.png" position="340,420" size="40,40" alphatest="blend"/>
+			<widget name="mem_4" pixmaps="~/img/mem_4_empty.png,~/img/mem_4_stored.png,~/img/mem_4_selected.png" position="390,420" size="40,40" alphatest="blend"/>
+			<widget name="mem_5" pixmaps="~/img/mem_5_empty.png,~/img/mem_5_stored.png,~/img/mem_5_selected.png" position="440,420" size="40,40" alphatest="blend"/>
+			<widget name="mem_6" pixmaps="~/img/mem_6_empty.png,~/img/mem_6_stored.png,~/img/mem_6_selected.png" position="490,420" size="40,40" alphatest="blend"/>
+			<widget name="mem_7" pixmaps="~/img/mem_7_empty.png,~/img/mem_7_stored.png,~/img/mem_7_selected.png" position="540,420" size="40,40" alphatest="blend"/>
+			<widget name="mem_8" pixmaps="~/img/mem_8_empty.png,~/img/mem_8_stored.png,~/img/mem_8_selected.png" position="590,420" size="40,40" alphatest="blend"/>
+			<widget name="mem_9" pixmaps="~/img/mem_9_empty.png,~/img/mem_9_stored.png,~/img/mem_9_selected.png" position="640,420" size="40,40" alphatest="blend"/>
 			<ePixmap pixmap="buttons/key_info.png" position="0,420" size="40,40" alphatest="blend"/>
 			<ePixmap pixmap="buttons/key_menu.png" position="50,420" size="40,40" alphatest="blend"/>
 		</screen>"""
@@ -232,6 +232,7 @@ class SDGRadioScreen(Screen):
 
 		Screen.__init__(self, session)
 		self.setTitle(_("SDG radio"))
+		self.skin_path = resolveFilename(SCOPE_PLUGINS, "Extensions/SDGRadio")
 
 		for i in range(0, 10):
 			self["mem_%d" % i] = MultiPixmap()
