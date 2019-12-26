@@ -1,6 +1,6 @@
 from Components.ActionMap import ActionMap
 from Components.AVSwitch import AVSwitch
-from Components.config import config, getConfigListEntry, ConfigSubsection, ConfigText, ConfigInteger, ConfigSelection, ConfigSlider, ConfigYesNo
+from Components.config import config, getConfigListEntry, ConfigSubsection, ConfigText, ConfigSelection, ConfigSlider, ConfigYesNo
 from Components.ConfigList import ConfigListScreen
 from Components.Label import Label
 from Components.Pixmap import Pixmap, MultiPixmap
@@ -41,18 +41,18 @@ class ConfigTextSlider(ConfigSlider):
 
 
 config.sdgradio = ConfigSubsection()
-config.sdgradio.last = ConfigText(default="87.5")
-config.sdgradio.lastbutton = ConfigInteger(default=0, limits=(0, 9))
-config.sdgradio.a = ConfigText(default="87.5")
-config.sdgradio.b = ConfigText(default="88.0")
-config.sdgradio.c = ConfigText(default="90.0")
-config.sdgradio.d = ConfigText(default="92.0")
-config.sdgradio.e = ConfigText(default="94.0")
-config.sdgradio.f = ConfigText(default="98.0")
-config.sdgradio.g = ConfigText(default="100.0")
-config.sdgradio.h = ConfigText(default="102.0")
-config.sdgradio.i = ConfigText(default="107.0")
-config.sdgradio.j = ConfigText(default="108.0")
+config.sdgradio.frequency_fm = ConfigText(default="87.5")
+config.sdgradio.frequency_nfm = ConfigText(default="87.5")
+config.sdgradio.frequency_am = ConfigText(default="0.53")
+config.sdgradio.frequency_lsb = ConfigText(default="0.53")
+config.sdgradio.frequency_usb = ConfigText(default="0.53")
+config.sdgradio.frequency_dab = ConfigText(default="174.928")
+config.sdgradio.presets_fm = ConfigText(default="0,0,0,0,0,0,0,0,0,0")
+config.sdgradio.presets_nfm = ConfigText(default="0,0,0,0,0,0,0,0,0,0")
+config.sdgradio.presets_am = ConfigText(default="0,0,0,0,0,0,0,0,0,0")
+config.sdgradio.presets_lsb = ConfigText(default="0,0,0,0,0,0,0,0,0,0")
+config.sdgradio.presets_usb = ConfigText(default="0,0,0,0,0,0,0,0,0,0")
+config.sdgradio.presets_dab = ConfigText(default="0,0,0,0,0,0,0,0,0,0")
 config.sdgradio.rds = ConfigYesNo(default=False)
 config.sdgradio.modulation = ConfigSelection(default="fm", choices=[
 	("fm", _("FM")),
@@ -196,8 +196,7 @@ class SDGRadioScreen(Screen):
 			<widget source="key_green" render="Label" position="210,0" zPosition="1" size="130,40" font="Regular;20" valign="center" transparent="1"/>
 			<widget source="key_yellow" render="Label" position="380,0" zPosition="1" size="130,40" font="Regular;20" valign="center" transparent="1"/>
 			<widget source="key_blue" render="Label" position="550,0" zPosition="1" size="130,40" font="Regular;20" valign="center" transparent="1"/>
-			<widget name="dab_channel" position="0,80" size="120,120" font="Digital;60" valign="center"/>
-			<widget name="freq" position="120,80" size="330,120" font="Digital;60" valign="center" halign="center"/>
+			<widget name="freq" position="0,80" size="450,120" font="Digital;60" valign="center" halign="center"/>
 			<widget name="prog_type" position="0,200" size="450,40" font="Regular;24" valign="center" halign="center"/>
 			<widget name="pi" position="0,240" size="150,40" font="Regular;24" valign="center" halign="center"/>
 			<widget name="traffic" position="150,240" size="150,40" font="Regular;24" valign="center" halign="center"/>
@@ -207,28 +206,34 @@ class SDGRadioScreen(Screen):
 			<widget name="rt+" position="300,280" size="150,40" font="Regular;24" valign="center" halign="center"/>
 			<widget name="radiotext" position="0,320" size="680,80" font="Regular;24" valign="center" halign="center"/>
 			<widget name="pic" position="480,80" size="200,200" alphatest="blend"/>
-			<widget name="mem_0" pixmaps="/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/btn_mem_00_up.png,/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/btn_mem_00_down.png" position="190,420" size="40,40" alphatest="blend"/>
-			<widget name="mem_1" pixmaps="/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/btn_mem_01_up.png,/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/btn_mem_01_down.png" position="240,420" size="40,40" alphatest="blend"/>
-			<widget name="mem_2" pixmaps="/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/btn_mem_02_up.png,/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/btn_mem_02_down.png" position="290,420" size="40,40" alphatest="blend"/>
-			<widget name="mem_3" pixmaps="/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/btn_mem_03_up.png,/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/btn_mem_03_down.png" position="340,420" size="40,40" alphatest="blend"/>
-			<widget name="mem_4" pixmaps="/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/btn_mem_04_up.png,/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/btn_mem_04_down.png" position="390,420" size="40,40" alphatest="blend"/>
-			<widget name="mem_5" pixmaps="/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/btn_mem_05_up.png,/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/btn_mem_05_down.png" position="440,420" size="40,40" alphatest="blend"/>
-			<widget name="mem_6" pixmaps="/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/btn_mem_06_up.png,/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/btn_mem_06_down.png" position="490,420" size="40,40" alphatest="blend"/>
-			<widget name="mem_7" pixmaps="/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/btn_mem_07_up.png,/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/btn_mem_07_down.png" position="540,420" size="40,40" alphatest="blend"/>
-			<widget name="mem_8" pixmaps="/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/btn_mem_08_up.png,/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/btn_mem_08_down.png" position="590,420" size="40,40" alphatest="blend"/>
-			<widget name="mem_9" pixmaps="/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/btn_mem_09_up.png,/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/btn_mem_09_down.png" position="640,420" size="40,40" alphatest="blend"/>
+			<widget name="mem_0" pixmaps="/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/mem_0_empty.png,/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/mem_0_stored.png,/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/mem_0_selected.png" position="190,420" size="40,40" alphatest="blend"/>
+			<widget name="mem_1" pixmaps="/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/mem_1_empty.png,/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/mem_1_stored.png,/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/mem_1_selected.png" position="240,420" size="40,40" alphatest="blend"/>
+			<widget name="mem_2" pixmaps="/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/mem_2_empty.png,/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/mem_2_stored.png,/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/mem_2_selected.png" position="290,420" size="40,40" alphatest="blend"/>
+			<widget name="mem_3" pixmaps="/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/mem_3_empty.png,/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/mem_3_stored.png,/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/mem_3_selected.png" position="340,420" size="40,40" alphatest="blend"/>
+			<widget name="mem_4" pixmaps="/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/mem_4_empty.png,/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/mem_4_stored.png,/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/mem_4_selected.png" position="390,420" size="40,40" alphatest="blend"/>
+			<widget name="mem_5" pixmaps="/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/mem_5_empty.png,/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/mem_5_stored.png,/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/mem_5_selected.png" position="440,420" size="40,40" alphatest="blend"/>
+			<widget name="mem_6" pixmaps="/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/mem_6_empty.png,/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/mem_6_stored.png,/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/mem_6_selected.png" position="490,420" size="40,40" alphatest="blend"/>
+			<widget name="mem_7" pixmaps="/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/mem_7_empty.png,/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/mem_7_stored.png,/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/mem_7_selected.png" position="540,420" size="40,40" alphatest="blend"/>
+			<widget name="mem_8" pixmaps="/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/mem_8_empty.png,/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/mem_8_stored.png,/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/mem_8_selected.png" position="590,420" size="40,40" alphatest="blend"/>
+			<widget name="mem_9" pixmaps="/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/mem_9_empty.png,/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/mem_9_stored.png,/usr/lib/enigma2/python/Plugins/Extensions/SDGRadio/img/mem_9_selected.png" position="640,420" size="40,40" alphatest="blend"/>
 			<ePixmap pixmap="buttons/key_info.png" position="0,420" size="40,40" alphatest="blend"/>
 			<ePixmap pixmap="buttons/key_menu.png" position="50,420" size="40,40" alphatest="blend"/>
 		</screen>"""
 
 	def __init__(self, session):
+		self.modulation = config.sdgradio.modulation
+		self.frequency = eval("config.sdgradio.frequency_%s" % self.modulation.value)
+		self.lastSelectedFrequency = None # last frequency used for playback
+		self.lastSelectedPreset = None # last preset used for playback
+		self.presets = [] # preset list for current modulation
+
 		Screen.__init__(self, session)
+		self.setTitle(_("SDG radio"))
 
 		for i in range(0, 10):
 			self["mem_%d" % i] = MultiPixmap()
 
 		self["freq"] = Label()
-		self["dab_channel"] = Label()
 		self["radiotext"] = Label()
 		self["prog_type"] = Label()
 		self["pi"] = Label()
@@ -239,35 +244,35 @@ class SDGRadioScreen(Screen):
 		self["rt+"] = Label()
 		self["pic"] = Pixmap()
 
-		self["key_red"] = StaticText(config.sdgradio.modulation.getText())
-		#self["key_green"] = StaticText(_("Save"))
+		self["key_red"] = StaticText(self.modulation.getText())
+		self["key_green"] = StaticText(_("Play"))
 		self["key_yellow"] = StaticText("")
 		self["key_blue"] = StaticText(_("Log"))
 
 		self["actions"] = ActionMap(["SDGRadioActions"],
 		{
 			"cancel": self.cancel,
-			"ok": self.ok,
+			"ok": self.selectFreq,
 
 			"info": self.info,
 			"menu": self.showMenu,
 			"file": self.showPrograms,
 
-			"red": self.red,
-			#"green": self.green,
+			"red": self.toggleModulation,
+			"green": self.togglePlayback,
 			"yellow": self.yellow,
 			"blue": self.blue,
 
-			"0": boundFunction(self.buttonNumber, 0),
-			"1": boundFunction(self.buttonNumber, 1),
-			"2": boundFunction(self.buttonNumber, 2),
-			"3": boundFunction(self.buttonNumber, 3),
-			"4": boundFunction(self.buttonNumber, 4),
-			"5": boundFunction(self.buttonNumber, 5),
-			"6": boundFunction(self.buttonNumber, 6),
-			"7": boundFunction(self.buttonNumber, 7),
-			"8": boundFunction(self.buttonNumber, 8),
-			"9": boundFunction(self.buttonNumber, 9),
+			"0": boundFunction(self.selectPreset, 0),
+			"1": boundFunction(self.selectPreset, 1),
+			"2": boundFunction(self.selectPreset, 2),
+			"3": boundFunction(self.selectPreset, 3),
+			"4": boundFunction(self.selectPreset, 4),
+			"5": boundFunction(self.selectPreset, 5),
+			"6": boundFunction(self.selectPreset, 6),
+			"7": boundFunction(self.selectPreset, 7),
+			"8": boundFunction(self.selectPreset, 8),
+			"9": boundFunction(self.selectPreset, 9),
 
 			"long0": boundFunction(self.storePreset, 0),
 			"long1": boundFunction(self.storePreset, 1),
@@ -301,40 +306,77 @@ class SDGRadioScreen(Screen):
 		self.programs = [] # DAB program list
 		self.console = None
 		self.getConfigOptions() # Load configuration
-		self.onLayoutFinish.append(self.startup)
+		self.getPresets() # Load memory presets
+		self.onLayoutFinish.extend([self.updateFreq, self.yellowText])
 
 		self.oldService = self.session.nav.getCurrentlyPlayingServiceReference() # get currently playing service
 		self.session.nav.stopService() # stop currently playing service
 		eConsoleAppContainer().execute("showiframe /usr/share/enigma2/radio.mvi") # display radio mvi
 		#self.Scale = AVSwitch().getFramebufferScale()
 
-	def playRadio(self, freq):
+	def updateScreen(self, play=False):
+		self["radiotext"].setText("")
+		self["prog_type"].setText("")
+		self["pi"].setText("")
+		self["traffic"].setText("")
+		self["af"].setText("")
+		self["ct"].setText("")
+		self["eon"].setText("")
+		self["rt+"].setText("")
+		if play is False:
+			self["key_green"].setText(_("Play"))
+			self.setTitle(_("SDG radio"))
+			if self.lastSelectedPreset:
+				self["mem_%d" % self.lastSelectedPreset].setPixmapNum(1) # preset stored
+		else:
+			self["key_green"].setText(_("Stop"))
+			self.setTitle(_("SDG radio %s") % self["freq"].getText())
+
+	def updateFreq(self):
+		if self.modulation.value in ("am", "lsb", "usb"):
+			freq = str(Decimal(self.frequency.value) * 1000)
+			units = "KHz"
+		else:
+			freq = self.frequency.value
+			units = "MHz"
+		dab = DAB_FREQ.get(Decimal(self.frequency.value), "") if self.modulation.value == "dab" else ""
+		txt = "  ".join(filter(None, (dab, freq, units)))
+		self["freq"].setText(txt)
+
+	def stopRadio(self):
 		self.doConsoleStop()
+		self.updateScreen(False)
+		self.lastSelectedFrequency = None
+		self.lastSelectedPreset = None
+
+	def playRadio(self):
+		self.doConsoleStop()
+		self.updateScreen(True)
 		time.sleep(0.3)
 		self.console = eConsoleAppContainer()
 		self.console.stderrAvail.append(self.cbStderrAvail)
 		#self.console.appClosed.append(self.cbAppClosed)
 
-		if config.sdgradio.modulation.value == "fm":
+		if self.modulation.value == "fm":
 			if config.sdgradio.rds.value:
-				cmd = "rtl_fm -f %sM -M fm -l 0 -A std -s %sk -g %s -p %d %s %s %s %s %s -F 9 - | %s | gst-launch-1.0 fdsrc ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=%s000 ! audioresample ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=48000 ! dvbaudiosink" % (freq, self.fmbandwidth, self.fmgain, self.ppmoffset, self.getEdge(), self.getDc(), self.getDeemp(), self.getDirect(), self.getOffset(), self.rdsOptions(), self.fmbandwidth)
+				cmd = "rtl_fm -f %sM -M fm -l 0 -A std -s %sk -g %s -p %d %s %s %s %s %s -F 9 - | %s | gst-launch-1.0 fdsrc ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=%s000 ! audioresample ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=48000 ! dvbaudiosink" % (self.frequency.value, self.fmbandwidth, self.fmgain, self.ppmoffset, self.getEdge(), self.getDc(), self.getDeemp(), self.getDirect(), self.getOffset(), self.rdsOptions(), self.fmbandwidth)
 			else:
-				cmd = "rtl_fm -f %sM -M fm -l 0 -A std -s %sk -g %s -p %d %s %s %s %s %s -F 0 - | gst-launch-1.0 fdsrc ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=%s000 ! audioresample ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=48000 ! dvbaudiosink" % (freq, self.fmbandwidth, self.fmgain, self.ppmoffset, self.getEdge(), self.getDc(), self.getDeemp(), self.getDirect(), self.getOffset(), self.fmbandwidth)
-		elif config.sdgradio.modulation.value == "nfm":
-			cmd = "rtl_fm -f %sM -M fm -A std -s %sk -g %s -p %d %s %s %s %s %s - | gst-launch-1.0 fdsrc ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=%s000 ! audioresample ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=48000 ! dvbaudiosink" % (freq, self.bandwidth, self.gain, self.ppmoffset, self.getEdge(), self.getDc(), self.getDeemp(), self.getDirect(), self.getOffset(), self.bandwidth)
-		elif config.sdgradio.modulation.value == "am":
-			cmd = "rtl_fm -f %sM -M am -A std -s %sk -g %s -p %d %s %s %s %s %s - | gst-launch-1.0 fdsrc ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=%s000 ! audioresample ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=48000 ! dvbaudiosink" % (freq, self.bandwidth, self.gain, self.ppmoffset, self.getEdge(), self.getDc(), self.getDeemp(), self.getDirect(), self.getOffset(), self.bandwidth)
-		elif config.sdgradio.modulation.value == "lsb":
-			cmd = "rtl_fm -f %sM -M lsb -A std -s %sk -g %s -p %d %s %s %s %s %s - | gst-launch-1.0 fdsrc ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=%s000 ! audioresample ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=48000 ! dvbaudiosink" % (freq, self.sbbandwidth, self.gain, self.ppmoffset, self.getEdge(), self.getDc(), self.getDeemp(), self.getDirect(), self.getOffset(), self.sbbandwidth)
-		elif config.sdgradio.modulation.value == "usb":
-			cmd = "rtl_fm -f %sM -M usb -A std -s %sk -g %s -p %d %s %s %s %s %s - | gst-launch-1.0 fdsrc ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=%s000 ! audioresample ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=48000 ! dvbaudiosink" % (freq, self.sbbandwidth, self.gain, self.ppmoffset, self.getEdge(), self.getDc(), self.getDeemp(), self.getDirect(), self.getOffset(), self.sbbandwidth)
-		elif config.sdgradio.modulation.value == "dab":
+				cmd = "rtl_fm -f %sM -M fm -l 0 -A std -s %sk -g %s -p %d %s %s %s %s %s -F 0 - | gst-launch-1.0 fdsrc ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=%s000 ! audioresample ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=48000 ! dvbaudiosink" % (self.frequency.value, self.fmbandwidth, self.fmgain, self.ppmoffset, self.getEdge(), self.getDc(), self.getDeemp(), self.getDirect(), self.getOffset(), self.fmbandwidth)
+		elif self.modulation.value == "nfm":
+			cmd = "rtl_fm -f %sM -M fm -A std -s %sk -g %s -p %d %s %s %s %s %s - | gst-launch-1.0 fdsrc ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=%s000 ! audioresample ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=48000 ! dvbaudiosink" % (self.frequency.value, self.bandwidth, self.gain, self.ppmoffset, self.getEdge(), self.getDc(), self.getDeemp(), self.getDirect(), self.getOffset(), self.bandwidth)
+		elif self.modulation.value == "am":
+			cmd = "rtl_fm -f %sM -M am -A std -s %sk -g %s -p %d %s %s %s %s %s - | gst-launch-1.0 fdsrc ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=%s000 ! audioresample ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=48000 ! dvbaudiosink" % (self.frequency.value, self.bandwidth, self.gain, self.ppmoffset, self.getEdge(), self.getDc(), self.getDeemp(), self.getDirect(), self.getOffset(), self.bandwidth)
+		elif self.modulation.value == "lsb":
+			cmd = "rtl_fm -f %sM -M lsb -A std -s %sk -g %s -p %d %s %s %s %s %s - | gst-launch-1.0 fdsrc ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=%s000 ! audioresample ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=48000 ! dvbaudiosink" % (self.frequency.value, self.sbbandwidth, self.gain, self.ppmoffset, self.getEdge(), self.getDc(), self.getDeemp(), self.getDirect(), self.getOffset(), self.sbbandwidth)
+		elif self.modulation.value == "usb":
+			cmd = "rtl_fm -f %sM -M usb -A std -s %sk -g %s -p %d %s %s %s %s %s - | gst-launch-1.0 fdsrc ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=%s000 ! audioresample ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=48000 ! dvbaudiosink" % (self.frequency.value, self.sbbandwidth, self.gain, self.ppmoffset, self.getEdge(), self.getDc(), self.getDeemp(), self.getDirect(), self.getOffset(), self.sbbandwidth)
+		elif self.modulation.value == "dab":
 			if self.pcm:
-				cmd = "dab-rtlsdr-sdgradio-pcm -C %s -W30 -p %d %s | gst-launch-1.0 fdsrc ! audio/x-raw, format=S16LE, channels=2, layout=interleaved, rate=48000 ! dvbaudiosink" % (DAB_FREQ.get(Decimal(freq), "5A"), self.ppmoffset, self.getDabGain())
+				cmd = "dab-rtlsdr-sdgradio-pcm -C %s -W30 -p %d %s | gst-launch-1.0 fdsrc ! audio/x-raw, format=S16LE, channels=2, layout=interleaved, rate=48000 ! dvbaudiosink" % (DAB_FREQ.get(Decimal(self.frequency.value), "5A"), self.ppmoffset, self.getDabGain())
 			else:
-				cmd = "dab-rtlsdr-sdgradio -C %s -W30 -p %d %s | gst-launch-1.0 fdsrc ! faad ! dvbaudiosink" % (DAB_FREQ.get(Decimal(freq), "5A"), self.ppmoffset, self.getDabGain())
+				cmd = "dab-rtlsdr-sdgradio -C %s -W30 -p %d %s | gst-launch-1.0 fdsrc ! faad ! dvbaudiosink" % (DAB_FREQ.get(Decimal(self.frequency.value), "5A"), self.ppmoffset, self.getDabGain())
 		else:
-			cmd = "rtl_fm -f %sM -M wbfm -s 200000 -r 48000 - | gst-launch-1.0 fdsrc ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=48000 ! dvbaudiosink" % freq
+			cmd = "rtl_fm -f %sM -M wbfm -s 200000 -r 48000 - | gst-launch-1.0 fdsrc ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=48000 ! dvbaudiosink" % self.frequency.value
 
 		print "[SDGRadio] playRadio cmd: %s" % cmd
 		self.console.execute(cmd)
@@ -456,62 +498,35 @@ class SDGRadioScreen(Screen):
 			self.log = []
 			self.programs = []
 
-	def buttonSelect(self, number, freq):
-		self["freq"].setText(freq)
-		self.freqChange(Decimal(0))
-		self["radiotext"].setText("")
-		self["prog_type"].setText("")
-		self["pi"].setText("")
-		self["traffic"].setText("")
-		self["af"].setText("")
-		self["ct"].setText("")
-		self["eon"].setText("")
-		self["rt+"].setText("")
-		self.setTitle("SDG Radio %s" % freq)
-		self.playRadio(freq)
-		config.sdgradio.last.value = freq
-		config.sdgradio.last.save()
-		for i in range(0, 10):
-			if i == number:
-				config.sdgradio.lastbutton.value = i
-				config.sdgradio.lastbutton.save()
-				self["mem_%d" % i].setPixmapNum(1)
-			else:
-				self["mem_%d" % i].setPixmapNum(0)
-
-	def buttonNumber(self, number):
-		freq = eval("config.sdgradio.%s.value" % chr(97 + number))
-		self.buttonSelect(number, freq)
-
 	def freqChange(self, value):
-		freq = self["freq"].getText()
+		freq = self.frequency.value
 		newfreq = Decimal(freq) + value
-		if config.sdgradio.modulation.value == "fm" and self.fmregion == "ru":
+		if self.modulation.value == "fm" and self.fmregion == "ru":
 			if newfreq < Decimal("64.0"):
 				newfreq = Decimal("64.0")
 			if newfreq > Decimal("108.0"):
 				newfreq = Decimal("108.0")
-		elif config.sdgradio.modulation.value == "fm" and self.fmregion == "eu-int":
+		elif self.modulation.value == "fm" and self.fmregion == "eu-int":
 			if newfreq < Decimal("87.5"):
 				newfreq = Decimal("87.5")
 			if newfreq > Decimal("108.0"):
 				newfreq = Decimal("108.0")
-		elif config.sdgradio.modulation.value == "fm" and self.fmregion == "jp":
+		elif self.modulation.value == "fm" and self.fmregion == "jp":
 			if newfreq < Decimal("76.0"):
 				newfreq = Decimal("76.0")
 			if newfreq > Decimal("95.0"):
 				newfreq = Decimal("95.0")
-		elif config.sdgradio.modulation.value == "fm" and self.fmregion == "amer":
+		elif self.modulation.value == "fm" and self.fmregion == "amer":
 			if newfreq < Decimal("88.1"):
 				newfreq = Decimal("88.1")
 			if newfreq > Decimal("107.9"):
 				newfreq = Decimal("107.9")
-		elif config.sdgradio.modulation.value == "fm" and self.fmregion == "free":
+		elif self.modulation.value == "fm" and self.fmregion == "free":
 			if newfreq < Decimal("0.0"):
 				newfreq = Decimal("0.0")
 			if newfreq > Decimal("1766.0"):
 				newfreq = Decimal("1766.0")
-		elif config.sdgradio.modulation.value == "dab":
+		elif self.modulation.value == "dab":
 			if newfreq < Decimal("174.928"):
 				newfreq = Decimal("174.928")
 			if newfreq > Decimal("239.2"):
@@ -525,8 +540,9 @@ class SDGRadioScreen(Screen):
 				newfreq = Decimal("0.0")
 			if newfreq > Decimal("1766.0"):
 				newfreq = Decimal("1766.0")
-		self["freq"].setText(str(newfreq))
-		self["dab_channel"].setText(DAB_FREQ.get(newfreq, ""))
+		self.frequency.value = str(newfreq)
+		self.frequency.save()
+		self.updateFreq()
 
 	def freqUp(self, value):
 		self.freqChange(Decimal(value))
@@ -534,62 +550,101 @@ class SDGRadioScreen(Screen):
 	def freqDown(self, value):
 		self.freqChange(-Decimal(value))
 
-	def ok(self):
-		freq = self["freq"].getText()
-		lastfreq = config.sdgradio.last.value
-		if Decimal(freq) != Decimal(lastfreq):
-			self.buttonSelect(config.sdgradio.lastbutton.value, freq)
+	def selectFreq(self):
+		if self.frequency.value != self.lastSelectedFrequency:
+			selPreset = self.lastSelectedPreset
+			if selPreset:
+				self["mem_%d" % selPreset].setPixmapNum(1) # preset stored
+			self.lastSelectedFrequency = self.frequency.value
+			self.lastSelectedPreset = None
+			self.playRadio()
 
-	def red(self):
-		config.sdgradio.modulation.selectNext()
-		config.sdgradio.modulation.save()
-		self["key_red"].setText(config.sdgradio.modulation.getText())
-		self.freqChange(Decimal(0))
+	def toggleModulation(self):
+		self.stopRadio()
+		self.savePresets()
+		self.modulation.selectNext()
+		self.modulation.save()
+		self["key_red"].setText(self.modulation.getText())
+		self.frequency = eval("config.sdgradio.frequency_%s" % self.modulation.value)
+		self.freqChange(Decimal(0)) # evaluate current frequency and update screen
 		self.yellowText()
+		self.getPresets()
+
+	def getPresets(self):
+		self.presets = []
+		presetsConfig = eval("config.sdgradio.presets_%s" % self.modulation.value)
+		presets = presetsConfig.value.split(",")
+		for index, preset in enumerate(presets):
+			self.presets.append(preset)
+			if preset == "0":
+				self["mem_%d" % index].setPixmapNum(0) # preset empty
+			else:
+				self["mem_%d" % index].setPixmapNum(1) # preset stored
+
+	def selectPreset(self, number):
+		newFreq = self.presets[number]
+		selPreset = self.lastSelectedPreset
+		if newFreq != "0" and number != selPreset: # preset not empty and not already selected
+			self["mem_%d" % number].setPixmapNum(2) # preset selected
+			if selPreset:
+				self["mem_%d" % selPreset].setPixmapNum(1) # preset stored
+			self.frequency.value = newFreq
+			self.frequency.save()
+			self.lastSelectedFrequency = newFreq
+			self.lastSelectedPreset = number
+			self.updateFreq()
+			self.playRadio()
 
 	def storePreset(self, number):
-		freq = self["freq"].getText()
-		preset = eval("config.sdgradio.%s" % chr(97 + number))
-		preset.value = freq
-		preset.save()
-		self.buttonSelect(number, freq)
-		msg = _("Selected frequency of %s MHz successfuly stored to memory preset %d.") % (freq, number)
-		self.session.open(MessageBox, msg, MessageBox.TYPE_INFO, timeout=5, close_on_any_key=True)
+		currentFreq = self.frequency.value
+		if currentFreq in ("", "0"):
+			msg = _("Error storing memory preset! Please select a valid frequency and try again.")
+		else:
+			self.presets[number] = currentFreq
+			self["mem_%d" % number].setPixmapNum(1) # preset stored
+			msg = _("Selected frequency of %s MHz successfuly stored to memory preset %d.") % (currentFreq, number)
+		self.session.open(MessageBox, msg, MessageBox.TYPE_ERROR, timeout=10, close_on_any_key=True)
 
-	def startup(self):
-		self.yellowText()
-		self.buttonSelect(config.sdgradio.lastbutton.value, config.sdgradio.last.value)
+	def savePresets(self):
+		presets = eval("config.sdgradio.presets_%s" % self.modulation.value)
+		presets.value = ",".join(self.presets)
+		presets.save()
+
+	def togglePlayback(self):
+		if self.lastSelectedFrequency is None and self.frequency.value != "0": # not playing
+			self.lastSelectedFrequency = self.frequency.value # move to play readio?
+			self.playRadio()
+		else:
+			self.stopRadio()
 
 	def cancel(self):
 		self.doConsoleStop()
-		config.sdgradio.last.save()
-		config.sdgradio.lastbutton.save()
+		self.savePresets()
 		config.sdgradio.save()
 		self.close(False, self.session)
 		self.session.nav.playService(self.oldService)
 
 	def info(self):
-		self.doConsoleStop()
+		self.stopRadio()
 		self.session.open(Console, _("Info"), ["sleep 0.5 && rtl_eeprom"])
 
 	def yellow(self):
-		self.yellowText()
-		if config.sdgradio.modulation.value == "fm":
+		if self.modulation.value == "fm":
 			config.sdgradio.rds.value = not config.sdgradio.rds.value
 			config.sdgradio.rds.save()
-			self.doConsoleStop()
-			self.buttonSelect(config.sdgradio.lastbutton.value, config.sdgradio.last.value)
-		elif config.sdgradio.modulation.value == "dab":
+			self.playRadio()
+		elif self.modulation.value == "dab":
 			if self.console:
 				self.console.write("\n") # new line switches to next program
+		self.yellowText()
 
 	def yellowText(self):
-		if config.sdgradio.modulation.value == "fm":
+		if self.modulation.value == "fm":
 			if config.sdgradio.rds.value:
 				self["key_yellow"].setText(_("RDS On"))
 			else:
 				self["key_yellow"].setText(_("RDS Off"))
-		elif config.sdgradio.modulation.value == "dab":
+		elif self.modulation.value == "dab":
 			self["key_yellow"].setText(_("Next Station"))
 		else:
 			self["key_yellow"].setText("")
@@ -599,7 +654,7 @@ class SDGRadioScreen(Screen):
 		self.session.open(Console, _("Log"), ["cat << EOF\n%s\nEOF" % text])
 
 	def showPrograms(self):
-		if config.sdgradio.modulation.value == "dab" and self.console:
+		if self.modulation.value == "dab" and self.console:
 			if self.programs:
 				self.session.openWithCallback(self.programAction, ChoiceBox, title=_("Select Radio Program"), list=self.programs)
 			else:
@@ -630,6 +685,7 @@ class SDGRadioScreen(Screen):
 	def showMenu(self):
 		def showMenuCb(retval=True): # KeyCancel returns False, while KeySave returns None!
 			if retval is True:
+				self.stopRadio()
 				self.getConfigOptions()
 		self.session.openWithCallback(showMenuCb, SDGRadioSetup)
 
