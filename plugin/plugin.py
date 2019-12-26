@@ -40,21 +40,21 @@ class ConfigTextSlider(ConfigSlider):
 		return ("text", str(self.value))
 
 
-config.sdgradio = ConfigSubsection()
-config.sdgradio.frequency_fm = ConfigText(default="87.5")
-config.sdgradio.frequency_nfm = ConfigText(default="87.5")
-config.sdgradio.frequency_am = ConfigText(default="0.53")
-config.sdgradio.frequency_lsb = ConfigText(default="0.53")
-config.sdgradio.frequency_usb = ConfigText(default="0.53")
-config.sdgradio.frequency_dab = ConfigText(default="174.928")
-config.sdgradio.presets_fm = ConfigText(default="0,0,0,0,0,0,0,0,0,0")
-config.sdgradio.presets_nfm = ConfigText(default="0,0,0,0,0,0,0,0,0,0")
-config.sdgradio.presets_am = ConfigText(default="0,0,0,0,0,0,0,0,0,0")
-config.sdgradio.presets_lsb = ConfigText(default="0,0,0,0,0,0,0,0,0,0")
-config.sdgradio.presets_usb = ConfigText(default="0,0,0,0,0,0,0,0,0,0")
-config.sdgradio.presets_dab = ConfigText(default="0,0,0,0,0,0,0,0,0,0")
-config.sdgradio.rds = ConfigYesNo(default=False)
-config.sdgradio.modulation = ConfigSelection(default="fm", choices=[
+config.plugins.SDGRadio = ConfigSubsection()
+config.plugins.SDGRadio.frequency_fm = ConfigText(default="87.5")
+config.plugins.SDGRadio.frequency_nfm = ConfigText(default="87.5")
+config.plugins.SDGRadio.frequency_am = ConfigText(default="0.53")
+config.plugins.SDGRadio.frequency_lsb = ConfigText(default="0.53")
+config.plugins.SDGRadio.frequency_usb = ConfigText(default="0.53")
+config.plugins.SDGRadio.frequency_dab = ConfigText(default="174.928")
+config.plugins.SDGRadio.presets_fm = ConfigText(default="0,0,0,0,0,0,0,0,0,0")
+config.plugins.SDGRadio.presets_nfm = ConfigText(default="0,0,0,0,0,0,0,0,0,0")
+config.plugins.SDGRadio.presets_am = ConfigText(default="0,0,0,0,0,0,0,0,0,0")
+config.plugins.SDGRadio.presets_lsb = ConfigText(default="0,0,0,0,0,0,0,0,0,0")
+config.plugins.SDGRadio.presets_usb = ConfigText(default="0,0,0,0,0,0,0,0,0,0")
+config.plugins.SDGRadio.presets_dab = ConfigText(default="0,0,0,0,0,0,0,0,0,0")
+config.plugins.SDGRadio.rds = ConfigYesNo(default=False)
+config.plugins.SDGRadio.modulation = ConfigSelection(default="fm", choices=[
 	("fm", _("FM")),
 	("nfm", _("NFM")),
 	("am", _("AM")),
@@ -62,30 +62,30 @@ config.sdgradio.modulation = ConfigSelection(default="fm", choices=[
 	("usb", _("USB")),
 	("dab", _("DAB/DAB+"))
 ])
-config.sdgradio.ppmoffset = ConfigTextSlider(default=0, limits=(-100, 100))
-config.sdgradio.fmgain = ConfigTextSlider(default=20, limits=(0, 50))
+config.plugins.SDGRadio.ppmoffset = ConfigTextSlider(default=0, limits=(-100, 100))
+config.plugins.SDGRadio.fmgain = ConfigTextSlider(default=20, limits=(0, 50))
 choicelist = [("automatic", _("Auto"))]
 for i in range(0, 51): # 0 to 50
 	choicelist.append((str(i)))
-config.sdgradio.gain = ConfigSelection(default="50", choices=choicelist)
-config.sdgradio.bandwidth = ConfigTextSlider(default=20, limits=(1, 32))
-config.sdgradio.fmbandwidth = ConfigTextSlider(default=171, limits=(50, 180))
-config.sdgradio.sbbandwidth = ConfigTextSlider(default=5, limits=(1, 16))
-config.sdgradio.pcm = ConfigYesNo(default=False)
-config.sdgradio.usepartial = ConfigYesNo(default=False)
-config.sdgradio.userbds = ConfigYesNo(default=False)
-config.sdgradio.fmregion = ConfigSelection(default="eu-int", choices=[
+config.plugins.SDGRadio.gain = ConfigSelection(default="50", choices=choicelist)
+config.plugins.SDGRadio.bandwidth = ConfigTextSlider(default=20, limits=(1, 32))
+config.plugins.SDGRadio.fmbandwidth = ConfigTextSlider(default=171, limits=(50, 180))
+config.plugins.SDGRadio.sbbandwidth = ConfigTextSlider(default=5, limits=(1, 16))
+config.plugins.SDGRadio.pcm = ConfigYesNo(default=False)
+config.plugins.SDGRadio.usepartial = ConfigYesNo(default=False)
+config.plugins.SDGRadio.userbds = ConfigYesNo(default=False)
+config.plugins.SDGRadio.fmregion = ConfigSelection(default="eu-int", choices=[
 	("eu-int", _("Europe/World")),
 	("amer", _("America")),
 	("ru", _("Russia")),
 	("jp", _("Japan")),
 	("free", _("Free tuning"))
 ])
-config.sdgradio.edge = ConfigYesNo(default=False)
-config.sdgradio.dc = ConfigYesNo(default=False)
-config.sdgradio.deemp = ConfigYesNo(default=False)
-config.sdgradio.direct = ConfigYesNo(default=False)
-config.sdgradio.offset = ConfigYesNo(default=False)
+config.plugins.SDGRadio.edge = ConfigYesNo(default=False)
+config.plugins.SDGRadio.dc = ConfigYesNo(default=False)
+config.plugins.SDGRadio.deemp = ConfigYesNo(default=False)
+config.plugins.SDGRadio.direct = ConfigYesNo(default=False)
+config.plugins.SDGRadio.offset = ConfigYesNo(default=False)
 
 
 DAB_FREQ = OrderedDict([(Decimal("174.928"), "5A"), (Decimal("176.640"), "5B"), (Decimal("178.352"), "5C"), (Decimal("180.064"), "5D"),
@@ -122,63 +122,63 @@ class SDGRadioSetup(ConfigListScreen, Screen):
 		configlist = []
 
 		configlist.append(getConfigListEntry(_('PPM Offset:'),
-			config.sdgradio.ppmoffset,
+			config.plugins.SDGRadio.ppmoffset,
 			_('Use PPM Offset to correct oscillator frequency. Get value using rtl_test -p or kalibrate')))
 
 		configlist.append(getConfigListEntry(_('Tuner gain for FM:'),
-			config.sdgradio.fmgain,
+			config.plugins.SDGRadio.fmgain,
 			_('Set the tuner gain value for FM band (default = 20)')))
 
 		configlist.append(getConfigListEntry(_('Tuner gain for other bands and DAB:'),
-			config.sdgradio.gain,
+			config.plugins.SDGRadio.gain,
 			_('Set the tuner gain value for all bands and DAB/DAB+ except FM')))
 
 		configlist.append(getConfigListEntry(_('Bandwidth for FM in k/sec:'),
-			config.sdgradio.fmbandwidth,
+			config.plugins.SDGRadio.fmbandwidth,
 			_('Set the frequency bandwidth for FM band. For RDS set to 171 (default = 171k)')))
 
 		configlist.append(getConfigListEntry(_('Bandwidth for NFM/AM in k/sec:'),
-			config.sdgradio.bandwidth,
+			config.plugins.SDGRadio.bandwidth,
 			_('Set the frequency bandwidth for NFM and AM bands (default = 20k)')))
 
 		configlist.append(getConfigListEntry(_('Bandwidth for USB/LSB in k/sec:'),
-			config.sdgradio.sbbandwidth,
+			config.plugins.SDGRadio.sbbandwidth,
 			_('Set the frequency bandwidth for USB and LSB bands (default = 5k)')))
 
 		configlist.append(getConfigListEntry(_('FM Region:'),
-			config.sdgradio.fmregion,
+			config.plugins.SDGRadio.fmregion,
 			_('Select FM band range by region. "Russia" provides full FM band (64-108 MHz), Europe/World (87.5 - 108 MHz), Japan (76-95 MHz), America (88.1-107.9 MHz). "Free tuning" disables FM limits')))
 
 		configlist.append(getConfigListEntry(_('Use partial info for RDS:'),
-			config.sdgradio.usepartial,
+			config.plugins.SDGRadio.usepartial,
 			_('Use partial info for RDS data before it is fully received. This could be useful when reception is noisy')))
 
 		configlist.append(getConfigListEntry(_('Use RBDS instead or RDS:'),
-			config.sdgradio.userbds,
+			config.plugins.SDGRadio.userbds,
 			_('Use RBDS data instead of the ordinary RDS info (if region is "America", RBDS is selected automatically)')))
 
 		configlist.append(getConfigListEntry(_('PCM:'),
-			config.sdgradio.pcm,
+			config.plugins.SDGRadio.pcm,
 			_('Output PCM instead of AAC/MPEG when using DAB/DAB+')))
 
 		configlist.append(getConfigListEntry(_('Enable lower edge tuning:'),
-			config.sdgradio.edge,
+			config.plugins.SDGRadio.edge,
 			_('Enable lower edge tuning for analog radio')))
 
 		configlist.append(getConfigListEntry(_('Enable DC:'),
-			config.sdgradio.dc,
+			config.plugins.SDGRadio.dc,
 			_('Enable DC blocking filter')))
 
 		configlist.append(getConfigListEntry(_('Enable de-emphasis:'),
-			config.sdgradio.deemp,
+			config.plugins.SDGRadio.deemp,
 			_('Enable the de-emphasis filter')))
 
 		configlist.append(getConfigListEntry(_('Enable direct sampling:'),
-			config.sdgradio.direct,
+			config.plugins.SDGRadio.direct,
 			_('Enable direct sampling for the tuner')))
 
 		configlist.append(getConfigListEntry(_('Enable offset tuning:'),
-			config.sdgradio.offset,
+			config.plugins.SDGRadio.offset,
 			_('Enable offset tuning')))
 
 		ConfigListScreen.__init__(self, configlist, session)
@@ -221,8 +221,8 @@ class SDGRadioScreen(Screen):
 		</screen>"""
 
 	def __init__(self, session):
-		self.modulation = config.sdgradio.modulation
-		self.frequency = eval("config.sdgradio.frequency_%s" % self.modulation.value)
+		self.modulation = config.plugins.SDGRadio.modulation
+		self.frequency = eval("config.plugins.SDGRadio.frequency_%s" % self.modulation.value)
 		self.playbackFrequency = None # currently playing frequency
 		self.playbackPreset = None # currently playing preset
 		self.presets = [] # preset list for current modulation
@@ -314,21 +314,21 @@ class SDGRadioScreen(Screen):
 		#self.Scale = AVSwitch().getFramebufferScale()
 
 	def getConfigOptions(self):
-		self.ppmoffset = config.sdgradio.ppmoffset.value
-		self.fmgain = config.sdgradio.fmgain.value
-		self.gain = config.sdgradio.gain.value
-		self.fmbandwidth = config.sdgradio.fmbandwidth.value
-		self.bandwidth = config.sdgradio.bandwidth.value
-		self.sbbandwidth = config.sdgradio.sbbandwidth.value
-		self.fmregion = config.sdgradio.fmregion.value
-		self.usepartial = config.sdgradio.usepartial.value
-		self.userbds = config.sdgradio.userbds.value
-		self.pcm = config.sdgradio.pcm.value
-		self.edge = config.sdgradio.edge.value
-		self.dc = config.sdgradio.dc.value
-		self.deemp = config.sdgradio.deemp.value
-		self.direct = config.sdgradio.direct.value
-		self.offset = config.sdgradio.offset.value
+		self.ppmoffset = config.plugins.SDGRadio.ppmoffset.value
+		self.fmgain = config.plugins.SDGRadio.fmgain.value
+		self.gain = config.plugins.SDGRadio.gain.value
+		self.fmbandwidth = config.plugins.SDGRadio.fmbandwidth.value
+		self.bandwidth = config.plugins.SDGRadio.bandwidth.value
+		self.sbbandwidth = config.plugins.SDGRadio.sbbandwidth.value
+		self.fmregion = config.plugins.SDGRadio.fmregion.value
+		self.usepartial = config.plugins.SDGRadio.usepartial.value
+		self.userbds = config.plugins.SDGRadio.userbds.value
+		self.pcm = config.plugins.SDGRadio.pcm.value
+		self.edge = config.plugins.SDGRadio.edge.value
+		self.dc = config.plugins.SDGRadio.dc.value
+		self.deemp = config.plugins.SDGRadio.deemp.value
+		self.direct = config.plugins.SDGRadio.direct.value
+		self.offset = config.plugins.SDGRadio.offset.value
 
 	def updateScreen(self, play=False):
 		self["radiotext"].setText("")
@@ -374,7 +374,7 @@ class SDGRadioScreen(Screen):
 		#self.console.appClosed.append(self.cbAppClosed)
 
 		if self.modulation.value == "fm":
-			if config.sdgradio.rds.value:
+			if config.plugins.SDGRadio.rds.value:
 				cmd = "rtl_fm -f %sM -M fm -l 0 -A std -s %sk -g %s -p %d %s %s %s %s %s -F 9 - | %s | gst-launch-1.0 fdsrc ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=%s000 ! audioresample ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=48000 ! dvbaudiosink" % (self.frequency.value, self.fmbandwidth, self.fmgain, self.ppmoffset, self.getEdge(), self.getDc(), self.getDeemp(), self.getDirect(), self.getOffset(), self.rdsOptions(), self.fmbandwidth)
 			else:
 				cmd = "rtl_fm -f %sM -M fm -l 0 -A std -s %sk -g %s -p %d %s %s %s %s %s -F 0 - | gst-launch-1.0 fdsrc ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=%s000 ! audioresample ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=48000 ! dvbaudiosink" % (self.frequency.value, self.fmbandwidth, self.fmgain, self.ppmoffset, self.getEdge(), self.getDc(), self.getDeemp(), self.getDirect(), self.getOffset(), self.fmbandwidth)
@@ -577,7 +577,7 @@ class SDGRadioScreen(Screen):
 
 	def getPresets(self):
 		self.presets = []
-		presetsConfig = eval("config.sdgradio.presets_%s" % self.modulation.value)
+		presetsConfig = eval("config.plugins.SDGRadio.presets_%s" % self.modulation.value)
 		presets = presetsConfig.value.split(",")
 		for index, preset in enumerate(presets):
 			self.presets.append(preset)
@@ -611,7 +611,7 @@ class SDGRadioScreen(Screen):
 		self.session.open(MessageBox, msg, MessageBox.TYPE_ERROR, timeout=10, close_on_any_key=True)
 
 	def savePresets(self):
-		presets = eval("config.sdgradio.presets_%s" % self.modulation.value)
+		presets = eval("config.plugins.SDGRadio.presets_%s" % self.modulation.value)
 		presets.value = ",".join(self.presets)
 		presets.save()
 
@@ -621,7 +621,7 @@ class SDGRadioScreen(Screen):
 		self.modulation.selectNext()
 		self.modulation.save()
 		self["key_red"].setText(self.modulation.getText())
-		self.frequency = eval("config.sdgradio.frequency_%s" % self.modulation.value)
+		self.frequency = eval("config.plugins.SDGRadio.frequency_%s" % self.modulation.value)
 		self.freqChange(Decimal(0)) # evaluate current frequency and update screen
 		self.yellowText()
 		self.getPresets()
@@ -635,8 +635,8 @@ class SDGRadioScreen(Screen):
 
 	def yellow(self):
 		if self.modulation.value == "fm":
-			config.sdgradio.rds.value = not config.sdgradio.rds.value
-			config.sdgradio.rds.save()
+			config.plugins.SDGRadio.rds.value = not config.plugins.SDGRadio.rds.value
+			config.plugins.SDGRadio.rds.save()
 			self.playRadio()
 		elif self.modulation.value == "dab":
 			if self.console:
@@ -645,7 +645,7 @@ class SDGRadioScreen(Screen):
 
 	def yellowText(self):
 		if self.modulation.value == "fm":
-			if config.sdgradio.rds.value:
+			if config.plugins.SDGRadio.rds.value:
 				self["key_yellow"].setText(_("RDS On"))
 			else:
 				self["key_yellow"].setText(_("RDS Off"))
@@ -657,7 +657,7 @@ class SDGRadioScreen(Screen):
 	def cancel(self):
 		self.doConsoleStop()
 		self.savePresets()
-		config.sdgradio.save()
+		config.plugins.SDGRadio.save()
 		self.close(False, self.session)
 		self.session.nav.playService(self.oldService)
 
