@@ -223,9 +223,12 @@ class SDGRadioScreen(Screen):
 	def __init__(self, session):
 		self.modulation = config.sdgradio.modulation
 		self.frequency = eval("config.sdgradio.frequency_%s" % self.modulation.value)
-		self.lastSelectedFrequency = None # last frequency used for playback
-		self.lastSelectedPreset = None # last preset used for playback
+		self.playbackFrequency = None # currently playing frequency
+		self.playbackPreset = None # currently playing preset
 		self.presets = [] # preset list for current modulation
+		self.log = [] # log messages
+		self.programs = [] # DAB program list
+		self.console = None
 
 		Screen.__init__(self, session)
 		self.setTitle(_("SDG radio"))
@@ -254,14 +257,14 @@ class SDGRadioScreen(Screen):
 			"cancel": self.cancel,
 			"ok": self.selectFreq,
 
-			"info": self.info,
+			"info": self.showInfo,
 			"menu": self.showMenu,
 			"file": self.showPrograms,
 
 			"red": self.toggleModulation,
 			"green": self.togglePlayback,
 			"yellow": self.yellow,
-			"blue": self.blue,
+			"blue": self.showLog,
 
 			"0": boundFunction(self.selectPreset, 0),
 			"1": boundFunction(self.selectPreset, 1),
@@ -302,17 +305,29 @@ class SDGRadioScreen(Screen):
 			"prevBouquet": boundFunction(self.freqDown, "0.0001"),
 		}, -2)
 
-		self.log = [] # log messages
-		self.programs = [] # DAB program list
-		self.console = None
-		self.getConfigOptions() # Load configuration
-		self.getPresets() # Load memory presets
-		self.onLayoutFinish.extend([self.updateFreq, self.yellowText])
+		self.onLayoutFinish.extend([self.getPresets, self.updateFreq, self.yellowText, self.getConfigOptions])
 
 		self.oldService = self.session.nav.getCurrentlyPlayingServiceReference() # get currently playing service
 		self.session.nav.stopService() # stop currently playing service
 		eConsoleAppContainer().execute("showiframe /usr/share/enigma2/radio.mvi") # display radio mvi
 		#self.Scale = AVSwitch().getFramebufferScale()
+
+	def getConfigOptions(self):
+		self.ppmoffset = config.sdgradio.ppmoffset.value
+		self.fmgain = config.sdgradio.fmgain.value
+		self.gain = config.sdgradio.gain.value
+		self.fmbandwidth = config.sdgradio.fmbandwidth.value
+		self.bandwidth = config.sdgradio.bandwidth.value
+		self.sbbandwidth = config.sdgradio.sbbandwidth.value
+		self.fmregion = config.sdgradio.fmregion.value
+		self.usepartial = config.sdgradio.usepartial.value
+		self.userbds = config.sdgradio.userbds.value
+		self.pcm = config.sdgradio.pcm.value
+		self.edge = config.sdgradio.edge.value
+		self.dc = config.sdgradio.dc.value
+		self.deemp = config.sdgradio.deemp.value
+		self.direct = config.sdgradio.direct.value
+		self.offset = config.sdgradio.offset.value
 
 	def updateScreen(self, play=False):
 		self["radiotext"].setText("")
@@ -326,8 +341,8 @@ class SDGRadioScreen(Screen):
 		if play is False:
 			self["key_green"].setText(_("Play"))
 			self.setTitle(_("SDG radio"))
-			if self.lastSelectedPreset:
-				self["mem_%d" % self.lastSelectedPreset].setPixmapNum(1) # preset stored
+			if self.playbackPreset:
+				self["mem_%d" % self.playbackPreset].setPixmapNum(1) # preset stored
 		else:
 			self["key_green"].setText(_("Stop"))
 			self.setTitle(_("SDG radio %s") % self["freq"].getText())
@@ -346,8 +361,8 @@ class SDGRadioScreen(Screen):
 	def stopRadio(self):
 		self.doConsoleStop()
 		self.updateScreen(False)
-		self.lastSelectedFrequency = None
-		self.lastSelectedPreset = None
+		self.playbackFrequency = None
+		self.playbackPreset = None
 
 	def playRadio(self):
 		self.doConsoleStop()
@@ -498,51 +513,14 @@ class SDGRadioScreen(Screen):
 			self.log = []
 			self.programs = []
 
-	def freqChange(self, value):
-		freq = self.frequency.value
-		newfreq = Decimal(freq) + value
-		if self.modulation.value == "fm" and self.fmregion == "ru":
-			if newfreq < Decimal("64.0"):
-				newfreq = Decimal("64.0")
-			if newfreq > Decimal("108.0"):
-				newfreq = Decimal("108.0")
-		elif self.modulation.value == "fm" and self.fmregion == "eu-int":
-			if newfreq < Decimal("87.5"):
-				newfreq = Decimal("87.5")
-			if newfreq > Decimal("108.0"):
-				newfreq = Decimal("108.0")
-		elif self.modulation.value == "fm" and self.fmregion == "jp":
-			if newfreq < Decimal("76.0"):
-				newfreq = Decimal("76.0")
-			if newfreq > Decimal("95.0"):
-				newfreq = Decimal("95.0")
-		elif self.modulation.value == "fm" and self.fmregion == "amer":
-			if newfreq < Decimal("88.1"):
-				newfreq = Decimal("88.1")
-			if newfreq > Decimal("107.9"):
-				newfreq = Decimal("107.9")
-		elif self.modulation.value == "fm" and self.fmregion == "free":
-			if newfreq < Decimal("0.0"):
-				newfreq = Decimal("0.0")
-			if newfreq > Decimal("1766.0"):
-				newfreq = Decimal("1766.0")
-		elif self.modulation.value == "dab":
-			if newfreq < Decimal("174.928"):
-				newfreq = Decimal("174.928")
-			if newfreq > Decimal("239.2"):
-				newfreq = Decimal("239.2")
-			if newfreq > Decimal(freq):
-				newfreq = min(filter(lambda x: x >= newfreq, DAB_FREQ.keys()))
-			else:
-				newfreq = max(filter(lambda x: x <= newfreq, DAB_FREQ.keys()))
-		else:
-			if newfreq < Decimal("0.0"):
-				newfreq = Decimal("0.0")
-			if newfreq > Decimal("1766.0"):
-				newfreq = Decimal("1766.0")
-		self.frequency.value = str(newfreq)
-		self.frequency.save()
-		self.updateFreq()
+	def selectFreq(self):
+		if self.frequency.value != self.playbackFrequency:
+			selPreset = self.playbackPreset
+			if selPreset:
+				self["mem_%d" % selPreset].setPixmapNum(1) # preset stored
+			self.playbackFrequency = self.frequency.value
+			self.playbackPreset = None
+			self.playRadio()
 
 	def freqUp(self, value):
 		self.freqChange(Decimal(value))
@@ -550,25 +528,51 @@ class SDGRadioScreen(Screen):
 	def freqDown(self, value):
 		self.freqChange(-Decimal(value))
 
-	def selectFreq(self):
-		if self.frequency.value != self.lastSelectedFrequency:
-			selPreset = self.lastSelectedPreset
-			if selPreset:
-				self["mem_%d" % selPreset].setPixmapNum(1) # preset stored
-			self.lastSelectedFrequency = self.frequency.value
-			self.lastSelectedPreset = None
-			self.playRadio()
-
-	def toggleModulation(self):
-		self.stopRadio()
-		self.savePresets()
-		self.modulation.selectNext()
-		self.modulation.save()
-		self["key_red"].setText(self.modulation.getText())
-		self.frequency = eval("config.sdgradio.frequency_%s" % self.modulation.value)
-		self.freqChange(Decimal(0)) # evaluate current frequency and update screen
-		self.yellowText()
-		self.getPresets()
+	def freqChange(self, value):
+		oldFreq = self.frequency.value
+		newFreq = Decimal(oldFreq) + value
+		if self.modulation.value == "fm" and self.fmregion == "ru":
+			if newFreq < Decimal("64.0"):
+				newFreq = Decimal("64.0")
+			if newFreq > Decimal("108.0"):
+				newFreq = Decimal("108.0")
+		elif self.modulation.value == "fm" and self.fmregion == "eu-int":
+			if newFreq < Decimal("87.5"):
+				newFreq = Decimal("87.5")
+			if newFreq > Decimal("108.0"):
+				newFreq = Decimal("108.0")
+		elif self.modulation.value == "fm" and self.fmregion == "jp":
+			if newFreq < Decimal("76.0"):
+				newFreq = Decimal("76.0")
+			if newFreq > Decimal("95.0"):
+				newFreq = Decimal("95.0")
+		elif self.modulation.value == "fm" and self.fmregion == "amer":
+			if newFreq < Decimal("88.1"):
+				newFreq = Decimal("88.1")
+			if newFreq > Decimal("107.9"):
+				newFreq = Decimal("107.9")
+		elif self.modulation.value == "fm" and self.fmregion == "free":
+			if newFreq < Decimal("0.0"):
+				newFreq = Decimal("0.0")
+			if newFreq > Decimal("1766.0"):
+				newFreq = Decimal("1766.0")
+		elif self.modulation.value == "dab":
+			if newFreq < Decimal("174.928"):
+				newFreq = Decimal("174.928")
+			if newFreq > Decimal("239.2"):
+				newFreq = Decimal("239.2")
+			if newFreq > Decimal(oldFreq):
+				newFreq = min(filter(lambda x: x >= newFreq, DAB_FREQ.keys()))
+			else:
+				newFreq = max(filter(lambda x: x <= newFreq, DAB_FREQ.keys()))
+		else:
+			if newFreq < Decimal("0.0"):
+				newFreq = Decimal("0.0")
+			if newFreq > Decimal("1766.0"):
+				newFreq = Decimal("1766.0")
+		self.frequency.value = str(newFreq)
+		self.frequency.save()
+		self.updateFreq()
 
 	def getPresets(self):
 		self.presets = []
@@ -583,15 +587,15 @@ class SDGRadioScreen(Screen):
 
 	def selectPreset(self, number):
 		newFreq = self.presets[number]
-		selPreset = self.lastSelectedPreset
+		selPreset = self.playbackPreset
 		if newFreq != "0" and number != selPreset: # preset not empty and not already selected
 			self["mem_%d" % number].setPixmapNum(2) # preset selected
 			if selPreset:
 				self["mem_%d" % selPreset].setPixmapNum(1) # preset stored
 			self.frequency.value = newFreq
 			self.frequency.save()
-			self.lastSelectedFrequency = newFreq
-			self.lastSelectedPreset = number
+			self.playbackFrequency = newFreq
+			self.playbackPreset = number
 			self.updateFreq()
 			self.playRadio()
 
@@ -610,23 +614,23 @@ class SDGRadioScreen(Screen):
 		presets.value = ",".join(self.presets)
 		presets.save()
 
+	def toggleModulation(self):
+		self.stopRadio()
+		self.savePresets()
+		self.modulation.selectNext()
+		self.modulation.save()
+		self["key_red"].setText(self.modulation.getText())
+		self.frequency = eval("config.sdgradio.frequency_%s" % self.modulation.value)
+		self.freqChange(Decimal(0)) # evaluate current frequency and update screen
+		self.yellowText()
+		self.getPresets()
+
 	def togglePlayback(self):
-		if self.lastSelectedFrequency is None and self.frequency.value != "0": # not playing
-			self.lastSelectedFrequency = self.frequency.value # move to play readio?
+		if self.playbackFrequency is None and self.frequency.value != "0": # not playing
+			self.playbackFrequency = self.frequency.value # move to play readio?
 			self.playRadio()
 		else:
 			self.stopRadio()
-
-	def cancel(self):
-		self.doConsoleStop()
-		self.savePresets()
-		config.sdgradio.save()
-		self.close(False, self.session)
-		self.session.nav.playService(self.oldService)
-
-	def info(self):
-		self.stopRadio()
-		self.session.open(Console, _("Info"), ["sleep 0.5 && rtl_eeprom"])
 
 	def yellow(self):
 		if self.modulation.value == "fm":
@@ -649,38 +653,30 @@ class SDGRadioScreen(Screen):
 		else:
 			self["key_yellow"].setText("")
 
-	def blue(self):
+	def cancel(self):
+		self.doConsoleStop()
+		self.savePresets()
+		config.sdgradio.save()
+		self.close(False, self.session)
+		self.session.nav.playService(self.oldService)
+
+	def showInfo(self):
+		self.stopRadio()
+		self.session.open(Console, _("Info"), ["sleep 0.5 && rtl_eeprom"])
+
+	def showLog(self):
 		text = "".join(self.log)
 		self.session.open(Console, _("Log"), ["cat << EOF\n%s\nEOF" % text])
 
 	def showPrograms(self):
-		if self.modulation.value == "dab" and self.console:
+		if self.modulation.value == "dab":
 			if self.programs:
-				self.session.openWithCallback(self.programAction, ChoiceBox, title=_("Select Radio Program"), list=self.programs)
+				def showProgramsCb(choice):
+					if choice and self.console:
+						self.console.write("%s\n" % choice[1])
+				self.session.openWithCallback(showProgramsCb, ChoiceBox, title=_("Select Radio Program"), list=self.programs)
 			else:
 				self.session.open(MessageBox, _("No Programs"), MessageBox.TYPE_ERROR)
-
-	def programAction(self, choice):
-		if choice and self.console:
-			self.console.write("%s\n" % choice[1])
-
-	def getConfigOptions(self):
-		print "[SDG radio] Reading config options"
-		self.ppmoffset = config.sdgradio.ppmoffset.value
-		self.fmgain = config.sdgradio.fmgain.value
-		self.gain = config.sdgradio.gain.value
-		self.fmbandwidth = config.sdgradio.fmbandwidth.value
-		self.bandwidth = config.sdgradio.bandwidth.value
-		self.sbbandwidth = config.sdgradio.sbbandwidth.value
-		self.fmregion = config.sdgradio.fmregion.value
-		self.usepartial = config.sdgradio.usepartial.value
-		self.userbds = config.sdgradio.userbds.value
-		self.pcm = config.sdgradio.pcm.value
-		self.edge = config.sdgradio.edge.value
-		self.dc = config.sdgradio.dc.value
-		self.deemp = config.sdgradio.deemp.value
-		self.direct = config.sdgradio.direct.value
-		self.offset = config.sdgradio.offset.value
 
 	def showMenu(self):
 		def showMenuCb(retval=True): # KeyCancel returns False, while KeySave returns None!
