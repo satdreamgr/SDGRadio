@@ -1,4 +1,3 @@
-from . import _
 from Components.ActionMap import ActionMap
 from Components.AVSwitch import AVSwitch
 from Components.config import config, getConfigListEntry, ConfigSubsection, ConfigText, ConfigSelection, ConfigSelectionNumber, ConfigYesNo
@@ -19,8 +18,17 @@ import os
 import json
 import time
 import binascii
+import gettext
 from decimal import Decimal
 from collections import OrderedDict
+
+
+try:
+	cat = gettext.translation("SDGRadio", resolveFilename(SCOPE_PLUGINS, "Extensions/SDGRadio/locale/"), [config.osd.language.getText()])
+	_ = cat.gettext
+except IOError:
+	pass
+
 
 try:
 	from enigma import addFont
