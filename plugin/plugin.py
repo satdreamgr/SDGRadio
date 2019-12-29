@@ -3,6 +3,7 @@ from Components.AVSwitch import AVSwitch
 from Components.config import config, getConfigListEntry, ConfigSubsection, ConfigText, ConfigSelection, ConfigSelectionNumber, ConfigYesNo
 from Components.ConfigList import ConfigListScreen
 from Components.Label import Label
+from Components.Language import language
 from Components.Pixmap import Pixmap, MultiPixmap
 from Components.Sources.StaticText import StaticText
 from Plugins.Plugin import PluginDescriptor
@@ -23,12 +24,25 @@ from decimal import Decimal
 from collections import OrderedDict
 
 
-try:
-	cat = gettext.translation("SDGRadio", resolveFilename(SCOPE_PLUGINS, "Extensions/SDGRadio/locale/"), [config.osd.language.getText()])
-	_ = cat.gettext
-except IOError:
-	pass
+LOCALES_DOMAIN = "SDGRadio"
+LOCALES_RELPATH = "Extensions/SDGRadio/locale"
 
+def _locale_init():
+	gettext.bindtextdomain(
+		LOCALES_DOMAIN,
+		resolveFilename(SCOPE_PLUGINS, LOCALES_RELPATH))
+
+def _(txt):
+	try:
+		t = gettext.dgettext(LOCALES_DOMAIN, txt)
+		if t == txt:
+			t = gettext.gettext(txt)
+		return t
+	except Exception:
+		return txt
+
+_locale_init()
+language.addCallback(_locale_init)
 
 try:
 	from enigma import addFont
