@@ -1,6 +1,6 @@
 from Components.ActionMap import ActionMap
 from Components.AVSwitch import AVSwitch
-from Components.config import config, getConfigListEntry, ConfigSubsection, ConfigText, ConfigSelection, ConfigSelectionNumber, ConfigYesNo
+from Components.config import config, getConfigListEntry, ConfigSubsection, ConfigText, ConfigSelection, ConfigSelectionNumber, ConfigYesNo, ConfigFloat
 from Components.ConfigList import ConfigListScreen
 from Components.Label import Label
 from Components.Language import language
@@ -52,11 +52,11 @@ except:
 
 
 config.plugins.SDGRadio = ConfigSubsection()
-config.plugins.SDGRadio.frequency_fm = ConfigText(default="87.5")
-config.plugins.SDGRadio.frequency_nfm = ConfigText(default="87.5")
-config.plugins.SDGRadio.frequency_am = ConfigText(default="0.53")
-config.plugins.SDGRadio.frequency_lsb = ConfigText(default="0.53")
-config.plugins.SDGRadio.frequency_usb = ConfigText(default="0.53")
+config.plugins.SDGRadio.frequency_fm = ConfigText(default="89.0")
+config.plugins.SDGRadio.frequency_nfm = ConfigText(default="89.0")
+config.plugins.SDGRadio.frequency_am = ConfigText(default="0.8")
+config.plugins.SDGRadio.frequency_lsb = ConfigText(default="0.8")
+config.plugins.SDGRadio.frequency_usb = ConfigText(default="0.8")
 config.plugins.SDGRadio.frequency_dab = ConfigText(default="174.928")
 config.plugins.SDGRadio.presets_fm = ConfigText(default="0,0,0,0,0,0,0,0,0,0")
 config.plugins.SDGRadio.presets_nfm = ConfigText(default="0,0,0,0,0,0,0,0,0,0")
@@ -73,6 +73,10 @@ config.plugins.SDGRadio.modulation = ConfigSelection(default="fm", choices=[
 	("usb", _("USB")),
 	("dab", _("DAB/DAB+"))
 ])
+config.plugins.SDGRadio.tuning = ConfigSelection(default="simple", choices=[
+	("simple", _("simple")),
+	("advanced", _("advanced"))
+])
 config.plugins.SDGRadio.ppmoffset = ConfigSelectionNumber(-100, 100, 1, 0)
 config.plugins.SDGRadio.fmgain = ConfigSelectionNumber(0, 50, 1, 20)
 choicelist = [("automatic", _("auto"))]
@@ -86,8 +90,8 @@ config.plugins.SDGRadio.fmregion = ConfigSelection(default="eu-int", choices=[
 	("eu-int", _("Europe/World")),
 	("amer", _("America")),
 	("ru", _("Russia")),
-	("jp", _("Japan")),
-	("free", _("free tuning"))
+	("cn", _("China")),
+	("jp", _("Japan"))
 ])
 config.plugins.SDGRadio.usepartial = ConfigYesNo(default=False)
 config.plugins.SDGRadio.userbds = ConfigYesNo(default=False)
@@ -98,6 +102,8 @@ config.plugins.SDGRadio.deemp = ConfigYesNo(default=False)
 config.plugins.SDGRadio.direct = ConfigYesNo(default=False)
 config.plugins.SDGRadio.offset = ConfigYesNo(default=False)
 
+SDR_MIN_FREQ = 0
+SDR_MAX_FREQ = 1766
 
 DAB_FREQ = OrderedDict([(Decimal("174.928"), "5A"), (Decimal("176.640"), "5B"), (Decimal("178.352"), "5C"), (Decimal("180.064"), "5D"),
 						(Decimal("181.936"), "6A"), (Decimal("183.648"), "6B"), (Decimal("185.360"), "6C"), (Decimal("187.072"), "6D"),
@@ -115,7 +121,7 @@ class SDGRadioSetup(ConfigListScreen, Screen):
 
 	def __init__(self, session):
 		Screen.__init__(self, session)
-		self.setTitle(_("SDGRadio setup"))
+		self.setTitle(_("SDR setup"))
 		self.skinName = ["SDGRadioSetup", "Setup"]
 
 		self["key_red"] = StaticText(_("Cancel"))
@@ -131,6 +137,12 @@ class SDGRadioSetup(ConfigListScreen, Screen):
 			}, -2)
 
 		configlist = []
+
+		configlist.append(getConfigListEntry(_('Tuning mode'),
+			config.plugins.SDGRadio.tuning,
+			_('Select the tuning mode for analog modulations. "simple" is designed for listening to radio stations,'
+				' as it applies band limits and allows only rough frequency changes. "advanced" disables limits and'
+				' allows precise control over frequency selection.')))
 
 		configlist.append(getConfigListEntry(_('PPM offset'),
 			config.plugins.SDGRadio.ppmoffset,
@@ -159,7 +171,7 @@ class SDGRadioSetup(ConfigListScreen, Screen):
 		configlist.append(getConfigListEntry(_('FM region'),
 			config.plugins.SDGRadio.fmregion,
 			_('Select FM band range by region. "Russia" provides 64-108 MHz (full FM band), "Europe/World" 87.5-108 MHz,'
-				' "Japan" 76-95 MHz and "America" 88.1-107.9 MHz. "free tuning" disables FM limits.')))
+				' "Japan" 76-95 MHz, "China" 76-108 MHz and "America" 88.1-107.9 MHz.')))
 
 		configlist.append(getConfigListEntry(_('Use partial RDS info'),
 			config.plugins.SDGRadio.usepartial,
@@ -196,10 +208,50 @@ class SDGRadioSetup(ConfigListScreen, Screen):
 		ConfigListScreen.__init__(self, configlist, session)
 
 
+class SDGRadioInput(ConfigListScreen, Screen):
+
+	def __init__(self, session, frequency):
+		Screen.__init__(self, session)
+		self.setTitle(_("SDR input"))
+		self.skinName = ["SDGRadioInput", "Setup"]
+
+		self["key_red"] = StaticText(_("Cancel"))
+		self["key_green"] = StaticText(_("OK"))
+		self["description"] = Label("") # filled automatically when calling createSummary()
+
+		self["setupActions"] = ActionMap(["OkCancelActions", "ColorActions"],
+		{
+			"cancel": self.keyCancel,
+			"red":self.keyCancel,
+			"ok": self.ok,
+			"green": self.ok
+		}, -2)
+
+		# split frequency string to interger and decimal parts
+		freq = frequency.split(".")
+		freqInt = freq[0]
+		freqDec = freq[1].ljust(4, "0") if freq[1] else "0"
+
+		#self.input = ConfigSubsection() # not needed
+		self.inputfreq = ConfigFloat(default=[int(freqInt), int(freqDec)], limits=[(SDR_MIN_FREQ, SDR_MAX_FREQ), (0, 9999)])
+
+		configlist = []
+
+		configlist.append(getConfigListEntry(_('Frequency in MHz'),
+			self.inputfreq,
+			_('Enter the desired frequency. You can input values between %d - %d MHz with up to 4 decimal digits'
+				' (precision of 0.1 KHz).') % (SDR_MIN_FREQ, SDR_MAX_FREQ)))
+
+		ConfigListScreen.__init__(self, configlist, session)
+
+	def ok(self):
+		self.close(str(self.inputfreq.float)) # nothing to save, just pass the value
+
+
 class SDGRadioScreen(Screen):
 
 	skin = """
-		<screen name="SDGRadioScreen" title="SDG radio" position="center,center" size="680,460">
+		<screen name="SDGRadioScreen" title="Software defined radio" position="center,center" size="680,460">
 			<ePixmap pixmap="buttons/red.png" position="0,0" size="40,40" alphatest="blend"/>
 			<ePixmap pixmap="buttons/green.png" position="170,0" size="40,40" alphatest="blend"/>
 			<ePixmap pixmap="buttons/yellow.png" position="340,0" size="40,40" alphatest="blend"/>
@@ -243,7 +295,7 @@ class SDGRadioScreen(Screen):
 		self.console = None
 
 		Screen.__init__(self, session)
-		self.setTitle(_("SDG radio"))
+		self.setTitle(_("Software defined radio"))
 		self.skin_path = resolveFilename(SCOPE_PLUGINS, "Extensions/SDGRadio")
 
 		for i in range(0, 10):
@@ -273,6 +325,7 @@ class SDGRadioScreen(Screen):
 			"info": self.showInfo,
 			"menu": self.showMenu,
 			"file": self.showPrograms,
+			"text": self.showInput,
 
 			"red": self.toggleModulation,
 			"green": self.togglePlayback,
@@ -301,24 +354,21 @@ class SDGRadioScreen(Screen):
 			"long8": boundFunction(self.storePreset, 8),
 			"long9": boundFunction(self.storePreset, 9),
 
-			"right": boundFunction(self.freqUp, "1"),
-			"left": boundFunction(self.freqDown, "1"),
-			"rightRepeated": boundFunction(self.freqUp, "1"),
-			"leftRepeated": boundFunction(self.freqDown, "1"),
+			"up": boundFunction(self.freqUp, "1"),
+			"down": boundFunction(self.freqDown, "1"),
+			"upRepeated": boundFunction(self.freqUp, "10"),
+			"downRepeated": boundFunction(self.freqDown, "10"),
 
-			"up": boundFunction(self.freqUp, "0.1"),
-			"down": boundFunction(self.freqDown, "0.1"),
-			"upRepeated": boundFunction(self.freqUp, "0.1"),
-			"downRepeated": boundFunction(self.freqDown, "0.1"),
-
-			"nextMarker": boundFunction(self.freqUp, "0.001"),
-			"prevMarker": boundFunction(self.freqDown, "0.001"),
+			"right": boundFunction(self.freqUp, "0.05"),
+			"left": boundFunction(self.freqDown, "0.05"),
+			"rightRepeated": boundFunction(self.freqUp, "0.1"),
+			"leftRepeated": boundFunction(self.freqDown, "0.1"),
 
 			"nextBouquet": boundFunction(self.freqUp, "0.0001"),
 			"prevBouquet": boundFunction(self.freqDown, "0.0001"),
 		}, -2)
 
-		self.onLayoutFinish.extend([self.getPresets, self.updateFreq, self.yellowText, self.getConfigOptions])
+		self.onLayoutFinish.extend([self.getConfigOptions, self.getPresets, self.updateFreq, self.yellowText])
 
 		self.oldService = self.session.nav.getCurrentlyPlayingServiceReference() # get currently playing service
 		self.session.nav.stopService() # stop currently playing service
@@ -326,6 +376,7 @@ class SDGRadioScreen(Screen):
 		#self.Scale = AVSwitch().getFramebufferScale()
 
 	def getConfigOptions(self):
+		self.tuning = config.plugins.SDGRadio.tuning.value
 		self.ppmoffset = str(config.plugins.SDGRadio.ppmoffset.value)
 		self.fmgain = str(config.plugins.SDGRadio.fmgain.value)
 		self.gain = config.plugins.SDGRadio.gain.value
@@ -353,23 +404,12 @@ class SDGRadioScreen(Screen):
 		self["rt+"].setText("")
 		if play is False:
 			self["key_green"].setText(_("Play"))
-			self.setTitle(_("SDG radio"))
+			self.setTitle(_("Software defined radio"))
 			if self.playbackPreset:
 				self["mem_%d" % self.playbackPreset].setPixmapNum(1) # preset stored
 		else:
 			self["key_green"].setText(_("Stop"))
-			self.setTitle(_("SDG radio - playing %s") % self["freq"].getText())
-
-	def updateFreq(self):
-		if self.modulation.value in ("am", "lsb", "usb"):
-			freq = str(Decimal(self.frequency.value) * 1000)
-			units = "KHz"
-		else:
-			freq = self.frequency.value
-			units = "MHz"
-		dab = DAB_FREQ.get(Decimal(self.frequency.value), "") if self.modulation.value == "dab" else ""
-		txt = "  ".join(filter(None, (dab, freq, units)))
-		self["freq"].setText(txt)
+			self.setTitle(_("Playing  %s") % self["freq"].getText())
 
 	def stopRadio(self):
 		self.doConsoleStop()
@@ -536,56 +576,107 @@ class SDGRadioScreen(Screen):
 			self.playRadio()
 
 	def freqUp(self, value):
-		self.freqChange(Decimal(value))
+		if value != "0.0001" or self.tuning == "advanced":
+			self.freqChange(Decimal(value))
 
 	def freqDown(self, value):
-		self.freqChange(-Decimal(value))
+		if value != "0.0001" or self.tuning == "advanced":
+			self.freqChange(-Decimal(value))
 
 	def freqChange(self, value):
-		oldFreq = self.frequency.value
-		newFreq = Decimal(oldFreq) + value
-		if self.modulation.value == "fm" and self.fmregion == "ru":
-			if newFreq < Decimal("64.0"):
-				newFreq = Decimal("64.0")
-			if newFreq > Decimal("108.0"):
-				newFreq = Decimal("108.0")
-		elif self.modulation.value == "fm" and self.fmregion == "eu-int":
-			if newFreq < Decimal("87.5"):
-				newFreq = Decimal("87.5")
-			if newFreq > Decimal("108.0"):
-				newFreq = Decimal("108.0")
-		elif self.modulation.value == "fm" and self.fmregion == "jp":
-			if newFreq < Decimal("76.0"):
-				newFreq = Decimal("76.0")
-			if newFreq > Decimal("95.0"):
-				newFreq = Decimal("95.0")
-		elif self.modulation.value == "fm" and self.fmregion == "amer":
-			if newFreq < Decimal("88.1"):
-				newFreq = Decimal("88.1")
-			if newFreq > Decimal("107.9"):
-				newFreq = Decimal("107.9")
-		elif self.modulation.value == "fm" and self.fmregion == "free":
-			if newFreq < Decimal("0.0"):
-				newFreq = Decimal("0.0")
-			if newFreq > Decimal("1766.0"):
-				newFreq = Decimal("1766.0")
-		elif self.modulation.value == "dab":
+		oldFreq = Decimal(self.frequency.value)
+
+		if self.modulation.value == "dab":
+			#oldFreq = Decimal(self.frequency.value)
+			newFreq = oldFreq + value
 			if newFreq < Decimal("174.928"):
 				newFreq = Decimal("174.928")
-			if newFreq > Decimal("239.2"):
-				newFreq = Decimal("239.2")
-			if newFreq > Decimal(oldFreq):
+			if newFreq > Decimal("239.200"):
+				newFreq = Decimal("239.200")
+			if newFreq > oldFreq:
 				newFreq = min(filter(lambda x: x >= newFreq, DAB_FREQ.keys()))
 			else:
 				newFreq = max(filter(lambda x: x <= newFreq, DAB_FREQ.keys()))
 		else:
-			if newFreq < Decimal("0.0"):
-				newFreq = Decimal("0.0")
-			if newFreq > Decimal("1766.0"):
-				newFreq = Decimal("1766.0")
+			if self.tuning == "simple":
+				if self.modulation.value in ("am", "lsb", "usb"):
+					lower = Decimal("0.52") # 520 KHz
+					upper = Decimal("2.0") # 2000 KHz
+					if value == Decimal("0.05"):
+						value = Decimal("1")
+					elif value == Decimal("-0.05"):
+						value = Decimal("-1")
+					elif value == Decimal("0.10"):
+						value = Decimal("10")
+					elif value == Decimal("-0.10"):
+						value = Decimal("-10")
+					value = value * Decimal("0.001") # step 1000 times smaller, since we display in KHz
+				elif self.modulation.value in ("fm", "nfm"):
+					if self.fmregion == "ru":
+						lower = Decimal("64.0")
+						upper = Decimal("108.0")
+					elif self.fmregion == "eu-int":
+						lower = Decimal("87.5")
+						upper = Decimal("108.0")
+					elif self.fmregion == "jp":
+						lower = Decimal("76.0")
+						upper = Decimal("95.0")
+					elif self.fmregion == "cn":
+						lower = Decimal("76.0")
+						upper = Decimal("108.0")
+					elif self.fmregion == "amer":
+						lower = Decimal("88.1")
+						upper = Decimal("107.9")
+			else: # advanced mode, no limits
+				lower = Decimal(SDR_MIN_FREQ)
+				upper = Decimal(SDR_MAX_FREQ)
+
+			newFreq = oldFreq + value
+			if newFreq < lower:
+				newFreq = lower
+			if newFreq > upper:
+				newFreq = upper
+
 		self.frequency.value = str(newFreq)
 		self.frequency.save()
 		self.updateFreq()
+
+	def quantizeFreq(self): # used for cutting extra decimal digits when retuning to "simple" mode
+		for mod in ("fm", "nfm"):
+			frequency = eval("config.plugins.SDGRadio.frequency_%s" % mod)
+			value = Decimal(frequency.value).quantize(Decimal("0.1"))
+			frequency.value = str(value)
+			frequency.save()
+		for mod in ("am", "lsb", "usb"):
+			frequency = eval("config.plugins.SDGRadio.frequency_%s" % mod)
+			value = Decimal(frequency.value).quantize(Decimal("0.001"))
+			frequency.value = str(value)
+			frequency.save()
+
+	def updateFreq(self): # this is for displaying only
+		if self.modulation.value == "dab":
+			freq = self.frequency.value
+			dab = DAB_FREQ.get(Decimal(freq), "")
+			value = freq
+			units = "MHz"
+		else:
+			if self.tuning == "simple":
+				if self.modulation.value in ("am", "lsb", "usb"):
+					value = "%.0f" % (Decimal(self.frequency.value) * Decimal("1000"))
+					units = "KHz"
+					dab = ""
+				elif self.modulation.value in ("fm", "nfm"):
+					freq = Decimal(self.frequency.value)
+					value = "%.1f" % freq if (freq % 1) == 0 else str(freq.normalize())
+					units = "MHz"
+					dab = ""
+			else:
+				freq = Decimal(self.frequency.value)
+				value = "%.4f" % freq
+				units = "MHz"
+				dab = ""
+		txt = "  ".join(filter(None, (dab, value, units)))
+		self["freq"].setText(txt)
 
 	def getPresets(self):
 		self.presets = []
@@ -674,6 +765,14 @@ class SDGRadioScreen(Screen):
 		self.close(False, self.session)
 		self.session.nav.playService(self.oldService)
 
+	def showInput(self):
+		if self.tuning == "advanced":
+			def freqInputCb(value):
+				if value is not False and isinstance(value, str):
+					self.frequency.value = value
+					self.updateFreq()
+			self.session.openWithCallback(freqInputCb, SDGRadioInput, self.frequency.value)
+
 	def showInfo(self):
 		self.stopRadio()
 		self.session.open(Console, _("Info"), ["sleep 0.5 && rtl_eeprom"])
@@ -696,7 +795,11 @@ class SDGRadioScreen(Screen):
 		def showMenuCb(retval=True): # KeyCancel returns False, while KeySave returns None!
 			if retval is True:
 				self.stopRadio()
+				oldtuning = self.tuning
 				self.getConfigOptions()
+				if self.tuning != oldtuning and self.tuning == "simple":
+					self.quantizeFreq()
+				self.freqChange(Decimal(0)) # evaluate current frequency and update screen
 		self.session.openWithCallback(showMenuCb, SDGRadioSetup)
 
 	def showPicture(self, image):
@@ -723,10 +826,10 @@ def main(session, **kwargs):
 
 def Plugins(**kwargs):
 	return PluginDescriptor(
-		name=_("SDG radio"),
+		name=_("Software defined radio"),
 		description=_("Listen to local radio stations"),
 		where=PluginDescriptor.WHERE_PLUGINMENU,
 		needsRestart=False,
-		icon="img/sdgradio.png",
+		icon="sdgradio.png",
 		fnc=main
 	)
