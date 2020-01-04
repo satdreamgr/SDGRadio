@@ -1,4 +1,4 @@
-from Components.ActionMap import ActionMap
+from Components.ActionMap import HelpableActionMap, ActionMap
 from Components.AVSwitch import AVSwitch
 from Components.config import config, getConfigListEntry, ConfigSubsection, ConfigText, ConfigSelection, ConfigSelectionNumber, ConfigYesNo, ConfigFloat
 from Components.ConfigList import ConfigListScreen
@@ -9,6 +9,7 @@ from Components.Sources.StaticText import StaticText
 from Plugins.Plugin import PluginDescriptor
 from Screens.ChoiceBox import ChoiceBox
 from Screens.Console import Console
+from Screens.HelpMenu import HelpableScreen
 from Screens.MessageBox import MessageBox
 from Screens.Screen import Screen
 from Tools.BoundFunction import boundFunction
@@ -248,7 +249,7 @@ class SDGRadioInput(ConfigListScreen, Screen):
 		self.close(str(self.inputfreq.float)) # nothing to save, just pass the value
 
 
-class SDGRadioScreen(Screen):
+class SDGRadioScreen(Screen, HelpableScreen):
 
 	skin = """
 		<screen name="SDGRadioScreen" title="Software defined radio" position="center,center" size="680,460">
@@ -295,6 +296,7 @@ class SDGRadioScreen(Screen):
 		self.console = None
 
 		Screen.__init__(self, session)
+		HelpableScreen.__init__(self)
 		self.setTitle(_("Software defined radio"))
 		self.skin_path = resolveFilename(SCOPE_PLUGINS, "Extensions/SDGRadio")
 
@@ -317,55 +319,55 @@ class SDGRadioScreen(Screen):
 		self["key_yellow"] = StaticText("")
 		self["key_blue"] = StaticText(_("Log"))
 
-		self["actions"] = ActionMap(["SDGRadioActions"],
+		self["actions"] = HelpableActionMap(self, "SDGRadioActions",
 		{
-			"cancel": self.cancel,
-			"ok": self.selectFreq,
+			"cancel": (self.cancel, _("Close plugin")),
+			"ok": (self.selectFreq, _("Play current frequency")),
 
-			"info": self.showInfo,
-			"menu": self.showMenu,
-			"file": self.showPrograms,
-			"text": self.showInput,
+			"info": (self.showInfo, _("Show SDR device information")),
+			"menu": (self.showMenu, _("Open setup")),
+			"file": (self.showPrograms, _("Show DAB program list")),
+			"text": (self.showInput, _("Open frequency input screen")),
 
-			"red": self.toggleModulation,
-			"green": self.togglePlayback,
-			"yellow": self.yellow,
-			"blue": self.showLog,
+			"red": (self.toggleModulation, _("Change modulation")),
+			"green": (self.togglePlayback, _("Start/stop playback")),
+			"yellow": (self.yellow, _("Switch RDS on/off")),
+			"blue": (self.showLog, _("Show log")),
 
-			"0": boundFunction(self.selectPreset, 0),
-			"1": boundFunction(self.selectPreset, 1),
-			"2": boundFunction(self.selectPreset, 2),
-			"3": boundFunction(self.selectPreset, 3),
-			"4": boundFunction(self.selectPreset, 4),
-			"5": boundFunction(self.selectPreset, 5),
-			"6": boundFunction(self.selectPreset, 6),
-			"7": boundFunction(self.selectPreset, 7),
-			"8": boundFunction(self.selectPreset, 8),
-			"9": boundFunction(self.selectPreset, 9),
+			"0": (boundFunction(self.selectPreset, 0), _("Play memory preset")),
+			"1": (boundFunction(self.selectPreset, 1), _("Play memory preset")),
+			"2": (boundFunction(self.selectPreset, 2), _("Play memory preset")),
+			"3": (boundFunction(self.selectPreset, 3), _("Play memory preset")),
+			"4": (boundFunction(self.selectPreset, 4), _("Play memory preset")),
+			"5": (boundFunction(self.selectPreset, 5), _("Play memory preset")),
+			"6": (boundFunction(self.selectPreset, 6), _("Play memory preset")),
+			"7": (boundFunction(self.selectPreset, 7), _("Play memory preset")),
+			"8": (boundFunction(self.selectPreset, 8), _("Play memory preset")),
+			"9": (boundFunction(self.selectPreset, 9), _("Play memory preset")),
 
-			"long0": boundFunction(self.storePreset, 0),
-			"long1": boundFunction(self.storePreset, 1),
-			"long2": boundFunction(self.storePreset, 2),
-			"long3": boundFunction(self.storePreset, 3),
-			"long4": boundFunction(self.storePreset, 4),
-			"long5": boundFunction(self.storePreset, 5),
-			"long6": boundFunction(self.storePreset, 6),
-			"long7": boundFunction(self.storePreset, 7),
-			"long8": boundFunction(self.storePreset, 8),
-			"long9": boundFunction(self.storePreset, 9),
+			"long0": (boundFunction(self.storePreset, 0), _("Store frequency to memory preset")),
+			"long1": (boundFunction(self.storePreset, 1), _("Store frequency to memory preset")),
+			"long2": (boundFunction(self.storePreset, 2), _("Store frequency to memory preset")),
+			"long3": (boundFunction(self.storePreset, 3), _("Store frequency to memory preset")),
+			"long4": (boundFunction(self.storePreset, 4), _("Store frequency to memory preset")),
+			"long5": (boundFunction(self.storePreset, 5), _("Store frequency to memory preset")),
+			"long6": (boundFunction(self.storePreset, 6), _("Store frequency to memory preset")),
+			"long7": (boundFunction(self.storePreset, 7), _("Store frequency to memory preset")),
+			"long8": (boundFunction(self.storePreset, 8), _("Store frequency to memory preset")),
+			"long9": (boundFunction(self.storePreset, 9), _("Store frequency to memory preset")),
 
-			"up": boundFunction(self.freqUp, "1"),
-			"down": boundFunction(self.freqDown, "1"),
-			"upRepeated": boundFunction(self.freqUp, "10"),
-			"downRepeated": boundFunction(self.freqDown, "10"),
+			"up": (boundFunction(self.freqUp, "1"), _("Increase frequency by 1 MHz / KHz")),
+			"down": (boundFunction(self.freqDown, "1"), _("Decrease frequency by 1 MHz / KHz")),
+			"upRepeated": (boundFunction(self.freqUp, "10"), _("Increase frequency by 10 MHz / KHz (long press)")),
+			"downRepeated": (boundFunction(self.freqDown, "10"), _("Decrease frequency by 10 MHz / KHz (long press)")),
 
-			"right": boundFunction(self.freqUp, "0.05"),
-			"left": boundFunction(self.freqDown, "0.05"),
-			"rightRepeated": boundFunction(self.freqUp, "0.1"),
-			"leftRepeated": boundFunction(self.freqDown, "0.1"),
+			"right": (boundFunction(self.freqUp, "0.05"), _("Increase frequency by 0.05 MHz")),
+			"left": (boundFunction(self.freqDown, "0.05"), _("Decrease frequency by 0.05 MHz")),
+			"rightRepeated": (boundFunction(self.freqUp, "0.1"), _("Increase frequency by 0.1 MHz (long press)")),
+			"leftRepeated": (boundFunction(self.freqDown, "0.1"), _("Decrease frequency by 0.1 MHz (long press)")),
 
-			"nextBouquet": boundFunction(self.freqUp, "0.0001"),
-			"prevBouquet": boundFunction(self.freqDown, "0.0001"),
+			"nextBouquet": (boundFunction(self.freqUp, "0.0001"), _("Increase frequency by 0.0001 MHz")),
+			"prevBouquet": (boundFunction(self.freqDown, "0.0001"), _("Decrease frequency by 0.0001 MHz")),
 		}, -2)
 
 		self.onLayoutFinish.extend([self.getConfigOptions, self.getPresets, self.updateFreq, self.yellowText])
