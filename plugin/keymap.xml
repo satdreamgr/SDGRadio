@@ -27,8 +27,6 @@
 
 		<key id="KEY_INFO" mapto="info" flags="m"/>
 		<key id="KEY_MENU" mapto="menu" flags="m"/>
-		<key id="KEY_PVR" mapto="file" flags="m"/>
-		<key id="KEY_TEXT" mapto="text" flags="m"/>
 
 		<key id="KEY_RED" mapto="red" flags="m"/>
 		<key id="KEY_GREEN" mapto="green" flags="m"/>

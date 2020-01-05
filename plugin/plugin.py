@@ -242,22 +242,20 @@ class SDGRadioScreen(Screen, HelpableScreen):
 		self["key_red"] = StaticText(self.modulation.getText())
 		self["key_green"] = StaticText(_("Play"))
 		self["key_yellow"] = StaticText("")
-		self["key_blue"] = StaticText(_("Log"))
+		self["key_blue"] = StaticText(_(""))
 
 		self["actions"] = HelpableActionMap(self, "SDGRadioActions",
 		{
 			"cancel": (self.cancel, _("Close plugin")),
 			"ok": (self.selectFreq, _("Play current frequency")),
 
-			"info": (self.showInfo, _("Show SDR device information")),
-			"menu": (self.showMenu, _("Open setup")),
-			"file": (self.showPrograms, _("Show DAB program list")),
-			"text": (self.showInput, _("Open frequency input screen")),
+			"info": (self.showPrograms, _("Show DAB program list")),
+			"menu": (self.showMenu, _("Open advanced options menu")),
 
 			"red": (self.toggleModulation, _("Change modulation")),
 			"green": (self.togglePlayback, _("Start/stop playback")),
 			"yellow": (self.yellow, _("Switch RDS on/off")),
-			"blue": (self.showLog, _("Show log")),
+			"blue": (self.showInput, _("Open frequency input screen")),
 
 			"0": (boundFunction(self.selectPreset, 0), _("Play memory preset")),
 			"1": (boundFunction(self.selectPreset, 1), _("Play memory preset")),
@@ -295,7 +293,7 @@ class SDGRadioScreen(Screen, HelpableScreen):
 			"prevBouquet": (boundFunction(self.freqDown, "0.0001"), _("Decrease frequency by 0.0001 MHz")),
 		}, -2)
 
-		self.onLayoutFinish.extend([self.getConfigOptions, self.getPresets, self.updateFreq, self.yellowText])
+		self.onLayoutFinish.extend([self.getConfigOptions, self.getPresets, self.updateFreq, self.yellowText, self.blueText])
 
 		self.oldService = self.session.nav.getCurrentlyPlayingServiceReference() # get currently playing service
 		self.session.nav.stopService() # stop currently playing service
@@ -700,6 +698,12 @@ class SDGRadioScreen(Screen, HelpableScreen):
 					self.updateFreq()
 			self.session.openWithCallback(freqInputCb, SDGRadioInput, self.frequency.value)
 
+	def blueText(self):
+		if self.tuning == "advanced":
+			self["key_blue"].setText(_("Frequency input"))
+		else:
+			self["key_blue"].setText("")
+
 	def showInfo(self):
 		self.stopRadio()
 		self.session.open(Console, _("Info"), ["sleep 0.5 && rtl_eeprom"])
@@ -718,16 +722,29 @@ class SDGRadioScreen(Screen, HelpableScreen):
 			else:
 				self.session.open(MessageBox, _("There are no programs available on this frequency."), MessageBox.TYPE_ERROR)
 
-	def showMenu(self):
-		def showMenuCb(retval=True): # KeyCancel returns False, while KeySave returns None!
+	def showSetup(self):
+		def showSetupCb(retval=True): # KeyCancel returns False, while KeySave returns None!
 			if retval is True:
 				self.stopRadio()
 				oldtuning = self.tuning
 				self.getConfigOptions()
-				if self.tuning != oldtuning and self.tuning == "simple":
-					self.quantizeFreq()
+				if self.tuning != oldtuning:
+					self.blueText()
+					if self.tuning == "simple":
+						self.quantizeFreq()
 				self.freqChange(Decimal(0)) # evaluate current frequency and update screen
-		self.session.openWithCallback(showMenuCb, SDGRadioSetup)
+		self.session.openWithCallback(showSetupCb, SDGRadioSetup)
+
+	def showMenu(self):
+		keys = ["1", "2", "menu"]
+		choices = []
+		choices.append((_("Cmd execution log"), self.showLog, "log"))
+		choices.append((_("SDR device information"), self.showInfo, "info"))
+		choices.append((_("Setup menu"), self.showSetup, "menu"))
+		def showMenuCb(choice):
+			if choice is not None:
+				choice[1]()
+		self.session.openWithCallback(showMenuCb, ChoiceBox, title=_("Choose an option"), list=choices, keys=keys)
 
 	def showPicture(self, image):
 		if os.path.exists(image):
