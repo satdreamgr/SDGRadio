@@ -1,6 +1,6 @@
 from collections import OrderedDict
 from decimal import Decimal
-from enigma import getDesktop
+from enigma import addFont
 from Tools.Directories import resolveFilename, SCOPE_PLUGINS
 
 
