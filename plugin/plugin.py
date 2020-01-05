@@ -653,6 +653,7 @@ class SDGRadioScreen(Screen, HelpableScreen):
 		self.frequency = eval("config.plugins.SDGRadio.frequency_%s" % self.modulation.value)
 		self.freqChange(Decimal(0)) # evaluate current frequency and update screen
 		self.yellowText()
+		self.blueText()
 		self.getPresets()
 
 	def togglePlayback(self):
@@ -666,7 +667,8 @@ class SDGRadioScreen(Screen, HelpableScreen):
 		if self.modulation.value == "fm":
 			config.plugins.SDGRadio.rds.value = not config.plugins.SDGRadio.rds.value
 			config.plugins.SDGRadio.rds.save()
-			self.playRadio()
+			if self.playbackFrequency: # playback is active, restart it
+				self.playRadio()
 		elif self.modulation.value == "dab":
 			if self.console:
 				self.console.write("\n") # new line switches to next program
@@ -691,7 +693,7 @@ class SDGRadioScreen(Screen, HelpableScreen):
 		self.session.nav.playService(self.oldService)
 
 	def showInput(self):
-		if self.tuning == "advanced":
+		if self.tuning == "advanced" and self.modulation.value != "dab":
 			def freqInputCb(value):
 				if value is not False and isinstance(value, str):
 					self.frequency.value = value
@@ -699,7 +701,7 @@ class SDGRadioScreen(Screen, HelpableScreen):
 			self.session.openWithCallback(freqInputCb, SDGRadioInput, self.frequency.value)
 
 	def blueText(self):
-		if self.tuning == "advanced":
+		if self.tuning == "advanced" and self.modulation.value != "dab":
 			self["key_blue"].setText(_("Frequency input"))
 		else:
 			self["key_blue"].setText("")
