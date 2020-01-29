@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: SDGRadio\n"
-"POT-Creation-Date: 2019-12-27 01:19+0200\n"
-"PO-Revision-Date: 2019-12-27 01:20+0200\n"
+"POT-Creation-Date: 2020-01-29 20:18+0200\n"
+"PO-Revision-Date: 2020-01-29 20:27+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: el\n"
@@ -13,240 +13,380 @@ msgstr ""
 "X-Poedit-Basepath: .\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: plugin.py:47
+#: plugin/plugin.py:42
 msgid "FM"
 msgstr "FM"
 
-#: plugin.py:48
+#: plugin/plugin.py:43
 msgid "NFM"
 msgstr "NFM"
 
-#: plugin.py:49
+#: plugin/plugin.py:44
 msgid "AM"
 msgstr "AM"
 
-#: plugin.py:50
+#: plugin/plugin.py:45
 msgid "LSB"
 msgstr "LSB"
 
-#: plugin.py:51
+#: plugin/plugin.py:46
 msgid "USB"
 msgstr "USB"
 
-#: plugin.py:52
+#: plugin/plugin.py:47
 msgid "DAB/DAB+"
 msgstr "DAB/DAB+"
 
-#: plugin.py:56
+#: plugin/plugin.py:50
+msgid "simple"
+msgstr "απλή"
+
+#: plugin/plugin.py:51
+msgid "advanced"
+msgstr "προηγμένη"
+
+#: plugin/plugin.py:55
 msgid "auto"
 msgstr "αυτόματο"
 
-#: plugin.py:67
+#: plugin/plugin.py:63
 msgid "Europe/World"
 msgstr "Ευρώπη/Κόσμος"
 
-#: plugin.py:68
+#: plugin/plugin.py:64
 msgid "America"
 msgstr "Αμερική"
 
-#: plugin.py:69
+#: plugin/plugin.py:65
 msgid "Russia"
 msgstr "Ρωσία"
 
-#: plugin.py:70
+#: plugin/plugin.py:66
+msgid "China"
+msgstr "Κίνα"
+
+#: plugin/plugin.py:67
 msgid "Japan"
 msgstr "Ιαπωνία"
 
-#: plugin.py:71
-msgid "free tuning"
-msgstr "ελεύθερος συντονισμός"
+#: plugin/plugin.py:83
+msgid "SDR setup"
+msgstr "Ρυθμίσεις SDR"
 
-#: plugin.py:96
-msgid "SDGRadio setup"
-msgstr "Ρυθμίσεις ραδιοφώνου SDG"
-
-#: plugin.py:99
+#: plugin/plugin.py:86 plugin/plugin.py:177
 msgid "Cancel"
 msgstr "Ακύρωση"
 
-#: plugin.py:100
+#: plugin/plugin.py:87 plugin/plugin.py:178
 msgid "OK"
 msgstr "Επιβεβαίωση"
 
-#: plugin.py:113
+#: plugin/plugin.py:100
+msgid "Tuning mode"
+msgstr "Λειτουργία συντονισμού"
+
+#: plugin/plugin.py:102
+msgid "Select the tuning mode for analog modulations. \"simple\" is designed for listening to radio stations, as it applies band limits and allows only rough frequency changes. \"advanced\" disables limits and allows precise control over frequency selection."
+msgstr "Επιλέξτε τη λειτουργία συντονισμού για τις αναλογικές διαμορφώσεις. Η 'απλή' είναι σχεδιασμένη για ακρόαση σταθμών, καθώς περιορίζει τις ραδιοφωνικές μπάντες και επιτρέπει χοντρικές αλλαγές στη συχνότητα. Η 'προηγμένη' απενεργοποιεί τα όρια και επιτρέπει ακριβή έλεγχο της συχνότητας."
+
+#: plugin/plugin.py:106
 msgid "PPM offset"
 msgstr "Αντιστάθμιση PPM"
 
-#: plugin.py:115
+#: plugin/plugin.py:108
 msgid "Use PPM offset to correct the oscillator frequency. Get proper value using \"rtl_test -p\" or \"kalibrate\"."
 msgstr "Χρησιμοποίηση αντιστάθμισης PPM για να διορθώσετε τη συχνότητα του ταλαντωτή. Βρείτε την κατάλληλη τιμή μέσω της εντολής \"rtl_test -p\" ή \"kalibrate\"."
 
-#: plugin.py:117
+#: plugin/plugin.py:110
 msgid "Tuner gain for FM"
 msgstr "Κέρδος δέκτη για τα FM"
 
-#: plugin.py:119
+#: plugin/plugin.py:112
 msgid "Set the tuner gain value for FM band (default = 20)."
 msgstr "Ορίστε το κέρδος δέκτη για την μπάντα FM (προεπιλογή = 20)."
 
-#: plugin.py:121
+#: plugin/plugin.py:114
 msgid "Tuner gain for other bands and DAB"
 msgstr "Κέρδος δέκτη για τις άλλες μπάντες και το DAB"
 
-#: plugin.py:123
+#: plugin/plugin.py:116
 msgid "Set the tuner gain value for all bands and DAB/DAB+ except FM (default = 50)."
 msgstr "Ορίστε το κέρδος δέκτη για όλες τις μπάντες και το DAB/DAB+ εκτός των FM (προεπιλογή = 50)."
 
-#: plugin.py:125
+#: plugin/plugin.py:118
 msgid "Bandwidth for FM in k/sec"
 msgstr "Εύρος ζώνης για τα FM σε k/sec"
 
-#: plugin.py:127
+#: plugin/plugin.py:120
 msgid "Set the frequency bandwidth for FM band. For RDS set to 171 (default = 171k)."
 msgstr "Ορίστε το εύρος ζώνης για την μπάντα FM. Για λειτουργία με RDS επιλέξτε 171 (προεπιλογή = 171k)."
 
-#: plugin.py:129
+#: plugin/plugin.py:122
 msgid "Bandwidth for NFM/AM in k/sec"
 msgstr "Εύρος ζώνης για τα NFM/AM σε k/sec"
 
-#: plugin.py:131
+#: plugin/plugin.py:124
 msgid "Set the frequency bandwidth for NFM and AM bands (default = 20k)."
 msgstr "Ορίστε το εύρος ζώνης για την μπάντα NFM και AM (προεπιλογή = 20k)."
 
-#: plugin.py:133
+#: plugin/plugin.py:126
 msgid "Bandwidth for LSB/USB in k/sec"
 msgstr "Εύρος ζώνης για τα LSB/USB σε k/sec"
 
-#: plugin.py:135
+#: plugin/plugin.py:128
 msgid "Set the frequency bandwidth for LSB and USB bands (default = 5k)."
 msgstr "Ορίστε το εύρος ζώνης για την μπάντα LSB και USB (προεπιλογή = 5k)."
 
-#: plugin.py:137
+#: plugin/plugin.py:130
 msgid "FM region"
 msgstr "Περιοχή FM"
 
-#: plugin.py:139
-msgid "Select FM band range by region. \"Russia\" provides 64-108 MHz (full FM band), \"Europe/World\" 87.5-108 MHz, \"Japan\" 76-95 MHz and \"America\" 88.1-107.9 MHz. \"free tuning\" disables FM limits."
-msgstr "Επιλέξτε το εύρος της μπάντας FM με βάση την περιοχή. Η \"Ρωσία\" παρέχει 64-108 MHz (πλήρης μπάντα FM), η \"Ευρώπη/Κόσμος\" 87.5-108 MHz, η \"Ιαπωνία\" 76-95 MHz και η \"Αμερική\" 88.1-107.9 MHz. Ο \"ελεύθερος συντονισμός\" απενεργοποιεί τα όρια στη λήψη FM."
+#: plugin/plugin.py:132
+msgid "Select FM band range by region. \"Russia\" provides 64-108 MHz (full FM band), \"Europe/World\" 87.5-108 MHz, \"Japan\" 76-95 MHz, \"China\" 76-108 MHz and \"America\" 88.1-107.9 MHz."
+msgstr "Επιλέξτε το εύρος της μπάντας FM με βάση την περιοχή. Η \"Ρωσία\" παρέχει 64-108 MHz (πλήρης μπάντα FM), η \"Ευρώπη/Κόσμος\" 87.5-108 MHz, η \"Ιαπωνία\" 76-95 MHz, η \"Κίνα\" 76-108 MHz και η \"Αμερική\" 88.1-107.9 MHz."
 
-#: plugin.py:142
+#: plugin/plugin.py:135
 msgid "Use partial RDS info"
 msgstr "Χρήση ημιτελών πληροφοριών RDS"
 
-#: plugin.py:144
+#: plugin/plugin.py:137
 msgid "Use RDS info before it is fully received. This could be useful when reception is noisy."
 msgstr "Χρησιμοποίηση των πληροφοριών RDS προτού ολοκληρωθεί η λήψη τους. Αυτό μπορεί να είναι χρήσιμο όταν η λήψη είναι θορυβώδης."
 
-#: plugin.py:146
+#: plugin/plugin.py:139
 msgid "Use RBDS instead of RDS"
 msgstr "Χρήση RBDS αντί για RDS"
 
-#: plugin.py:148
+#: plugin/plugin.py:141
 msgid "Use RBDS instead of ordinary RDS info. If FM region is set to \"America\", RBDS is selected automatically."
 msgstr "Χρησιμοποίηση πληροφοριών RBDS αντί των συνηθισμένων RDS. Αν η περιοχή FM είναι ορισμένη σε \"Αμερική\", οι πληροφορίες RBDS επιλέγονται αυτόματα."
 
-#: plugin.py:150
+#: plugin/plugin.py:143
 msgid "PCM output"
 msgstr "Έξοδος PCM"
 
-#: plugin.py:152
+#: plugin/plugin.py:145
 msgid "Output PCM instead of AAC/MPEG when using DAB/DAB+."
 msgstr "Έξοδος ήχου PCM αντί για AAC/MPEG όταν χρησιμοποιείται το DAB/DAB+."
 
-#: plugin.py:154
+#: plugin/plugin.py:147
 msgid "Lower edge tuning"
 msgstr "Συντονισμός στο κάτω όριο"
 
-#: plugin.py:156
+#: plugin/plugin.py:149
 msgid "Enable lower edge tuning for analog radio."
 msgstr "Ενεργοποίηση συντονισμού στο κάτω όριο για το αναλογικό ραδιόφωνο."
 
-#: plugin.py:158
+#: plugin/plugin.py:151
 msgid "DC filter"
 msgstr "Φίλτρο DC"
 
-#: plugin.py:160
+#: plugin/plugin.py:153
 msgid "Enable the DC blocking filter."
 msgstr "Ενεργοποίηση φίλτρου φραγής DC."
 
-#: plugin.py:162
+#: plugin/plugin.py:155
 msgid "De-emphasis filter"
 msgstr "Φίλτρο de-emphasis"
 
-#: plugin.py:164
+#: plugin/plugin.py:157
 msgid "Enable the de-emphasis filter."
 msgstr "Ενεργοποίηση φίλτρου de-emphasis."
 
-#: plugin.py:166
+#: plugin/plugin.py:159
 msgid "Direct sampling"
 msgstr "Άμεση δειγματοληψία"
 
-#: plugin.py:168
+#: plugin/plugin.py:161
 msgid "Enable direct sampling for the tuner."
 msgstr "Ενεργοποίηση άμεσης δειγματοληψίας στον δέκτη."
 
-#: plugin.py:170
+#: plugin/plugin.py:163
 msgid "Offset tuning"
 msgstr "Αντισταθμισμένος συντονισμός"
 
-#: plugin.py:172
+#: plugin/plugin.py:165
 msgid "Enable offset tuning."
 msgstr "Ενεργοποίηση αντισταθμισμένου συντονισμού."
 
-#: plugin.py:224 plugin.py:334 plugin.py:704
-msgid "SDG radio"
-msgstr "Ραδιόφωνο SDG"
+#: plugin/plugin.py:174
+msgid "SDR input"
+msgstr "SDR εισαγωγή"
 
-#: plugin.py:242 plugin.py:333
+#: plugin/plugin.py:199
+msgid "Frequency in MHz"
+msgstr "Συχνότητα σε MHz"
+
+#: plugin/plugin.py:201
+#, python-format
+msgid "Enter the desired frequency. You can input values between %(min)d - %(max)d MHz with up to 4 decimal digits (precision of 0.1 KHz)."
+msgstr "Εισάγετε την επιθυμητή συχνότητα. Μπορείτε να ορίσετε τιμές στο εύρος %(min)d - %(max)d MHz με έως 4 δεκαδικά ψηφία (ακρίβεια 0.1 KHz)."
+
+#: plugin/plugin.py:224 plugin/plugin.py:633 plugin/plugin.py:809
+msgid "Software defined radio"
+msgstr ""
+
+#: plugin/plugin.py:250 plugin/plugin.py:632
 msgid "Play"
 msgstr "Αναπαραγωγή"
 
-#: plugin.py:244 plugin.py:661
-msgid "Log"
-msgstr "Αρχείο καταγραφής"
+#: plugin/plugin.py:256
+msgid "Close plugin"
+msgstr "Κλείσιμο πρόσθετου"
 
-#: plugin.py:338
-msgid "Stop"
-msgstr "Διακοπή"
+#: plugin/plugin.py:257
+msgid "Play current frequency"
+msgstr "Αναπαραγωγή τρέχουσας συχνότητας"
 
-#: plugin.py:339
-#, python-format
-msgid "SDG radio - playing %s"
-msgstr "Ραδιόφωνο SDG - αναπαραγωγή %s"
+#: plugin/plugin.py:259
+msgid "Show DAB program list"
+msgstr "Εμφάνιση λίστας προγραμμάτων DAB"
 
-#: plugin.py:596
+#: plugin/plugin.py:260
+msgid "Open advanced options menu"
+msgstr "Μενού επιλογών για προχωρημένους"
+
+#: plugin/plugin.py:262
+msgid "Change modulation"
+msgstr "Αλλαγή διαμόρφωσης"
+
+#: plugin/plugin.py:263
+msgid "Start/stop playback"
+msgstr "Έναρξη/διακοπή αναπαραγωγής"
+
+#: plugin/plugin.py:264
+msgid "Switch RDS on/off"
+msgstr "Ενεργοποίηση/απενεργοποίηση RDS"
+
+#: plugin/plugin.py:265
+msgid "Open frequency input screen"
+msgstr "Άνοιγμα οθόνης εισαγωγής συχνότητας"
+
+#: plugin/plugin.py:267 plugin/plugin.py:268 plugin/plugin.py:269
+#: plugin/plugin.py:270 plugin/plugin.py:271 plugin/plugin.py:272
+#: plugin/plugin.py:273 plugin/plugin.py:274 plugin/plugin.py:275
+#: plugin/plugin.py:276
+msgid "Play memory preset"
+msgstr "Αναπαραγωγή μνήμης"
+
+#: plugin/plugin.py:278 plugin/plugin.py:279 plugin/plugin.py:280
+#: plugin/plugin.py:281 plugin/plugin.py:282 plugin/plugin.py:283
+#: plugin/plugin.py:284 plugin/plugin.py:285 plugin/plugin.py:286
+#: plugin/plugin.py:287
+msgid "Store frequency to memory preset"
+msgstr "Αποθήκευση συχνότητας στη μνήμη"
+
+#: plugin/plugin.py:289
+msgid "Increase frequency by 1 MHz / KHz"
+msgstr "Αύξηση συχνότητας κατά 1 MHz / KHz"
+
+#: plugin/plugin.py:290
+msgid "Decrease frequency by 1 MHz / KHz"
+msgstr "Μείωση συχνότητας κατά 1 MHz / KHz"
+
+#: plugin/plugin.py:291
+msgid "Increase frequency by 10 MHz / KHz (long press)"
+msgstr "Αύξηση συχνότητας κατά 10 MHz / KHz (διαρκές πάτημα)"
+
+#: plugin/plugin.py:292
+msgid "Decrease frequency by 10 MHz / KHz (long press)"
+msgstr "Μείωση συχνότητας κατά 10 MHz / KHz (διαρκές πάτημα)"
+
+#: plugin/plugin.py:294
+msgid "Increase frequency by 0.05 MHz"
+msgstr "Αύξηση συχνότητας κατά 0.05 MHz"
+
+#: plugin/plugin.py:295
+msgid "Decrease frequency by 0.05 MHz"
+msgstr "Μείωση συχνότητας κατά 0.05 MHz"
+
+#: plugin/plugin.py:296
+msgid "Increase frequency by 0.1 MHz (long press)"
+msgstr "Αύξηση συχνότητας κατά 0.1 MHz (διαρκές πάτημα)"
+
+#: plugin/plugin.py:297
+msgid "Decrease frequency by 0.1 MHz (long press)"
+msgstr "Μείωση συχνότητας κατά 0.1 MHz (διαρκές πάτημα)"
+
+#: plugin/plugin.py:299
+msgid "Increase frequency by 0.0001 MHz"
+msgstr "Αύξηση συχνότητας κατά 0.0001 MHz"
+
+#: plugin/plugin.py:300
+msgid "Decrease frequency by 0.0001 MHz"
+msgstr "Μείωση συχνότητας κατά 0.0001 MHz"
+
+#: plugin/plugin.py:606
 msgid "Error storing memory preset! Please select a valid frequency and try again."
 msgstr "Σφάλμα κατά την αποθήκευση της μνήμης. Επιλέξτε μια έγκυρη συχνότητα και προσπαθήστε ξανά."
 
-#: plugin.py:601
+#: plugin/plugin.py:611
 #, python-format
 msgid "Selected frequency successfuly stored to memory preset %d."
 msgstr "Η επιλεγμένη συχνότητα αποθηκεύτηκε στη μνήμη %d με επιτυχία."
 
-#: plugin.py:640
+#: plugin/plugin.py:637
+msgid "Stop"
+msgstr "Διακοπή"
+
+#: plugin/plugin.py:638
+#, python-format
+msgid "Playing %(freq)s %(units)s"
+msgstr "Αναπαραγωγή %(freq)s %(units)s"
+
+#: plugin/plugin.py:687
+#, python-format
+msgid "Switch to %s"
+msgstr "Μετάβαση σε %s"
+
+#: plugin/plugin.py:710
 msgid "RDS on"
 msgstr "RDS ενεργοποιημένο"
 
-#: plugin.py:642
+#: plugin/plugin.py:712
 msgid "RDS off"
 msgstr "RDS απενεργοποιημένο"
 
-#: plugin.py:644
+#: plugin/plugin.py:714
 msgid "Switch program"
 msgstr "Αλλαγή προγράμματος"
 
-#: plugin.py:657
+#: plugin/plugin.py:729
+msgid "Frequency input"
+msgstr "Εισαγωγή συχνότητας"
+
+#: plugin/plugin.py:735
 msgid "Info"
 msgstr "Πληροφορίες"
 
-#: plugin.py:669
+#: plugin/plugin.py:739
+msgid "Log"
+msgstr "Αρχείο καταγραφής"
+
+#: plugin/plugin.py:747
 msgid "Choose a radio program"
 msgstr "Επιλέξτε ένα ραδιοφωνικό πρόγραμμα"
 
-#: plugin.py:671
+#: plugin/plugin.py:749
 msgid "There are no programs available on this frequency."
 msgstr "Δεν υπάρχουν διαθέσιμα προγράμματα σε αυτή τη συχνότητα."
 
-#: plugin.py:705
-msgid "Listen to local radio stations"
-msgstr "Ακούστε τοπικούς ραδιοφωνικούς σταθμούς"
+#: plugin/plugin.py:768
+msgid "Setup menu"
+msgstr "Μενού ρυθμίσεων"
+
+#: plugin/plugin.py:769
+msgid "Cmd execution log"
+msgstr "Καταγραφή γραμμής εντολών"
+
+#: plugin/plugin.py:770
+msgid "SDR device information"
+msgstr "Πληροφορίες συσκευής"
+
+#: plugin/plugin.py:774
+msgid "Choose an action"
+msgstr "Επιλέξτε μια ενέργεια"
+
+#: plugin/plugin.py:810
+msgid "Listen to radio using a RTL-SDR USB tuner"
+msgstr "Ακούστε ραδιόφωνο χρησιμοποιώντας έναν RTL-SDR δέκτη"
