@@ -27,49 +27,56 @@ DAB_FREQ = OrderedDict([
 ])
 
 SKIN_DATA = (
-	705, 870, 35, 35,
-	755, 870, 35, 35,
-	805, 870, 35, 35,
-	855, 870, 35, 35,
-	905, 870, 35, 35,
-	955, 870, 35, 35,
-	1005, 870, 35, 35,
-	1055, 870, 35, 35,
-	1105, 870, 35, 35,
-	1155, 870, 35, 35,
+	1155, 630,
 
-	765, 440, 150, 35, 30,
-	765, 500, 150, 35, 30,
-	920, 440, 720, 100, 95,
-	920, 440, 720, 100, 95,
-	1645, 505, 65, 35, 30,
+	105, 495, 35, 35,
+	155, 495, 35, 35,
+	205, 495, 35, 35,
+	255, 495, 35, 35,
+	305, 495, 35, 35,
+	355, 495, 35, 35,
+	405, 495, 35, 35,
+	455, 495, 35, 35,
+	505, 495, 35, 35,
+	555, 495, 35, 35,
 
-	920, 545, 720, 55, 40,
-	825, 402, 85, 30,
-	1650, 545, 30, 30,
-	1645, 600, 60, 30,
-	920, 600, 720, 140, 30,
+	165, 65, 150, 35, 30,
+	165, 125, 150, 35, 30,
+	320, 65, 720, 100, 95,
+	320, 65, 720, 100, 95,
+	1045, 130, 65, 35, 30,
 
-	1420, 400, 290, 35, 30,
-	920, 400, 130, 35, 30,
-	1055, 400, 85, 35, 30,
-	1145, 400, 45, 35, 30,
-	1195, 400, 45, 35, 30,
-	1245, 400, 80, 35, 30,
-	1335, 400, 55, 35, 30,
-	640, 540, 280, 200,
+	320, 170, 720, 55, 40,
+	225, 29, 85, 30,
+	1060, 170, 30, 30,
+	1045, 230, 60, 30,
+	320, 230, 720, 140, 30,
 
-	670, 918, 195, 40, 25,
-	925, 918, 185, 40, 25,
-	1150, 918, 270, 40, 25,
-	1460, 918, 270, 40, 25,
+	820, 27, 290, 35, 30,
+	320, 27, 130, 35, 30,
+	455, 27, 85, 35, 30,
+	545, 27, 45, 35, 30,
+	595, 27, 45, 35, 30,
+	645, 27, 80, 35, 30,
+	735, 27, 55, 35, 30,
+	40, 165, 280, 200,
 
-	635, 405, 30, 30,
-	670, 408, 130, 30, 25
+	25, 550, 35, 35,
+	315, 550, 35, 35,
+	585, 550, 35, 35,
+	865, 550, 35, 35,
+
+	65, 550, 245, 35, 24,
+	355, 550, 225, 35, 24,
+	625, 550, 235, 35, 24,
+	905, 550, 235, 35, 24,
+
+	35, 30, 30, 30,
+	70, 32, 130, 30, 24
 )
 
 SKIN = """
-	<screen name="SDGRadioScreen" title="Software defined radio" position="center,center" size="e,e" flags="wfNoBorder" backgroundColor="transparent">
+	<screen name="SDGRadioScreen" title="Software defined radio" position="center,center" size="%d,%d" flags="wfNoBorder" backgroundColor="transparent">
 		<ePixmap pixmap="~/img/radiobackground.png" position="center,center" size="e,e" alphatest="on" scale="1" zPosition="-10"/>
 		<widget name="mem_1" pixmaps="~/img/mem_1_empty.png,~/img/mem_1_stored.png,~/img/mem_1_selected.png" position="%d,%d" size="%d,%d" alphatest="blend" scale="1" zPosition="5"/>
 		<widget name="mem_2" pixmaps="~/img/mem_2_empty.png,~/img/mem_2_stored.png,~/img/mem_2_selected.png" position="%d,%d" size="%d,%d" alphatest="blend" scale="1" zPosition="5"/>
@@ -102,6 +109,19 @@ SKIN = """
 		<widget name="eon" position="%d,%d" size="%d,%d" font="Regular;%d" valign="center" halign="center" foregroundColor="#00deff" backgroundColor="#003258" zPosition="5" transparent="1"/>
 		<widget name="rt+" position="%d,%d" size="%d,%d" font="Regular;%d" valign="center" halign="center" foregroundColor="#00deff" backgroundColor="#003258" zPosition="5" transparent="1"/>
 		<widget name="pic" position="%d,%d" size="%d,%d" alphatest="on" scale="1" backgroundColor="#003258" zPosition="10" transparent="1"/>
+
+		<widget objectTypes="key_red,StaticText" source="key_red" render="Pixmap" pixmap="~/img/key_red.png" position="%d,%d" size="%d,%d" alphatest="blend" zPosition="5" transparent="1">
+			<convert type="ConditionalShowHide" />
+		</widget>
+		<widget objectTypes="key_green,StaticText" source="key_green" render="Pixmap" pixmap="~/img/key_green.png" position="%d,%d" size="%d,%d" alphatest="blend" zPosition="5" transparent="1">
+			<convert type="ConditionalShowHide"/>
+		</widget>
+		<widget objectTypes="key_yellow,StaticText" source="key_yellow" render="Pixmap" pixmap="~/img/key_yellow.png" position="%d,%d" size="%d,%d" alphatest="blend" zPosition="5" transparent="1">
+			<convert type="ConditionalShowHide"/>
+		</widget>
+		<widget objectTypes="key_blue,StaticText" source="key_blue" render="Pixmap" pixmap="~/img/key_blue.png" position="%d,%d" size="%d,%d" alphatest="blend" zPosition="5" transparent="1">
+			<convert type="ConditionalShowHide"/>
+		</widget>
 
 		<widget source="key_red" render="Label" position="%d,%d" size="%d,%d" font="Regular;%d" valign="center" foregroundColor="#000000" backgroundColor="#ffffff" noWrap="1" transparent="1"/>
 		<widget source="key_green" render="Label" position="%d,%d" size="%d,%d" font="Regular;%d" valign="center" foregroundColor="#000000" backgroundColor="#ffffff" noWrap="1" transparent="1"/>
