@@ -62,12 +62,12 @@ SKIN_DATA = (
 	40, 165, 280, 200,
 
 	25, 550, 35, 35,
-	315, 550, 35, 35,
+	335, 550, 35, 35,
 	585, 550, 35, 35,
 	865, 550, 35, 35,
 
-	65, 550, 245, 35, 24,
-	355, 550, 225, 35, 24,
+	65, 550, 265, 35, 24,
+	375, 550, 205, 35, 24,
 	625, 550, 235, 35, 24,
 	905, 550, 235, 35, 24,
 
@@ -99,7 +99,7 @@ SKIN = """
 		<widget name="rds_icon" pixmap="~/img/rds_on.png" position="%d,%d" size="%d,%d" alphatest="blend" scale="1" zPosition="5" transparent="1"/>
 		<widget name="ps_icon" pixmap="~/img/ps_on.png" position="%d,%d" size="%d,%d" alphatest="blend" scale="1" zPosition="5" transparent="1"/>
 		<widget name="rt_icon" pixmap="~/img/rt_on.png" position="%d,%d" size="%d,%d" alphatest="blend" scale="1" zPosition="5" transparent="1"/>
-		<widget name="radiotext" position="%d,%d" size="%d,%d" font="Regular;%d" valign="top" halign="center" foregroundColor="#ffffc6" backgroundColor="#003258" transparent="1" noWrap="1"/>
+		<widget name="radiotext" position="%d,%d" size="%d,%d" font="Regular;%d" valign="top" halign="center" foregroundColor="#ffffc6" backgroundColor="#003258" transparent="1"/>
 
 		<widget name="prog_type" position="%d,%d" size="%d,%d" font="Regular;%d" valign="center" halign="right" foregroundColor="#00deff" backgroundColor="#003258" zPosition="5" transparent="1"/>
 		<widget name="pi" position="%d,%d" size="%d,%d" font="Regular;%d" valign="center" halign="left" foregroundColor="#00deff" backgroundColor="#003258" zPosition="5" transparent="1"/>
@@ -110,16 +110,16 @@ SKIN = """
 		<widget name="rt+" position="%d,%d" size="%d,%d" font="Regular;%d" valign="center" halign="center" foregroundColor="#00deff" backgroundColor="#003258" zPosition="5" transparent="1"/>
 		<widget name="pic" position="%d,%d" size="%d,%d" alphatest="on" scale="1" backgroundColor="#003258" zPosition="10" transparent="1"/>
 
-		<widget objectTypes="key_red,StaticText" source="key_red" render="Pixmap" pixmap="~/img/key_red.png" position="%d,%d" size="%d,%d" alphatest="blend" zPosition="5" transparent="1">
+		<widget objectTypes="key_red,StaticText" source="key_red" render="Pixmap" pixmap="~/img/key_red.png" position="%d,%d" size="%d,%d" alphatest="blend" zPosition="5" transparent="1" scale="1">
 			<convert type="ConditionalShowHide" />
 		</widget>
-		<widget objectTypes="key_green,StaticText" source="key_green" render="Pixmap" pixmap="~/img/key_green.png" position="%d,%d" size="%d,%d" alphatest="blend" zPosition="5" transparent="1">
+		<widget objectTypes="key_green,StaticText" source="key_green" render="Pixmap" pixmap="~/img/key_green.png" position="%d,%d" size="%d,%d" alphatest="blend" zPosition="5" transparent="1" scale="1">
 			<convert type="ConditionalShowHide"/>
 		</widget>
-		<widget objectTypes="key_yellow,StaticText" source="key_yellow" render="Pixmap" pixmap="~/img/key_yellow.png" position="%d,%d" size="%d,%d" alphatest="blend" zPosition="5" transparent="1">
+		<widget objectTypes="key_yellow,StaticText" source="key_yellow" render="Pixmap" pixmap="~/img/key_yellow.png" position="%d,%d" size="%d,%d" alphatest="blend" zPosition="5" transparent="1" scale="1">
 			<convert type="ConditionalShowHide"/>
 		</widget>
-		<widget objectTypes="key_blue,StaticText" source="key_blue" render="Pixmap" pixmap="~/img/key_blue.png" position="%d,%d" size="%d,%d" alphatest="blend" zPosition="5" transparent="1">
+		<widget objectTypes="key_blue,StaticText" source="key_blue" render="Pixmap" pixmap="~/img/key_blue.png" position="%d,%d" size="%d,%d" alphatest="blend" zPosition="5" transparent="1" scale="1">
 			<convert type="ConditionalShowHide"/>
 		</widget>
 
