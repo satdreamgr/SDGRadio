@@ -480,8 +480,7 @@ class SDGRadioScreen(Screen, HelpableScreen):
 
 	def doConsoleStop(self):
 		if self.console:
-			self.console.sendCtrlC()
-			self.console.sendEOF()
+			self.console.kill()
 			if self.console.running():
 				self.console.kill()
 			self.console = None
