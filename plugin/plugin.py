@@ -434,7 +434,7 @@ class SDGRadioScreen(Screen, HelpableScreen):
 			self["traffic"].setText(traffic)
 
 		except Exception as e:
-			msg = "processRds exception: %s data: %s" % (e, binascii.hexlify(data))
+			msg = "processRds exception: %s data: %s\n" % (e, binascii.hexlify(data))
 			self.log.append(msg)
 			print "[SDGRadio] %s" % msg
 
@@ -783,6 +783,9 @@ class SDGRadioScreen(Screen, HelpableScreen):
 				self["pic"].instance.size().height(),
 				sc[0], sc[1], False, 1, "#00000000"))
 			self.picloads.startDecode(image)
+		else:
+			msg = "showPicture: cannot find image: %s\n" % image
+			self.log.append(msg)
 
 	def showPictureFinish(self, image, picInfo=None):
 		ptr = self.picloads.getData()
