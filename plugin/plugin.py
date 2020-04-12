@@ -735,6 +735,7 @@ class SDGRadioScreen(Screen, HelpableScreen):
 
 	def showLog(self):
 		text = "".join(self.log)
+		open("/tmp/sdgradio.log", "w").write(text)
 		self.session.open(Console, _("Log"), ["cat << EOF\n%s\nEOF" % text])
 
 	def showPrograms(self):
