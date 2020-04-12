@@ -398,7 +398,7 @@ class SDGRadioScreen(Screen, HelpableScreen):
 			if "callsign_uncertain" in rds and self["pi"].getText() != rds["callsign_uncertain"].encode("utf8"):
 				self["pi"].setText(rds["callsign_uncertain"].encode("utf8"))
 
-			if "pi" in rds and not str(rds["pi"]) == "0x0000" or "callsign" in rds or "callsign_uncertain" in rds or "ps" in rds and str(rds["pi"]) == "0x0000" or "partial_ps" in rds and str(rds["pi"]) == "0x0000":
+			if "pi" in rds and not str(rds["pi"]) == "0x0000" or "callsign" in rds or "callsign_uncertain" in rds or "pi" in rds and str(rds["pi"]) == "0x0000" or "partial_ps" in rds and str(rds["pi"]) == "0x0000":
 				self["rds_icon"].show()
 
 			if "programType" in rds:
