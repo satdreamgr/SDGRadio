@@ -335,7 +335,6 @@ class SDGRadioScreen(Screen, HelpableScreen):
 	def playRadio(self):
 		self.doConsoleStop()
 		self.updateMiscWidgets(True)
-		time.sleep(0.3)
 		self.console = eConsoleAppContainer()
 		self.console.stderrAvail.append(self.cbStderrAvail)
 		#self.console.appClosed.append(self.cbAppClosed)
