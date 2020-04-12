@@ -435,7 +435,7 @@ class SDGRadioScreen(Screen, HelpableScreen):
 
 		except Exception as e:
 			msg = "processRds exception: %s data: %s" % (e, binascii.hexlify(data))
-			self.log.append(str)
+			self.log.append(msg)
 			print "[SDGRadio] %s" % msg
 
 	def rdsOptions(self):
