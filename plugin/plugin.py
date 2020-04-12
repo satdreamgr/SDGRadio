@@ -263,6 +263,7 @@ class SDGRadioScreen(Screen, HelpableScreen):
 			"green": (self.togglePlayback, _("Start/stop playback")),
 			"yellow": (self.yellow, _("Switch RDS on/off")),
 			"blue": (self.showInput, _("Open frequency input screen")),
+			"blue_long": (self.showLog, _("Cmd execution log")),
 
 			"0": (boundFunction(self.selectPreset, 0), _("Play memory preset")),
 			"1": (boundFunction(self.selectPreset, 1), _("Play memory preset")),
