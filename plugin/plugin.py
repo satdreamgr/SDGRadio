@@ -68,7 +68,7 @@ config.plugins.SDGRadio.fmregion = ConfigSelection(default="eu-int", choices=[
 ])
 config.plugins.SDGRadio.usepartial = ConfigYesNo(default=False)
 config.plugins.SDGRadio.userbds = ConfigYesNo(default=False)
-config.plugins.SDGRadio.pcm = ConfigYesNo(default=False)
+config.plugins.SDGRadio.pcm = ConfigYesNo(default=True)
 config.plugins.SDGRadio.edge = ConfigYesNo(default=False)
 config.plugins.SDGRadio.dc = ConfigYesNo(default=False)
 config.plugins.SDGRadio.deemp = ConfigYesNo(default=False)
