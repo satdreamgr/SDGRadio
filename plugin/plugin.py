@@ -799,6 +799,7 @@ class SDGRadioScreen(Screen, HelpableScreen):
 		self.doConsoleStop()
 		self.savePresets()
 		config.plugins.SDGRadio.save()
+		eConsoleAppContainer().execute("rtl_eeprom") # hack: run rtl_eeprom to shutdown tuner
 		self.close(False, self.session)
 		self.session.nav.playService(self.oldService)
 
