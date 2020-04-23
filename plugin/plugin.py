@@ -1,9 +1,10 @@
 from . import _
-from utils import SDR_MIN_FREQ, SDR_MAX_FREQ, DAB_FREQ, SKIN
+from utils import SDR_MIN_FREQ, SDR_MAX_FREQ, DAB_FREQ, SKIN, RAWSKIN
 from Components.ActionMap import HelpableActionMap, ActionMap
 from Components.AVSwitch import AVSwitch
-from Components.config import config, getConfigListEntry, ConfigSubsection, ConfigText, ConfigSelection, ConfigSelectionNumber, ConfigYesNo, ConfigFloat
+from Components.config import config, getConfigListEntry, ConfigSubsection, ConfigText, ConfigSelection, ConfigSelectionNumber, ConfigYesNo, ConfigFloat, ConfigInteger, ConfigBoolean
 from Components.ConfigList import ConfigListScreen
+from Components.FileList import FileList
 from Components.Label import Label
 from Components.Pixmap import Pixmap, MultiPixmap
 from Components.Sources.StaticText import StaticText
@@ -14,7 +15,7 @@ from Screens.HelpMenu import HelpableScreen
 from Screens.MessageBox import MessageBox
 from Screens.Screen import Screen
 from Tools.BoundFunction import boundFunction
-from Tools.Directories import resolveFilename, SCOPE_PLUGINS
+from Tools.Directories import resolveFilename, SCOPE_PLUGINS, pathExists, SCOPE_MEDIA
 from enigma import eConsoleAppContainer, ePicLoad
 
 import os
@@ -31,12 +32,14 @@ config.plugins.SDGRadio.frequency_am = ConfigText(default="0.8")
 config.plugins.SDGRadio.frequency_lsb = ConfigText(default="0.8")
 config.plugins.SDGRadio.frequency_usb = ConfigText(default="0.8")
 config.plugins.SDGRadio.frequency_dab = ConfigText(default="174.928")
+config.plugins.SDGRadio.frequency_tcp = ConfigText(default="174.928")
 config.plugins.SDGRadio.presets_fm = ConfigText(default="0,0,0,0,0,0,0,0,0,0")
 config.plugins.SDGRadio.presets_nfm = ConfigText(default="0,0,0,0,0,0,0,0,0,0")
 config.plugins.SDGRadio.presets_am = ConfigText(default="0,0,0,0,0,0,0,0,0,0")
 config.plugins.SDGRadio.presets_lsb = ConfigText(default="0,0,0,0,0,0,0,0,0,0")
 config.plugins.SDGRadio.presets_usb = ConfigText(default="0,0,0,0,0,0,0,0,0,0")
 config.plugins.SDGRadio.presets_dab = ConfigText(default="0,0,0,0,0,0,0,0,0,0")
+config.plugins.SDGRadio.presets_tcp = ConfigText(default="0,0,0,0,0,0,0,0,0,0")
 config.plugins.SDGRadio.rds = ConfigYesNo(default=False)
 config.plugins.SDGRadio.modulation = ConfigSelection(default="fm", choices=[
 	("fm", _("FM")),
@@ -44,18 +47,21 @@ config.plugins.SDGRadio.modulation = ConfigSelection(default="fm", choices=[
 	("am", _("AM")),
 	("lsb", _("LSB")),
 	("usb", _("USB")),
-	("dab", _("DAB/DAB+"))
+	("dab", _("DAB/DAB+")),
+	("tcp", _("RTL_TCP")),
+	("raw", _("I/Q File"))
 ])
 config.plugins.SDGRadio.tuning = ConfigSelection(default="simple", choices=[
 	("simple", _("simple")),
 	("advanced", _("advanced"))
 ])
 config.plugins.SDGRadio.ppmoffset = ConfigSelectionNumber(-100, 100, 1, 0)
-config.plugins.SDGRadio.fmgain = ConfigSelectionNumber(0, 50, 1, 20)
 choicelist = [("automatic", _("auto"))]
 for i in range(0, 51): # 0 to 50
 	choicelist.append((str(i)))
-config.plugins.SDGRadio.gain = ConfigSelection(default="50", choices=choicelist)
+config.plugins.SDGRadio.fmgain = ConfigSelection(default="automatic", choices=choicelist)
+config.plugins.SDGRadio.dabgain = ConfigSelection(default="automatic", choices=choicelist)
+config.plugins.SDGRadio.gain = ConfigSelection(default="automatic", choices=choicelist)
 config.plugins.SDGRadio.fmbandwidth = ConfigSelectionNumber(50, 180, 1, 171)
 config.plugins.SDGRadio.bandwidth = ConfigSelectionNumber(1, 32, 1, 20)
 config.plugins.SDGRadio.sbbandwidth = ConfigSelectionNumber(1, 16, 1, 5)
@@ -74,6 +80,14 @@ config.plugins.SDGRadio.dc = ConfigYesNo(default=False)
 config.plugins.SDGRadio.deemp = ConfigYesNo(default=False)
 config.plugins.SDGRadio.direct = ConfigYesNo(default=False)
 config.plugins.SDGRadio.offset = ConfigYesNo(default=False)
+config.plugins.SDGRadio.enable_rtl_tcp = ConfigYesNo(default=False)
+config.plugins.SDGRadio.dab_tcp_host = ConfigText(default = "127.0.0.1", fixed_size = False)
+config.plugins.SDGRadio.dab_tcp_port = ConfigInteger(default = 1234, limits=(0,65536))
+config.plugins.SDGRadio.dab_tcp_ppmoffset = ConfigSelectionNumber(-100, 100, 1, 0)
+config.plugins.SDGRadio.dab_tcp_gain = ConfigSelection(default="automatic", choices=choicelist)
+config.plugins.SDGRadio.enable_raw = ConfigYesNo(default=False)
+config.plugins.SDGRadio.raw_lastdir = ConfigText(default=resolveFilename(SCOPE_MEDIA))
+raw_filename = ["", ""]
 
 
 class SDGRadioSetup(ConfigListScreen, Screen):
@@ -83,6 +97,8 @@ class SDGRadioSetup(ConfigListScreen, Screen):
 		self.setTitle(_("SDR setup"))
 		self.skinName = ["SDGRadioSetup", "Setup"]
 
+		self.configlist = []
+		ConfigListScreen.__init__(self, [], session = session, on_change = self.changedEntry)
 		self["key_red"] = StaticText(_("Cancel"))
 		self["key_green"] = StaticText(_("OK"))
 		self["description"] = Label("") # filled automatically when calling createSummary()
@@ -94,78 +110,114 @@ class SDGRadioSetup(ConfigListScreen, Screen):
 				"ok": self.keySave,
 				"green": self.keySave
 			}, -2)
+		self.runSetup()
 
-		configlist = []
+	def runSetup(self):
+		self.configlist = []
 
-		configlist.append(getConfigListEntry(_('Tuning mode'),
+		self.configlist.append(getConfigListEntry(_('Tuning mode'),
 			config.plugins.SDGRadio.tuning,
 			_('Select the tuning mode for analog modulations. "simple" is designed for listening to radio stations,'
 				' as it applies band limits and allows only rough frequency changes. "advanced" disables limits and'
 				' allows precise control over frequency selection.')))
 
-		configlist.append(getConfigListEntry(_('PPM offset'),
+		self.configlist.append(getConfigListEntry(_('PPM offset'),
 			config.plugins.SDGRadio.ppmoffset,
 			_('Use PPM offset to correct the oscillator frequency. Get proper value using "rtl_test -p" or "kalibrate".')))
 
-		configlist.append(getConfigListEntry(_('Tuner gain for FM'),
+		self.configlist.append(getConfigListEntry(_('Tuner gain for FM'),
 			config.plugins.SDGRadio.fmgain,
 			_('Set the tuner gain value for FM band (default = 20).')))
 
-		configlist.append(getConfigListEntry(_('Tuner gain for other bands and DAB'),
-			config.plugins.SDGRadio.gain,
-			_('Set the tuner gain value for all bands and DAB/DAB+ except FM (default = 50).')))
+		self.configlist.append(getConfigListEntry(_('Tuner gain for DAB/DAB+'),
+			config.plugins.SDGRadio.dabgain,
+			_('Set the tuner gain value for DAB/DAB+ (default = auto).')))
 
-		configlist.append(getConfigListEntry(_('Bandwidth for FM in k/sec'),
+		self.configlist.append(getConfigListEntry(_('Tuner gain for other bands'),
+			config.plugins.SDGRadio.gain,
+			_('Set the tuner gain value for AM, NFM, LSB and USB (default = auto).')))
+
+		self.configlist.append(getConfigListEntry(_('Bandwidth for FM in k/sec'),
 			config.plugins.SDGRadio.fmbandwidth,
 			_('Set the frequency bandwidth for FM band. For RDS set to 171 (default = 171k).')))
 
-		configlist.append(getConfigListEntry(_('Bandwidth for NFM/AM in k/sec'),
+		self.configlist.append(getConfigListEntry(_('Bandwidth for NFM/AM in k/sec'),
 			config.plugins.SDGRadio.bandwidth,
-			_('Set the frequency bandwidth for NFM and AM bands (default = 20k).')))
+			_('Set the frequency bandwidth for NFM & AM bands (default = 20k).')))
 
-		configlist.append(getConfigListEntry(_('Bandwidth for LSB/USB in k/sec'),
+		self.configlist.append(getConfigListEntry(_('Bandwidth for LSB/USB in k/sec'),
 			config.plugins.SDGRadio.sbbandwidth,
-			_('Set the frequency bandwidth for LSB and USB bands (default = 5k).')))
+			_('Set the frequency bandwidth for LSB & USB bands (default = 5k).')))
 
-		configlist.append(getConfigListEntry(_('FM region'),
+		self.configlist.append(getConfigListEntry(_('FM region'),
 			config.plugins.SDGRadio.fmregion,
 			_('Select FM band range by region. "Russia" provides 64-108 MHz (full FM band), "Europe/World" 87.5-108 MHz,'
 				' "Japan" 76-95 MHz, "China" 76-108 MHz and "America" 88.1-107.9 MHz.')))
 
-		configlist.append(getConfigListEntry(_('Use partial RDS info'),
+		self.configlist.append(getConfigListEntry(_('Use partial RDS info'),
 			config.plugins.SDGRadio.usepartial,
 			_('Use RDS info before it is fully received. This could be useful when reception is noisy.')))
 
-		configlist.append(getConfigListEntry(_('Use RBDS instead of RDS'),
+		self.configlist.append(getConfigListEntry(_('Use RBDS instead of RDS'),
 			config.plugins.SDGRadio.userbds,
 			_('Use RBDS instead of ordinary RDS info. If FM region is set to "America", RBDS is selected automatically.')))
 
-		configlist.append(getConfigListEntry(_('PCM output'),
+		self.configlist.append(getConfigListEntry(_('PCM output'),
 			config.plugins.SDGRadio.pcm,
 			_('Output PCM instead of AAC/MPEG when using DAB/DAB+.')))
 
-		configlist.append(getConfigListEntry(_('Lower edge tuning'),
+		self.configlist.append(getConfigListEntry(_('Lower edge tuning'),
 			config.plugins.SDGRadio.edge,
 			_('Enable lower edge tuning for analog radio.')))
 
-		configlist.append(getConfigListEntry(_('DC filter'),
+		self.configlist.append(getConfigListEntry(_('DC filter'),
 			config.plugins.SDGRadio.dc,
 			_('Enable the DC blocking filter.')))
 
-		configlist.append(getConfigListEntry(_('De-emphasis filter'),
+		self.configlist.append(getConfigListEntry(_('De-emphasis filter'),
 			config.plugins.SDGRadio.deemp,
 			_('Enable the de-emphasis filter.')))
 
-		configlist.append(getConfigListEntry(_('Direct sampling'),
+		self.configlist.append(getConfigListEntry(_('Direct sampling'),
 			config.plugins.SDGRadio.direct,
 			_('Enable direct sampling for the tuner.')))
 
-		configlist.append(getConfigListEntry(_('Offset tuning'),
+		self.configlist.append(getConfigListEntry(_('Offset tuning'),
 			config.plugins.SDGRadio.offset,
 			_('Enable offset tuning.')))
 
-		ConfigListScreen.__init__(self, configlist, session)
+		self.configlist.append(getConfigListEntry(_('DAB/DAB+ RTL_TCP mode'),
+			config.plugins.SDGRadio.enable_rtl_tcp,
+			_('Use a RTL_TCP server as DAB/DAB+ source')))
 
+		if config.plugins.SDGRadio.enable_rtl_tcp.value:
+			self.configlist.append(getConfigListEntry(_('Server address'),
+				config.plugins.SDGRadio.dab_tcp_host,
+				_('Set Host to connect to a DAB/DAB+ RTL_TCP server')))
+
+			self.configlist.append(getConfigListEntry(_('Server port'),
+				config.plugins.SDGRadio.dab_tcp_port,
+				_('Set Port to connect to a DAB/DAB+ RTL_TCP server')))
+
+			self.configlist.append(getConfigListEntry(_('Server tuner PPM offset'),
+				config.plugins.SDGRadio.dab_tcp_ppmoffset,
+				_('Set value to correct oscillator freq. for tuner on DAB/DAB+ RTL_TCP server (default = 0).')))
+
+			self.configlist.append(getConfigListEntry(_('Server tuner gain'),
+				config.plugins.SDGRadio.dab_tcp_gain,
+				_('Set gain value for tuner on DAB/DAB+ RTL_TCP server (default = auto).')))
+
+		self.configlist.append(getConfigListEntry(_('DAB/DAB+ I/Q File mode'),
+				config.plugins.SDGRadio.enable_raw,
+				_('Reads a DAB/DAB+ RAW I/Q file')))
+
+		self["config"].list = self.configlist
+		self["config"].l.setList(self.configlist)
+#		ConfigListScreen.__init__(self, configlist, session)
+
+	def changedEntry(self):
+		if isinstance(self["config"].getCurrent()[1], ConfigBoolean) or isinstance(self["config"].getCurrent()[1], ConfigSelection):
+			self.runSetup()
 
 class SDGRadioInput(ConfigListScreen, Screen):
 
@@ -211,13 +263,15 @@ class SDGRadioScreen(Screen, HelpableScreen):
 
 	def __init__(self, session):
 		self.modulation = config.plugins.SDGRadio.modulation
-		self.frequency = eval("config.plugins.SDGRadio.frequency_%s" % self.modulation.value)
+		if self.modulation.value != "raw":
+			self.frequency = eval("config.plugins.SDGRadio.frequency_%s" % self.modulation.value)
 		self.playbackFrequency = None # currently playing frequency
 		self.playbackPreset = None # currently playing preset
 		self.presets = [] # preset list for current modulation
 		self.log = [] # log messages
 		self.programs = [] # DAB program list
 		self.console = None
+		self.IsPlaying = False
 
 		Screen.__init__(self, session)
 		HelpableScreen.__init__(self)
@@ -265,27 +319,27 @@ class SDGRadioScreen(Screen, HelpableScreen):
 			"blue": (self.showInput, _("Open frequency input screen")),
 			"blue_long": (self.showLog, _("Cmd execution log")),
 
-			"0": (boundFunction(self.selectPreset, 0), _("Play memory preset")),
-			"1": (boundFunction(self.selectPreset, 1), _("Play memory preset")),
-			"2": (boundFunction(self.selectPreset, 2), _("Play memory preset")),
-			"3": (boundFunction(self.selectPreset, 3), _("Play memory preset")),
-			"4": (boundFunction(self.selectPreset, 4), _("Play memory preset")),
-			"5": (boundFunction(self.selectPreset, 5), _("Play memory preset")),
-			"6": (boundFunction(self.selectPreset, 6), _("Play memory preset")),
-			"7": (boundFunction(self.selectPreset, 7), _("Play memory preset")),
-			"8": (boundFunction(self.selectPreset, 8), _("Play memory preset")),
-			"9": (boundFunction(self.selectPreset, 9), _("Play memory preset")),
+			"0": (boundFunction(self.selectPreset, 0), _("Play memory preset 0")),
+			"1": (boundFunction(self.selectPreset, 1), _("Play memory preset 1")),
+			"2": (boundFunction(self.selectPreset, 2), _("Play memory preset 2")),
+			"3": (boundFunction(self.selectPreset, 3), _("Play memory preset 3")),
+			"4": (boundFunction(self.selectPreset, 4), _("Play memory preset 4")),
+			"5": (boundFunction(self.selectPreset, 5), _("Play memory preset 5")),
+			"6": (boundFunction(self.selectPreset, 6), _("Play memory preset 6")),
+			"7": (boundFunction(self.selectPreset, 7), _("Play memory preset 7")),
+			"8": (boundFunction(self.selectPreset, 8), _("Play memory preset 8")),
+			"9": (boundFunction(self.selectPreset, 9), _("Play memory preset 9")),
 
-			"long0": (boundFunction(self.storePreset, 0), _("Store frequency to memory preset")),
-			"long1": (boundFunction(self.storePreset, 1), _("Store frequency to memory preset")),
-			"long2": (boundFunction(self.storePreset, 2), _("Store frequency to memory preset")),
-			"long3": (boundFunction(self.storePreset, 3), _("Store frequency to memory preset")),
-			"long4": (boundFunction(self.storePreset, 4), _("Store frequency to memory preset")),
-			"long5": (boundFunction(self.storePreset, 5), _("Store frequency to memory preset")),
-			"long6": (boundFunction(self.storePreset, 6), _("Store frequency to memory preset")),
-			"long7": (boundFunction(self.storePreset, 7), _("Store frequency to memory preset")),
-			"long8": (boundFunction(self.storePreset, 8), _("Store frequency to memory preset")),
-			"long9": (boundFunction(self.storePreset, 9), _("Store frequency to memory preset")),
+			"long0": (boundFunction(self.storePreset, 0), _("Store frequency to memory preset 0")),
+			"long1": (boundFunction(self.storePreset, 1), _("Store frequency to memory preset 1")),
+			"long2": (boundFunction(self.storePreset, 2), _("Store frequency to memory preset 2")),
+			"long3": (boundFunction(self.storePreset, 3), _("Store frequency to memory preset 3")),
+			"long4": (boundFunction(self.storePreset, 4), _("Store frequency to memory preset 4")),
+			"long5": (boundFunction(self.storePreset, 5), _("Store frequency to memory preset 5")),
+			"long6": (boundFunction(self.storePreset, 6), _("Store frequency to memory preset 6")),
+			"long7": (boundFunction(self.storePreset, 7), _("Store frequency to memory preset 7")),
+			"long8": (boundFunction(self.storePreset, 8), _("Store frequency to memory preset 8")),
+			"long9": (boundFunction(self.storePreset, 9), _("Store frequency to memory preset 9")),
 
 			"up": (boundFunction(self.freqUp, "1"), _("Increase frequency by 1 MHz / KHz")),
 			"down": (boundFunction(self.freqDown, "1"), _("Decrease frequency by 1 MHz / KHz")),
@@ -308,11 +362,15 @@ class SDGRadioScreen(Screen, HelpableScreen):
 		self.session.nav.stopService() # stop currently playing service
 		eConsoleAppContainer().execute("showiframe /usr/share/enigma2/radio.mvi") # display radio mvi
 		#self.Scale = AVSwitch().getFramebufferScale()
+		self["rds_icon"].hide()
+		self["rt_icon"].hide()
+		self["ps_icon"].hide()
 
 	def getConfigOptions(self):
 		self.tuning = config.plugins.SDGRadio.tuning.value
 		self.ppmoffset = str(config.plugins.SDGRadio.ppmoffset.value)
-		self.fmgain = str(config.plugins.SDGRadio.fmgain.value)
+		self.fmgain = config.plugins.SDGRadio.fmgain.value
+		self.dabgain = config.plugins.SDGRadio.dabgain.value
 		self.gain = config.plugins.SDGRadio.gain.value
 		self.fmbandwidth = str(config.plugins.SDGRadio.fmbandwidth.value)
 		self.bandwidth = str(config.plugins.SDGRadio.bandwidth.value)
@@ -326,38 +384,57 @@ class SDGRadioScreen(Screen, HelpableScreen):
 		self.deemp = config.plugins.SDGRadio.deemp.value
 		self.direct = config.plugins.SDGRadio.direct.value
 		self.offset = config.plugins.SDGRadio.offset.value
+		self.dab_tcp_host = config.plugins.SDGRadio.dab_tcp_host.value
+		self.dab_tcp_port = str(config.plugins.SDGRadio.dab_tcp_port.value)
+		self.dab_tcp_ppmoffset = str(config.plugins.SDGRadio.dab_tcp_ppmoffset.value)
+		self.dab_tcp_gain = config.plugins.SDGRadio.dab_tcp_gain.value
 
 	def stopRadio(self):
 		self.doConsoleStop()
+		self.IsPlaying = False
 		self.updateMiscWidgets(False)
 		self.playbackFrequency = None
 		self.playbackPreset = None
+		self.savePresets() #moved from togglemodulation
 
 	def playRadio(self):
 		self.doConsoleStop()
 		self.updateMiscWidgets(True)
+		if self.modulation.value == "tcp" and self.IsPlaying == True: # to know if rtl_tcp server is already playing, or it's first play from stop situation.
+			time.sleep (3) # rtl_tcp servers need some time to disconnect and start listening for incoming requests again.
+		self.IsPlaying = True
 		self.console = eConsoleAppContainer()
 		self.console.stderrAvail.append(self.cbStderrAvail)
 		#self.console.appClosed.append(self.cbAppClosed)
 
 		if self.modulation.value == "fm":
 			if config.plugins.SDGRadio.rds.value:
-				cmd = "rtl_fm -f %sM -M fm -l 0 -A std -s %sk -g %s -p %s %s %s %s %s %s -F 9 - | %s | gst-launch-1.0 fdsrc ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=%s000 ! audioresample ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=48000 ! dvbaudiosink" % (self.frequency.value, self.fmbandwidth, self.fmgain, self.ppmoffset, self.getEdge(), self.getDc(), self.getDeemp(), self.getDirect(), self.getOffset(), self.rdsOptions(), self.fmbandwidth)
+				cmd = "rtl_fm -f %sM -M fm -l 0 -A std -s %sk %s -p %s %s %s %s %s %s -F 9 - | %s | gst-launch-1.0 fdsrc ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=%s000 ! audioresample ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=48000 ! dvbaudiosink" % (self.frequency.value, self.fmbandwidth, self.getFmGain(), self.ppmoffset, self.getEdge(), self.getDc(), self.getDeemp(), self.getDirect(), self.getOffset(), self.rdsOptions(), self.fmbandwidth)
 			else:
-				cmd = "rtl_fm -f %sM -M fm -l 0 -A std -s %sk -g %s -p %s %s %s %s %s %s -F 0 - | gst-launch-1.0 fdsrc ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=%s000 ! audioresample ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=48000 ! dvbaudiosink" % (self.frequency.value, self.fmbandwidth, self.fmgain, self.ppmoffset, self.getEdge(), self.getDc(), self.getDeemp(), self.getDirect(), self.getOffset(), self.fmbandwidth)
+				cmd = "rtl_fm -f %sM -M fm -l 0 -A std -s %sk %s -p %s %s %s %s %s %s -F 0 - | gst-launch-1.0 fdsrc ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=%s000 ! audioresample ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=48000 ! dvbaudiosink" % (self.frequency.value, self.fmbandwidth, self.getFmGain(), self.ppmoffset, self.getEdge(), self.getDc(), self.getDeemp(), self.getDirect(), self.getOffset(), self.fmbandwidth)
 		elif self.modulation.value == "nfm":
-			cmd = "rtl_fm -f %sM -M fm -A std -s %sk -g %s -p %s %s %s %s %s %s - | gst-launch-1.0 fdsrc ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=%s000 ! audioresample ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=48000 ! dvbaudiosink" % (self.frequency.value, self.bandwidth, self.gain, self.ppmoffset, self.getEdge(), self.getDc(), self.getDeemp(), self.getDirect(), self.getOffset(), self.bandwidth)
+			cmd = "rtl_fm -f %sM -M fm -A std -s %sk %s -p %s %s %s %s %s %s - | gst-launch-1.0 fdsrc ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=%s000 ! audioresample ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=48000 ! dvbaudiosink" % (self.frequency.value, self.bandwidth, self.getGain(), self.ppmoffset, self.getEdge(), self.getDc(), self.getDeemp(), self.getDirect(), self.getOffset(), self.bandwidth)
 		elif self.modulation.value == "am":
-			cmd = "rtl_fm -f %sM -M am -A std -s %sk -g %s -p %s %s %s %s %s %s - | gst-launch-1.0 fdsrc ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=%s000 ! audioresample ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=48000 ! dvbaudiosink" % (self.frequency.value, self.bandwidth, self.gain, self.ppmoffset, self.getEdge(), self.getDc(), self.getDeemp(), self.getDirect(), self.getOffset(), self.bandwidth)
+			cmd = "rtl_fm -f %sM -M am -A std -s %sk %s -p %s %s %s %s %s %s - | gst-launch-1.0 fdsrc ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=%s000 ! audioresample ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=48000 ! dvbaudiosink" % (self.frequency.value, self.bandwidth, self.getGain(), self.ppmoffset, self.getEdge(), self.getDc(), self.getDeemp(), self.getDirect(), self.getOffset(), self.bandwidth)
 		elif self.modulation.value == "lsb":
-			cmd = "rtl_fm -f %sM -M lsb -A std -s %sk -g %s -p %s %s %s %s %s %s - | gst-launch-1.0 fdsrc ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=%s000 ! audioresample ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=48000 ! dvbaudiosink" % (self.frequency.value, self.sbbandwidth, self.gain, self.ppmoffset, self.getEdge(), self.getDc(), self.getDeemp(), self.getDirect(), self.getOffset(), self.sbbandwidth)
+			cmd = "rtl_fm -f %sM -M lsb -A std -s %sk %s -p %s %s %s %s %s %s - | gst-launch-1.0 fdsrc ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=%s000 ! audioresample ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=48000 ! dvbaudiosink" % (self.frequency.value, self.sbbandwidth, self.getGain(), self.ppmoffset, self.getEdge(), self.getDc(), self.getDeemp(), self.getDirect(), self.getOffset(), self.sbbandwidth)
 		elif self.modulation.value == "usb":
-			cmd = "rtl_fm -f %sM -M usb -A std -s %sk -g %s -p %s %s %s %s %s %s - | gst-launch-1.0 fdsrc ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=%s000 ! audioresample ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=48000 ! dvbaudiosink" % (self.frequency.value, self.sbbandwidth, self.gain, self.ppmoffset, self.getEdge(), self.getDc(), self.getDeemp(), self.getDirect(), self.getOffset(), self.sbbandwidth)
+			cmd = "rtl_fm -f %sM -M usb -A std -s %sk %s -p %s %s %s %s %s %s - | gst-launch-1.0 fdsrc ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=%s000 ! audioresample ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=48000 ! dvbaudiosink" % (self.frequency.value, self.sbbandwidth, self.getGain(), self.ppmoffset, self.getEdge(), self.getDc(), self.getDeemp(), self.getDirect(), self.getOffset(), self.sbbandwidth)
 		elif self.modulation.value == "dab":
 			if self.pcm:
 				cmd = "dab-rtlsdr-sdgradio-pcm -C %s -W30 -p %s %s | gst-launch-1.0 fdsrc ! audio/x-raw, format=S16LE, channels=2, layout=interleaved, rate=48000 ! dvbaudiosink" % (DAB_FREQ.get(Decimal(self.frequency.value), "5A"), self.ppmoffset, self.getDabGain())
 			else:
 				cmd = "dab-rtlsdr-sdgradio -C %s -W30 -p %s %s | gst-launch-1.0 fdsrc ! faad ! dvbaudiosink" % (DAB_FREQ.get(Decimal(self.frequency.value), "5A"), self.ppmoffset, self.getDabGain())
+		elif self.modulation.value == "tcp":
+			if self.pcm:
+				cmd = "dab-rtl_tcp-sdgradio-pcm -C %s -W30 -p %s %s -H %s -I %s | gst-launch-1.0 fdsrc ! audio/x-raw, format=S16LE, channels=2, layout=interleaved, rate=48000 ! dvbaudiosink" % (DAB_FREQ.get(Decimal(self.frequency.value), "5A"), self.dab_tcp_ppmoffset, self.getDabTCPGain(), self.dab_tcp_host, self.dab_tcp_port)
+			else:
+				cmd = "dab-rtl_tcp-sdgradio -C %s -W30 -p %s %s -H %s -I %s | gst-launch-1.0 fdsrc ! faad ! dvbaudiosink" % (DAB_FREQ.get(Decimal(self.frequency.value), "5A"), self.dab_tcp_ppmoffset, self.getDabTCPGain(), self.dab_tcp_host, self.dab_tcp_port)
+		elif self.modulation.value == "raw":
+			if self.pcm:
+				cmd = "dab-raw-sdgradio-pcm %s | gst-launch-1.0 fdsrc ! audio/x-raw, format=S16LE, channels=2, layout=interleaved, rate=48000 ! dvbaudiosink" % (self.getRawFilename())
+			else:
+				cmd = "dab-raw-sdgradio %s | gst-launch-1.0 fdsrc ! faad ! dvbaudiosink" % (self.getRawFilename())
 		else:
 			cmd = "rtl_fm -f %sM -M wbfm -s 200000 -r 48000 - | gst-launch-1.0 fdsrc ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=48000 ! dvbaudiosink" % self.frequency.value
 
@@ -448,8 +525,20 @@ class SDGRadioScreen(Screen, HelpableScreen):
 		else:
 			return "redsea -e"
 
+	def getRawFilename(self):
+		return "-F %s%s" % (raw_filename[0], raw_filename[1])
+
+	def getFmGain(self):
+		return "-g %s" % self.fmgain if self.fmgain != "automatic" else ""
+
+	def getDabTCPGain(self):
+		return "-G %s" % self.dab_tcp_gain if self.dab_tcp_gain != "automatic" else "-Q"
+
+	def getGain(self):
+		return "-g %s" % self.gain if self.gain != "automatic" else ""
+
 	def getDabGain(self):
-		return "-G %s" % self.gain if self.gain != "automatic" else "-Q"
+		return "-G %s" % self.dabgain if self.dabgain != "automatic" else "-Q"
 
 	def getEdge(self):
 		return "-E edge" if self.edge is True else ""
@@ -497,17 +586,18 @@ class SDGRadioScreen(Screen, HelpableScreen):
 			self.playRadio()
 
 	def freqUp(self, value):
-		if value != "0.0001" or self.tuning == "advanced":
-			self.freqChange(Decimal(value))
+		if self.modulation.value != "raw":
+			if value != "0.0001" or self.tuning == "advanced":
+				self.freqChange(Decimal(value))
 
 	def freqDown(self, value):
-		if value != "0.0001" or self.tuning == "advanced":
-			self.freqChange(-Decimal(value))
+		if self.modulation.value != "raw":
+			if value != "0.0001" or self.tuning == "advanced":
+				self.freqChange(-Decimal(value))
 
 	def freqChange(self, value):
 		oldFreq = Decimal(self.frequency.value)
-
-		if self.modulation.value == "dab":
+		if self.modulation.value in ("dab", "tcp"):
 			#oldFreq = Decimal(self.frequency.value)
 			newFreq = oldFreq + value
 			if newFreq < Decimal("174.928"):
@@ -575,45 +665,54 @@ class SDGRadioScreen(Screen, HelpableScreen):
 			frequency.save()
 
 	def getPresets(self):
-		self.presets = []
-		presetsConfig = eval("config.plugins.SDGRadio.presets_%s" % self.modulation.value)
-		presets = presetsConfig.value.split(",")
-		for index, preset in enumerate(presets):
-			self.presets.append(preset)
-			if preset == "0":
-				self["mem_%d" % index].setPixmapNum(0) # preset empty
-			else:
-				self["mem_%d" % index].setPixmapNum(1) # preset stored
+		if self.modulation.value != "raw":
+			self.presets = []
+			presetsConfig = eval("config.plugins.SDGRadio.presets_%s" % self.modulation.value)
+			presets = presetsConfig.value.split(",")
+			for index in range(10):
+				self["mem_%d" % index].show()
+			for index, preset in enumerate(presets):
+				self.presets.append(preset)
+				if preset == "0":
+					self["mem_%d" % index].setPixmapNum(0) # preset empty
+				else:
+					self["mem_%d" % index].setPixmapNum(1) # preset stored
+		else:
+			for index in range(10):
+				self["mem_%d" % index].hide()
 
 	def selectPreset(self, number):
-		newFreq = self.presets[number]
-		selPreset = self.playbackPreset
-		if newFreq != "0" and number != selPreset: # preset not empty and not already selected
-			self["mem_%d" % number].setPixmapNum(2) # preset selected
-			if selPreset:
-				self["mem_%d" % selPreset].setPixmapNum(1) # preset stored
-			self.frequency.value = newFreq
-			self.frequency.save()
-			self.playbackFrequency = newFreq
-			self.playbackPreset = number
-			self.updateFreqWidget()
-			self.playRadio()
+		if self.modulation.value != "raw":
+			newFreq = self.presets[number]
+			selPreset = self.playbackPreset
+			if newFreq != "0" and number != selPreset: # preset not empty and not already selected
+				self["mem_%d" % number].setPixmapNum(2) # preset selected
+				if selPreset:
+					self["mem_%d" % selPreset].setPixmapNum(1) # preset stored
+				self.frequency.value = newFreq
+				self.frequency.save()
+				self.playbackFrequency = newFreq
+				self.playbackPreset = number
+				self.updateFreqWidget()
+				self.playRadio()
 
 	def storePreset(self, number):
-		currentFreq = self.frequency.value
-		if currentFreq in ("", "0"):
-			msg = _("Error storing memory preset! Please select a valid frequency and try again.")
-			self.session.open(MessageBox, msg, MessageBox.TYPE_ERROR, timeout=10, close_on_any_key=True)
-		else:
-			self.presets[number] = currentFreq
-			self["mem_%d" % number].setPixmapNum(1) # preset stored
-			msg = _("Selected frequency successfuly stored to memory preset %d.") % number
-			self.session.open(MessageBox, msg, MessageBox.TYPE_INFO, timeout=10, close_on_any_key=True)
+		if self.modulation.value != "raw":
+			currentFreq = self.frequency.value
+			if currentFreq in ("", "0"):
+				msg = _("Error storing memory preset! Please select a valid frequency and try again.")
+				self.session.open(MessageBox, msg, MessageBox.TYPE_ERROR, timeout=10, close_on_any_key=True)
+			else:
+				self.presets[number] = currentFreq
+				self["mem_%d" % number].setPixmapNum(1) # preset stored
+				msg = _("Selected frequency successfuly stored to memory preset %d.") % number
+				self.session.open(MessageBox, msg, MessageBox.TYPE_INFO, timeout=10, close_on_any_key=True)
 
 	def savePresets(self):
-		presets = eval("config.plugins.SDGRadio.presets_%s" % self.modulation.value)
-		presets.value = ",".join(self.presets)
-		presets.save()
+		if self.modulation.value != "raw":
+			presets = eval("config.plugins.SDGRadio.presets_%s" % self.modulation.value)
+			presets.value = ",".join(self.presets)
+			presets.save()
 
 	def updateMiscWidgets(self, play=False):
 		self["radiotext"].setText("")
@@ -628,18 +727,25 @@ class SDGRadioScreen(Screen, HelpableScreen):
 		self["rt_icon"].hide()
 		self["ps_icon"].hide()
 		if play is False:
-			self["key_green"].setText(_("Play"))
+			self["key_green"].setText(_("Play")) if self.modulation.value != "raw" else self["key_green"].setText("") #modified 
+			if self.modulation.value == "raw":
+				self["key_blue"].setText(_("Select .iq file"))
 			self.setTitle(_("Software defined radio"))
 			if self.playbackPreset:
 				self["mem_%d" % self.playbackPreset].setPixmapNum(1) # preset stored
 		else:
 			self["key_green"].setText(_("Stop"))
 			self.setTitle(_("Playing %(freq)s %(units)s") % {"freq": self["freq"].getText().strip("!"), "units": self["freq_units"].getText()})
+			if self.modulation.value == "raw":
+				self["key_blue"].setText("")
 
 	def updateFreqWidget(self): # this is for displaying only
-		if self.modulation.value == "dab":
+		self["dab_channel"].setText("")
+		if self.modulation.value in ("dab", "tcp"):
 			self["freq"].setText(self.frequency.value)
 			self["dab_channel"].setText(DAB_FREQ.get(Decimal(self.frequency.value), ""))
+		elif self.modulation.value == "raw":
+			self["freq"].setText("FILE")
 		else:
 			if self.tuning == "simple":
 				if self.modulation.value in ("am", "lsb", "usb"):
@@ -649,30 +755,46 @@ class SDGRadioScreen(Screen, HelpableScreen):
 					self["freq"].setText("".join((freq[:5], "!")) if freq.endswith("0") else freq)
 			else:
 				self["freq"].setText("{:09.4f}".format(Decimal(self.frequency.value)))
-			self["dab_channel"].setText("")
 
 	def updateExtraWidgets(self):
 		self["modulation"].setText(self.modulation.getText()) # current modulation
-		if self.tuning == "simple":
+		if self.modulation.value == "raw":
+			self["freq"].setText(_("FILE"))
 			self["freq_off"].setText("")
-			if self.modulation.value in ("am", "lsb", "usb"):
-				self["freq_units"].setText("KHz")
-			else:
-				self["freq_units"].setText("MHz")
-		elif self.modulation.value == "dab":
-			self["freq_off"].setText("888.888") # 6 digits
-			self["freq_units"].setText("MHz")
+			self["freq_units"].setText("")
+			self["dab_channel"].setText("")
+			if raw_filename[1] == "":
+				self["key_green"].setText("")
+			else: #added
+				self["key_green"].setText(_("Play file"))
+				self.setTitle(_("%s" % raw_filename[1]))
 		else:
-			self["freq_off"].setText("8888.8888") # 8 digits
-			self["freq_units"].setText("MHz")
+			self["key_green"].setText("Play")
+			if self.tuning == "simple":
+				self["freq_off"].setText("")
+				if self.modulation.value in ("am", "lsb", "usb"):
+					self["freq_units"].setText("KHz")
+				else:
+					self["freq_units"].setText("MHz")
+			elif self.modulation.value in ("dab", "tcp"):
+				self["freq_off"].setText("888.888") # 6 digits
+				self["freq_units"].setText("MHz")
+			else:
+				self["freq_off"].setText("8888.8888") # 8 digits
+				self["freq_units"].setText("MHz")
 
 	def toggleModulation(self):
 		self.stopRadio()
-		self.savePresets()
+		self["pic"].hide()
+		if config.plugins.SDGRadio.enable_rtl_tcp.value == False and self.modulation.value == "dab":
+			self.modulation.selectNext()
+		if config.plugins.SDGRadio.enable_raw.value == False and self.modulation.value == "tcp":
+			self.modulation.selectNext()
 		self.modulation.selectNext()
 		self.modulation.save()
-		self.frequency = eval("config.plugins.SDGRadio.frequency_%s" % self.modulation.value)
-		self.freqChange(Decimal(0)) # evaluate current frequency and update freq widget
+		if self.modulation.value != "raw":
+			self.frequency = eval("config.plugins.SDGRadio.frequency_%s" % self.modulation.value)
+			self.freqChange(Decimal(0)) # evaluate current frequency and update freq widget
 		self.updateExtraWidgets()
 		self.redText()
 		self.yellowText()
@@ -681,16 +803,29 @@ class SDGRadioScreen(Screen, HelpableScreen):
 
 	def redText(self):
 		idx = self.modulation.index
-		idx = (idx + 1) % len(self.modulation.choices) # get next index (cycle through indices)
+		idx = (idx + 1) % len(self.modulation.choices)
+		if config.plugins.SDGRadio.enable_rtl_tcp.value == False and idx == 6:
+				idx = (idx + 1) % len(self.modulation.choices) 
+		if config.plugins.SDGRadio.enable_raw.value == False and idx == 7:
+				idx = (idx + 1) % len(self.modulation.choices) 
 		choice = self.modulation.choices[idx]
 		self["key_red"].setText(_("Switch to %s") % self.modulation.description[choice]) # next available modulation
 
 	def togglePlayback(self):
-		if self.playbackFrequency is None and self.frequency.value != "0": # not playing
-			self.playbackFrequency = self.frequency.value
-			self.playRadio()
-		else:
-			self.stopRadio()
+		if self.modulation.value != "raw" or (self.modulation.value == "raw" and raw_filename[0] != ""):
+			if self.modulation.value != "raw" and self.playbackFrequency is None and self.frequency.value != "0":
+				self.playbackFrequency = self.frequency.value
+				self.playRadio()
+			elif self.modulation.value == "raw" and self.IsPlaying is False: 
+				self.playRadio()
+			else:
+				self.stopRadio()
+				if self.modulation.value != "raw":
+					self["key_green"].setText("Play")
+				else:
+					self["key_green"].setText("Play file")
+					self.setTitle(_("%s" % raw_filename[1]))
+			self.yellowText()
 
 	def yellow(self):
 		if self.modulation.value == "fm":
@@ -698,7 +833,7 @@ class SDGRadioScreen(Screen, HelpableScreen):
 			config.plugins.SDGRadio.rds.save()
 			if self.playbackFrequency: # playback is active, restart it
 				self.playRadio()
-		elif self.modulation.value == "dab":
+		elif self.modulation.value in ("dab", "tcp", "raw"):
 			if self.console:
 				self.console.write("\n") # new line switches to next program
 		self.yellowText()
@@ -709,23 +844,32 @@ class SDGRadioScreen(Screen, HelpableScreen):
 				self["key_yellow"].setText(_("RDS on"))
 			else:
 				self["key_yellow"].setText(_("RDS off"))
-		elif self.modulation.value == "dab":
+		elif self.modulation.value in ("dab", "tcp", "raw") and self.IsPlaying == True:
 			self["key_yellow"].setText(_("Switch program"))
 		else:
 			self["key_yellow"].setText("")
 
 	def showInput(self):
-		if self.tuning == "advanced" and self.modulation.value != "dab":
+		if self.tuning == "advanced" and self.modulation.value not in ("dab", "tcp", "raw"):
 			def freqInputCb(value):
 				if value is not False and isinstance(value, str):
 					self.stopRadio()
 					self.frequency.value = value
 					self.updateFreqWidget()
 			self.session.openWithCallback(freqInputCb, SDGRadioInput, self.frequency.value)
+		elif self.modulation.value == "raw" and self.IsPlaying == False:
+			def OpenFileCb():
+				self.stopRadio()
+				if raw_filename[1] != "":
+					self.setTitle(_("%s" % raw_filename[1]))
+					self["key_green"].setText(_("Play file"))
+			self.session.openWithCallback(OpenFileCb, RawFile)
 
 	def blueText(self):
-		if self.tuning == "advanced" and self.modulation.value != "dab":
+		if self.tuning == "advanced" and self.modulation.value not in ("dab", "tcp", "raw"):
 			self["key_blue"].setText(_("Frequency input"))
+		elif self.modulation.value == "raw":
+			self["key_blue"].setText(_("Select .iq file"))
 		else:
 			self["key_blue"].setText("")
 
@@ -739,7 +883,7 @@ class SDGRadioScreen(Screen, HelpableScreen):
 		self.session.open(Console, _("Log"), ["cat << EOF\n%s\nEOF" % text])
 
 	def showPrograms(self):
-		if self.modulation.value == "dab":
+		if self.modulation.value in ("dab", "tcp", "raw"):
 			if self.programs:
 				def showProgramsCb(choice):
 					if choice and self.console:
@@ -754,12 +898,19 @@ class SDGRadioScreen(Screen, HelpableScreen):
 				self.stopRadio()
 				oldtuning = self.tuning
 				self.getConfigOptions()
-				if self.tuning != oldtuning:
-					self.updateExtraWidgets()
-					self.blueText()
-					if self.tuning == "simple":
-						self.freqQuantize()
-				self.freqChange(Decimal(0)) # evaluate current frequency and update freq widget
+				if self.modulation.value != "raw":
+					if self.tuning != oldtuning:
+						self.updateExtraWidgets()
+						self.blueText()
+						if self.tuning == "simple":
+							self.freqQuantize()
+					self.freqChange(Decimal(0)) # evaluate current frequency and update freq widget
+				if config.plugins.SDGRadio.enable_rtl_tcp.value == False and self.modulation.value == "tcp": 
+					self.toggleModulation()
+				if config.plugins.SDGRadio.enable_raw.value == False and self.modulation.value == "raw": 
+					self.toggleModulation()
+				self.redText()
+				self.updateExtraWidgets()
 		self.session.openWithCallback(showSetupCb, SDGRadioSetup)
 
 	def showMenu(self):
@@ -797,11 +948,68 @@ class SDGRadioScreen(Screen, HelpableScreen):
 
 	def cancel(self):
 		self.doConsoleStop()
-		self.savePresets()
+		if self.modulation.value != "raw":
+			self.savePresets()
 		config.plugins.SDGRadio.save()
 		eConsoleAppContainer().execute("rtl_eeprom") # hack: run rtl_eeprom to shutdown tuner
 		self.close(False, self.session)
 		self.session.nav.playService(self.oldService)
+
+class RawFile(Screen):
+
+	def __init__(self, session):
+		Screen.__init__(self, session)
+		self.skin = RAWSKIN
+		self.skin_path = resolveFilename(SCOPE_PLUGINS, "Extensions/SDGRadio")
+		self["actions"] = ActionMap(["OkCancelActions", "ColorActions", "DirectionActions"],
+			{
+				"cancel": self.keyExit,
+				"ok": self.keyOk,
+				"green": self.keyGreen,
+				"red": self.keyExit
+			}, -1)
+		self["key_red"] = StaticText(_("Cancel"))
+		self["key_green"] = StaticText("")
+		curdir = config.plugins.SDGRadio.raw_lastdir.value
+		if not pathExists(curdir):
+			curdir = "/"
+		self["curdir"] = StaticText(_("  %s")%(curdir or ''))
+		self.filelist = FileList(curdir, matchingPattern = "(?i)^.*\.(iq)", enableWrapAround=False)
+		self.filelist.onSelectionChanged.append(self.__selChanged)
+		self["filelist"] = self.filelist
+
+	def __selChanged(self):
+		self["key_green"].setText("")
+		self["curdir"].setText(_("  %s")%(self.filelist.getCurrentDirectory()))
+		try:
+			if not self.filelist.canDescent():
+				filename = self.filelist.getFilename()
+				if filename and (filename.endswith(".iq") or filename.endswith(".IQ")):
+					self["key_green"].setText(_("Select"))
+		except:
+			pass
+
+	def keyGreen(self):
+		global raw_filename
+		if not self.filelist.canDescent():
+			self["key_green"].setText(_("Open File"))
+			raw_filename = ["%s" % (self.filelist.getCurrentDirectory()), "%s" % (self.filelist.getFilename())]
+			self.keyExit()
+
+	def keyOk(self):
+		global raw_filename
+		if self.filelist.canDescent():
+			self.filelist.descent()
+		else:
+			raw_filename = ["%s" % (self.filelist.getCurrentDirectory()), "%s" % (self.filelist.getFilename())]
+			self.keyExit()
+
+	def keyExit(self):
+		if self.filelist.getCurrentDirectory() is None:
+			config.plugins.SDGRadio.raw_lastdir = "/"
+		else:
+			config.plugins.SDGRadio.raw_lastdir.value = self.filelist.getCurrentDirectory()
+		self.close()
 
 
 def main(session, **kwargs):
