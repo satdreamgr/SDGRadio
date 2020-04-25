@@ -133,3 +133,27 @@ SKIN = """
 			<convert type="ClockToText">Default</convert>
 		</widget>
 	</screen>""" % tuple([i * getDesktop(0).size().height() / 1080 for i in SKIN_DATA])
+
+RAW_DATA = (
+	1155, 611,
+	15, 15, 1125, 40, 30,
+	15, 70, 1125, 456,
+	260, 551, 35, 35,
+	767, 551, 35, 35,
+	310, 550, 300, 35, 31,
+	817, 550, 300, 35, 31,
+	15, 541, 1125, 55
+	)
+
+RAWSKIN = """
+	<screen name="RawFile" position="center,center" size="%d,%d" title=" " transparent="0">
+		<widget source="curdir" render="Label" position="%d,%d" size="%d,%d" valign="center" halign="center" zPosition="1" foregroundColor="#00f0f0f0" font="Regular;%d" backgroundColor="#333333" transparent="0" noWrap="1" />
+		<widget name="filelist" position="%d,%d" size="%d,%d" scrollbarMode="showOnDemand" />
+		<ePixmap pixmap="~/img/key_red.png" position="%d,%d" size="%d,%d" alphatest="on" zPosition="2" />
+		<widget objectTypes="key_green,StaticText" source="key_green" render="Pixmap" pixmap="~/img/key_green.png" position="%d,%d" size="%d,%d" alphatest="on" zPosition="2" >
+			<convert type="ConditionalShowHide" />
+		</widget>
+		<widget source="key_red" render="Label" position="%d,%d" size="%d,%d" valign="center" halign="left" backgroundColor="#f0f0f0" font="Regular;%d" transparent="1" zPosition="2" />
+		<widget source="key_green" render="Label" position="%d,%d" size="%d,%d" valign="center" halign="left" backgroundColor="#f0f0f0" font="Regular;%d" transparent="1" zPosition="2" />
+		<eLabel position="%d,%d" size="%d,%d" backgroundColor="#333333" transparent="0" zPosition="1" />
+	</screen>"""  % tuple([s * getDesktop(0).size().height() / 1080 for s in RAW_DATA])
