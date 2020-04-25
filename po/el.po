@@ -223,10 +223,11 @@ msgid "Enter the desired frequency. You can input values between %(min)d - %(max
 msgstr "Εισάγετε την επιθυμητή συχνότητα. Μπορείτε να ορίσετε τιμές στο εύρος %(min)d - %(max)d MHz με έως 4 δεκαδικά ψηφία (ακρίβεια 0.1 KHz)."
 
 #: plugin/plugin.py:224 plugin/plugin.py:633 plugin/plugin.py:809
+#: plugin/plugin.py:632 plugin/plugin.py:813
 msgid "Software defined radio"
 msgstr ""
 
-#: plugin/plugin.py:250 plugin/plugin.py:632
+#: plugin/plugin.py:250 plugin/plugin.py:632 plugin/plugin.py:631
 msgid "Play"
 msgstr "Αναπαραγωγή"
 
@@ -276,86 +277,86 @@ msgstr "Αναπαραγωγή μνήμης"
 msgid "Store frequency to memory preset"
 msgstr "Αποθήκευση συχνότητας στη μνήμη"
 
-#: plugin/plugin.py:289
+#: plugin/plugin.py:289 plugin/plugin.py:290
 msgid "Increase frequency by 1 MHz / KHz"
 msgstr "Αύξηση συχνότητας κατά 1 MHz / KHz"
 
-#: plugin/plugin.py:290
+#: plugin/plugin.py:290 plugin/plugin.py:291
 msgid "Decrease frequency by 1 MHz / KHz"
 msgstr "Μείωση συχνότητας κατά 1 MHz / KHz"
 
-#: plugin/plugin.py:291
+#: plugin/plugin.py:291 plugin/plugin.py:292
 msgid "Increase frequency by 10 MHz / KHz (long press)"
 msgstr "Αύξηση συχνότητας κατά 10 MHz / KHz (διαρκές πάτημα)"
 
-#: plugin/plugin.py:292
+#: plugin/plugin.py:292 plugin/plugin.py:293
 msgid "Decrease frequency by 10 MHz / KHz (long press)"
 msgstr "Μείωση συχνότητας κατά 10 MHz / KHz (διαρκές πάτημα)"
 
-#: plugin/plugin.py:294
+#: plugin/plugin.py:294 plugin/plugin.py:295
 msgid "Increase frequency by 0.05 MHz"
 msgstr "Αύξηση συχνότητας κατά 0.05 MHz"
 
-#: plugin/plugin.py:295
+#: plugin/plugin.py:295 plugin/plugin.py:296
 msgid "Decrease frequency by 0.05 MHz"
 msgstr "Μείωση συχνότητας κατά 0.05 MHz"
 
-#: plugin/plugin.py:296
+#: plugin/plugin.py:296 plugin/plugin.py:297
 msgid "Increase frequency by 0.1 MHz (long press)"
 msgstr "Αύξηση συχνότητας κατά 0.1 MHz (διαρκές πάτημα)"
 
-#: plugin/plugin.py:297
+#: plugin/plugin.py:297 plugin/plugin.py:298
 msgid "Decrease frequency by 0.1 MHz (long press)"
 msgstr "Μείωση συχνότητας κατά 0.1 MHz (διαρκές πάτημα)"
 
-#: plugin/plugin.py:299
+#: plugin/plugin.py:299 plugin/plugin.py:300
 msgid "Increase frequency by 0.0001 MHz"
 msgstr "Αύξηση συχνότητας κατά 0.0001 MHz"
 
-#: plugin/plugin.py:300
+#: plugin/plugin.py:300 plugin/plugin.py:301
 msgid "Decrease frequency by 0.0001 MHz"
 msgstr "Μείωση συχνότητας κατά 0.0001 MHz"
 
-#: plugin/plugin.py:606
+#: plugin/plugin.py:606 plugin/plugin.py:605
 msgid "Error storing memory preset! Please select a valid frequency and try again."
 msgstr "Σφάλμα κατά την αποθήκευση της μνήμης. Επιλέξτε μια έγκυρη συχνότητα και προσπαθήστε ξανά."
 
-#: plugin/plugin.py:611
+#: plugin/plugin.py:611 plugin/plugin.py:610
 #, python-format
 msgid "Selected frequency successfuly stored to memory preset %d."
 msgstr "Η επιλεγμένη συχνότητα αποθηκεύτηκε στη μνήμη %d με επιτυχία."
 
-#: plugin/plugin.py:637
+#: plugin/plugin.py:637 plugin/plugin.py:636
 msgid "Stop"
 msgstr "Διακοπή"
 
-#: plugin/plugin.py:638
+#: plugin/plugin.py:638 plugin/plugin.py:637
 #, python-format
 msgid "Playing %(freq)s %(units)s"
 msgstr "Αναπαραγωγή %(freq)s %(units)s"
 
-#: plugin/plugin.py:687
+#: plugin/plugin.py:687 plugin/plugin.py:686
 #, python-format
 msgid "Switch to %s"
 msgstr "Μετάβαση σε %s"
 
-#: plugin/plugin.py:710
+#: plugin/plugin.py:710 plugin/plugin.py:709
 msgid "RDS on"
 msgstr "RDS ενεργοποιημένο"
 
-#: plugin/plugin.py:712
+#: plugin/plugin.py:712 plugin/plugin.py:711
 msgid "RDS off"
 msgstr "RDS απενεργοποιημένο"
 
-#: plugin/plugin.py:714
+#: plugin/plugin.py:714 plugin/plugin.py:713
 msgid "Switch program"
 msgstr "Αλλαγή προγράμματος"
 
-#: plugin/plugin.py:729
+#: plugin/plugin.py:729 plugin/plugin.py:728
 msgid "Frequency input"
 msgstr "Εισαγωγή συχνότητας"
 
-#: plugin/plugin.py:735
+#: plugin/plugin.py:735 plugin/plugin.py:734
 msgid "Info"
 msgstr "Πληροφορίες"
 
@@ -375,7 +376,7 @@ msgstr "Δεν υπάρχουν διαθέσιμα προγράμματα σε �
 msgid "Setup menu"
 msgstr "Μενού ρυθμίσεων"
 
-#: plugin/plugin.py:769
+#: plugin/plugin.py:769 plugin/plugin.py:266
 msgid "Cmd execution log"
 msgstr "Καταγραφή γραμμής εντολών"
 
@@ -387,6 +388,20 @@ msgstr "Πληροφορίες συσκευής"
 msgid "Choose an action"
 msgstr "Επιλέξτε μια ενέργεια"
 
-#: plugin/plugin.py:810
+#: plugin/plugin.py:810 plugin/plugin.py:814
 msgid "Listen to radio using a RTL-SDR USB tuner"
 msgstr "Ακούστε ραδιόφωνο χρησιμοποιώντας έναν RTL-SDR δέκτη"
+
+#: plugin/plugin.py:268 plugin/plugin.py:269 plugin/plugin.py:270
+#: plugin/plugin.py:271 plugin/plugin.py:272 plugin/plugin.py:273
+#: plugin/plugin.py:274 plugin/plugin.py:275 plugin/plugin.py:276
+#: plugin/plugin.py:277
+msgid "Play memory preset %d"
+msgstr "Αναπαραγωγή μνήμης %d"
+
+#: plugin/plugin.py:279 plugin/plugin.py:280 plugin/plugin.py:281
+#: plugin/plugin.py:282 plugin/plugin.py:283 plugin/plugin.py:284
+#: plugin/plugin.py:285 plugin/plugin.py:286 plugin/plugin.py:287
+#: plugin/plugin.py:288
+msgid "Store frequency to memory preset %d"
+msgstr "Αποθήκευση συχνότητας στη μνήμη %d"

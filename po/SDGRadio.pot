@@ -225,10 +225,11 @@ msgid "Enter the desired frequency. You can input values between %(min)d - %(max
 msgstr ""
 
 #: plugin/plugin.py:224 plugin/plugin.py:633 plugin/plugin.py:809
+#: plugin/plugin.py:632 plugin/plugin.py:813
 msgid "Software defined radio"
 msgstr ""
 
-#: plugin/plugin.py:250 plugin/plugin.py:632
+#: plugin/plugin.py:250 plugin/plugin.py:632 plugin/plugin.py:631
 msgid "Play"
 msgstr ""
 
@@ -278,86 +279,86 @@ msgstr ""
 msgid "Store frequency to memory preset"
 msgstr ""
 
-#: plugin/plugin.py:289
+#: plugin/plugin.py:289 plugin/plugin.py:290
 msgid "Increase frequency by 1 MHz / KHz"
 msgstr ""
 
-#: plugin/plugin.py:290
+#: plugin/plugin.py:290 plugin/plugin.py:291
 msgid "Decrease frequency by 1 MHz / KHz"
 msgstr ""
 
-#: plugin/plugin.py:291
+#: plugin/plugin.py:291 plugin/plugin.py:292
 msgid "Increase frequency by 10 MHz / KHz (long press)"
 msgstr ""
 
-#: plugin/plugin.py:292
+#: plugin/plugin.py:292 plugin/plugin.py:293
 msgid "Decrease frequency by 10 MHz / KHz (long press)"
 msgstr ""
 
-#: plugin/plugin.py:294
+#: plugin/plugin.py:294 plugin/plugin.py:295
 msgid "Increase frequency by 0.05 MHz"
 msgstr ""
 
-#: plugin/plugin.py:295
+#: plugin/plugin.py:295 plugin/plugin.py:296
 msgid "Decrease frequency by 0.05 MHz"
 msgstr ""
 
-#: plugin/plugin.py:296
+#: plugin/plugin.py:296 plugin/plugin.py:297
 msgid "Increase frequency by 0.1 MHz (long press)"
 msgstr ""
 
-#: plugin/plugin.py:297
+#: plugin/plugin.py:297 plugin/plugin.py:298
 msgid "Decrease frequency by 0.1 MHz (long press)"
 msgstr ""
 
-#: plugin/plugin.py:299
+#: plugin/plugin.py:299 plugin/plugin.py:300
 msgid "Increase frequency by 0.0001 MHz"
 msgstr ""
 
-#: plugin/plugin.py:300
+#: plugin/plugin.py:300 plugin/plugin.py:301
 msgid "Decrease frequency by 0.0001 MHz"
 msgstr ""
 
-#: plugin/plugin.py:606
+#: plugin/plugin.py:606 plugin/plugin.py:605
 msgid "Error storing memory preset! Please select a valid frequency and try again."
 msgstr ""
 
-#: plugin/plugin.py:611
+#: plugin/plugin.py:611 plugin/plugin.py:610
 #, python-format
 msgid "Selected frequency successfuly stored to memory preset %d."
 msgstr ""
 
-#: plugin/plugin.py:637
+#: plugin/plugin.py:637 plugin/plugin.py:636
 msgid "Stop"
 msgstr ""
 
-#: plugin/plugin.py:638
+#: plugin/plugin.py:638 plugin/plugin.py:637
 #, python-format
 msgid "Playing %(freq)s %(units)s"
 msgstr ""
 
-#: plugin/plugin.py:687
+#: plugin/plugin.py:687 plugin/plugin.py:686
 #, python-format
 msgid "Switch to %s"
 msgstr ""
 
-#: plugin/plugin.py:710
+#: plugin/plugin.py:710 plugin/plugin.py:709
 msgid "RDS on"
 msgstr ""
 
-#: plugin/plugin.py:712
+#: plugin/plugin.py:712 plugin/plugin.py:711
 msgid "RDS off"
 msgstr ""
 
-#: plugin/plugin.py:714
+#: plugin/plugin.py:714 plugin/plugin.py:713
 msgid "Switch program"
 msgstr ""
 
-#: plugin/plugin.py:729
+#: plugin/plugin.py:729 plugin/plugin.py:728
 msgid "Frequency input"
 msgstr ""
 
-#: plugin/plugin.py:735
+#: plugin/plugin.py:735 plugin/plugin.py:734
 msgid "Info"
 msgstr ""
 
@@ -377,7 +378,7 @@ msgstr ""
 msgid "Setup menu"
 msgstr ""
 
-#: plugin/plugin.py:769
+#: plugin/plugin.py:769 plugin/plugin.py:266
 msgid "Cmd execution log"
 msgstr ""
 
@@ -389,6 +390,22 @@ msgstr ""
 msgid "Choose an action"
 msgstr ""
 
-#: plugin/plugin.py:810
+#: plugin/plugin.py:810 plugin/plugin.py:814
 msgid "Listen to radio using a RTL-SDR USB tuner"
+msgstr ""
+
+#: plugin/plugin.py:268 plugin/plugin.py:269 plugin/plugin.py:270
+#: plugin/plugin.py:271 plugin/plugin.py:272 plugin/plugin.py:273
+#: plugin/plugin.py:274 plugin/plugin.py:275 plugin/plugin.py:276
+#: plugin/plugin.py:277
+#, python-format
+msgid "Play memory preset %d"
+msgstr ""
+
+#: plugin/plugin.py:279 plugin/plugin.py:280 plugin/plugin.py:281
+#: plugin/plugin.py:282 plugin/plugin.py:283 plugin/plugin.py:284
+#: plugin/plugin.py:285 plugin/plugin.py:286 plugin/plugin.py:287
+#: plugin/plugin.py:288
+#, python-format
+msgid "Store frequency to memory preset %d"
 msgstr ""
