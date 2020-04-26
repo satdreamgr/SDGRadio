@@ -47,59 +47,61 @@ msgstr ""
 msgid "advanced"
 msgstr ""
 
-#: plugin/plugin.py:55
+#: plugin/plugin.py:55 plugin/plugin.py:54
 msgid "auto"
 msgstr ""
 
-#: plugin/plugin.py:63
+#: plugin/plugin.py:63 plugin/plugin.py:64
 msgid "Europe/World"
 msgstr ""
 
-#: plugin/plugin.py:64
+#: plugin/plugin.py:64 plugin/plugin.py:65
 msgid "America"
 msgstr ""
 
-#: plugin/plugin.py:65
+#: plugin/plugin.py:65 plugin/plugin.py:66
 msgid "Russia"
 msgstr ""
 
-#: plugin/plugin.py:66
+#: plugin/plugin.py:66 plugin/plugin.py:67
 msgid "China"
 msgstr ""
 
-#: plugin/plugin.py:67
+#: plugin/plugin.py:67 plugin/plugin.py:68
 msgid "Japan"
 msgstr ""
 
-#: plugin/plugin.py:83
+#: plugin/plugin.py:83 plugin/plugin.py:84
 msgid "SDR setup"
 msgstr ""
 
-#: plugin/plugin.py:86 plugin/plugin.py:177
+#: plugin/plugin.py:86 plugin/plugin.py:177 plugin/plugin.py:87
+#: plugin/plugin.py:182
 msgid "Cancel"
 msgstr ""
 
-#: plugin/plugin.py:87 plugin/plugin.py:178
+#: plugin/plugin.py:87 plugin/plugin.py:178 plugin/plugin.py:88
+#: plugin/plugin.py:183
 msgid "OK"
 msgstr ""
 
-#: plugin/plugin.py:100
+#: plugin/plugin.py:100 plugin/plugin.py:101
 msgid "Tuning mode"
 msgstr ""
 
-#: plugin/plugin.py:102
+#: plugin/plugin.py:102 plugin/plugin.py:103
 msgid "Select the tuning mode for analog modulations. \"simple\" is designed for listening to radio stations, as it applies band limits and allows only rough frequency changes. \"advanced\" disables limits and allows precise control over frequency selection."
 msgstr ""
 
-#: plugin/plugin.py:106
+#: plugin/plugin.py:106 plugin/plugin.py:107
 msgid "PPM offset"
 msgstr ""
 
-#: plugin/plugin.py:108
+#: plugin/plugin.py:108 plugin/plugin.py:109
 msgid "Use PPM offset to correct the oscillator frequency. Get proper value using \"rtl_test -p\" or \"kalibrate\"."
 msgstr ""
 
-#: plugin/plugin.py:110
+#: plugin/plugin.py:110 plugin/plugin.py:111
 msgid "Tuner gain for FM"
 msgstr ""
 
@@ -107,7 +109,7 @@ msgstr ""
 msgid "Set the tuner gain value for FM band (default = 20)."
 msgstr ""
 
-#: plugin/plugin.py:114
+#: plugin/plugin.py:114 plugin/plugin.py:119
 msgid "Tuner gain for other bands and DAB"
 msgstr ""
 
@@ -115,153 +117,155 @@ msgstr ""
 msgid "Set the tuner gain value for all bands and DAB/DAB+ except FM (default = 50)."
 msgstr ""
 
-#: plugin/plugin.py:118
+#: plugin/plugin.py:118 plugin/plugin.py:123
 msgid "Bandwidth for FM in k/sec"
 msgstr ""
 
-#: plugin/plugin.py:120
+#: plugin/plugin.py:120 plugin/plugin.py:125
 msgid "Set the frequency bandwidth for FM band. For RDS set to 171 (default = 171k)."
 msgstr ""
 
-#: plugin/plugin.py:122
+#: plugin/plugin.py:122 plugin/plugin.py:127
 msgid "Bandwidth for NFM/AM in k/sec"
 msgstr ""
 
-#: plugin/plugin.py:124
+#: plugin/plugin.py:124 plugin/plugin.py:129
 msgid "Set the frequency bandwidth for NFM and AM bands (default = 20k)."
 msgstr ""
 
-#: plugin/plugin.py:126
+#: plugin/plugin.py:126 plugin/plugin.py:131
 msgid "Bandwidth for LSB/USB in k/sec"
 msgstr ""
 
-#: plugin/plugin.py:128
+#: plugin/plugin.py:128 plugin/plugin.py:133
 msgid "Set the frequency bandwidth for LSB and USB bands (default = 5k)."
 msgstr ""
 
-#: plugin/plugin.py:130
+#: plugin/plugin.py:130 plugin/plugin.py:135
 msgid "FM region"
 msgstr ""
 
-#: plugin/plugin.py:132
+#: plugin/plugin.py:132 plugin/plugin.py:137
 msgid "Select FM band range by region. \"Russia\" provides 64-108 MHz (full FM band), \"Europe/World\" 87.5-108 MHz, \"Japan\" 76-95 MHz, \"China\" 76-108 MHz and \"America\" 88.1-107.9 MHz."
 msgstr ""
 
-#: plugin/plugin.py:135
+#: plugin/plugin.py:135 plugin/plugin.py:140
 msgid "Use partial RDS info"
 msgstr ""
 
-#: plugin/plugin.py:137
+#: plugin/plugin.py:137 plugin/plugin.py:142
 msgid "Use RDS info before it is fully received. This could be useful when reception is noisy."
 msgstr ""
 
-#: plugin/plugin.py:139
+#: plugin/plugin.py:139 plugin/plugin.py:144
 msgid "Use RBDS instead of RDS"
 msgstr ""
 
-#: plugin/plugin.py:141
+#: plugin/plugin.py:141 plugin/plugin.py:146
 msgid "Use RBDS instead of ordinary RDS info. If FM region is set to \"America\", RBDS is selected automatically."
 msgstr ""
 
-#: plugin/plugin.py:143
+#: plugin/plugin.py:143 plugin/plugin.py:148
 msgid "PCM output"
 msgstr ""
 
-#: plugin/plugin.py:145
+#: plugin/plugin.py:145 plugin/plugin.py:150
 msgid "Output PCM instead of AAC/MPEG when using DAB/DAB+."
 msgstr ""
 
-#: plugin/plugin.py:147
+#: plugin/plugin.py:147 plugin/plugin.py:152
 msgid "Lower edge tuning"
 msgstr ""
 
-#: plugin/plugin.py:149
+#: plugin/plugin.py:149 plugin/plugin.py:154
 msgid "Enable lower edge tuning for analog radio."
 msgstr ""
 
-#: plugin/plugin.py:151
+#: plugin/plugin.py:151 plugin/plugin.py:156
 msgid "DC filter"
 msgstr ""
 
-#: plugin/plugin.py:153
+#: plugin/plugin.py:153 plugin/plugin.py:158
 msgid "Enable the DC blocking filter."
 msgstr ""
 
-#: plugin/plugin.py:155
+#: plugin/plugin.py:155 plugin/plugin.py:160
 msgid "De-emphasis filter"
 msgstr ""
 
-#: plugin/plugin.py:157
+#: plugin/plugin.py:157 plugin/plugin.py:162
 msgid "Enable the de-emphasis filter."
 msgstr ""
 
-#: plugin/plugin.py:159
+#: plugin/plugin.py:159 plugin/plugin.py:164
 msgid "Direct sampling"
 msgstr ""
 
-#: plugin/plugin.py:161
+#: plugin/plugin.py:161 plugin/plugin.py:166
 msgid "Enable direct sampling for the tuner."
 msgstr ""
 
-#: plugin/plugin.py:163
+#: plugin/plugin.py:163 plugin/plugin.py:168
 msgid "Offset tuning"
 msgstr ""
 
-#: plugin/plugin.py:165
+#: plugin/plugin.py:165 plugin/plugin.py:170
 msgid "Enable offset tuning."
 msgstr ""
 
-#: plugin/plugin.py:174
+#: plugin/plugin.py:174 plugin/plugin.py:179
 msgid "SDR input"
 msgstr ""
 
-#: plugin/plugin.py:199
+#: plugin/plugin.py:199 plugin/plugin.py:204
 msgid "Frequency in MHz"
 msgstr ""
 
-#: plugin/plugin.py:201
+#: plugin/plugin.py:201 plugin/plugin.py:206
 #, python-format
 msgid "Enter the desired frequency. You can input values between %(min)d - %(max)d MHz with up to 4 decimal digits (precision of 0.1 KHz)."
 msgstr ""
 
 #: plugin/plugin.py:224 plugin/plugin.py:633 plugin/plugin.py:809
-#: plugin/plugin.py:632 plugin/plugin.py:813
+#: plugin/plugin.py:632 plugin/plugin.py:813 plugin/plugin.py:229
+#: plugin/plugin.py:643 plugin/plugin.py:824
 msgid "Software defined radio"
 msgstr ""
 
 #: plugin/plugin.py:250 plugin/plugin.py:632 plugin/plugin.py:631
+#: plugin/plugin.py:255 plugin/plugin.py:642
 msgid "Play"
 msgstr ""
 
-#: plugin/plugin.py:256
+#: plugin/plugin.py:256 plugin/plugin.py:261
 msgid "Close plugin"
 msgstr ""
 
-#: plugin/plugin.py:257
+#: plugin/plugin.py:257 plugin/plugin.py:262
 msgid "Play current frequency"
 msgstr ""
 
-#: plugin/plugin.py:259
+#: plugin/plugin.py:259 plugin/plugin.py:264
 msgid "Show DAB program list"
 msgstr ""
 
-#: plugin/plugin.py:260
+#: plugin/plugin.py:260 plugin/plugin.py:265
 msgid "Open advanced options menu"
 msgstr ""
 
-#: plugin/plugin.py:262
+#: plugin/plugin.py:262 plugin/plugin.py:267
 msgid "Change modulation"
 msgstr ""
 
-#: plugin/plugin.py:263
+#: plugin/plugin.py:263 plugin/plugin.py:268
 msgid "Start/stop playback"
 msgstr ""
 
-#: plugin/plugin.py:264
+#: plugin/plugin.py:264 plugin/plugin.py:269
 msgid "Switch RDS on/off"
 msgstr ""
 
-#: plugin/plugin.py:265
+#: plugin/plugin.py:265 plugin/plugin.py:270
 msgid "Open frequency input screen"
 msgstr ""
 
@@ -279,125 +283,127 @@ msgstr ""
 msgid "Store frequency to memory preset"
 msgstr ""
 
-#: plugin/plugin.py:289 plugin/plugin.py:290
+#: plugin/plugin.py:289 plugin/plugin.py:290 plugin/plugin.py:295
 msgid "Increase frequency by 1 MHz / KHz"
 msgstr ""
 
-#: plugin/plugin.py:290 plugin/plugin.py:291
+#: plugin/plugin.py:290 plugin/plugin.py:291 plugin/plugin.py:296
 msgid "Decrease frequency by 1 MHz / KHz"
 msgstr ""
 
-#: plugin/plugin.py:291 plugin/plugin.py:292
+#: plugin/plugin.py:291 plugin/plugin.py:292 plugin/plugin.py:297
 msgid "Increase frequency by 10 MHz / KHz (long press)"
 msgstr ""
 
-#: plugin/plugin.py:292 plugin/plugin.py:293
+#: plugin/plugin.py:292 plugin/plugin.py:293 plugin/plugin.py:298
 msgid "Decrease frequency by 10 MHz / KHz (long press)"
 msgstr ""
 
-#: plugin/plugin.py:294 plugin/plugin.py:295
+#: plugin/plugin.py:294 plugin/plugin.py:295 plugin/plugin.py:300
 msgid "Increase frequency by 0.05 MHz"
 msgstr ""
 
-#: plugin/plugin.py:295 plugin/plugin.py:296
+#: plugin/plugin.py:295 plugin/plugin.py:296 plugin/plugin.py:301
 msgid "Decrease frequency by 0.05 MHz"
 msgstr ""
 
-#: plugin/plugin.py:296 plugin/plugin.py:297
+#: plugin/plugin.py:296 plugin/plugin.py:297 plugin/plugin.py:302
 msgid "Increase frequency by 0.1 MHz (long press)"
 msgstr ""
 
-#: plugin/plugin.py:297 plugin/plugin.py:298
+#: plugin/plugin.py:297 plugin/plugin.py:298 plugin/plugin.py:303
 msgid "Decrease frequency by 0.1 MHz (long press)"
 msgstr ""
 
-#: plugin/plugin.py:299 plugin/plugin.py:300
+#: plugin/plugin.py:299 plugin/plugin.py:300 plugin/plugin.py:305
 msgid "Increase frequency by 0.0001 MHz"
 msgstr ""
 
-#: plugin/plugin.py:300 plugin/plugin.py:301
+#: plugin/plugin.py:300 plugin/plugin.py:301 plugin/plugin.py:306
 msgid "Decrease frequency by 0.0001 MHz"
 msgstr ""
 
-#: plugin/plugin.py:606 plugin/plugin.py:605
+#: plugin/plugin.py:606 plugin/plugin.py:605 plugin/plugin.py:616
 msgid "Error storing memory preset! Please select a valid frequency and try again."
 msgstr ""
 
-#: plugin/plugin.py:611 plugin/plugin.py:610
+#: plugin/plugin.py:611 plugin/plugin.py:610 plugin/plugin.py:621
 #, python-format
 msgid "Selected frequency successfuly stored to memory preset %d."
 msgstr ""
 
-#: plugin/plugin.py:637 plugin/plugin.py:636
+#: plugin/plugin.py:637 plugin/plugin.py:636 plugin/plugin.py:647
 msgid "Stop"
 msgstr ""
 
-#: plugin/plugin.py:638 plugin/plugin.py:637
+#: plugin/plugin.py:638 plugin/plugin.py:637 plugin/plugin.py:648
 #, python-format
 msgid "Playing %(freq)s %(units)s"
 msgstr ""
 
-#: plugin/plugin.py:687 plugin/plugin.py:686
+#: plugin/plugin.py:687 plugin/plugin.py:686 plugin/plugin.py:697
 #, python-format
 msgid "Switch to %s"
 msgstr ""
 
-#: plugin/plugin.py:710 plugin/plugin.py:709
+#: plugin/plugin.py:710 plugin/plugin.py:709 plugin/plugin.py:720
 msgid "RDS on"
 msgstr ""
 
-#: plugin/plugin.py:712 plugin/plugin.py:711
+#: plugin/plugin.py:712 plugin/plugin.py:711 plugin/plugin.py:722
 msgid "RDS off"
 msgstr ""
 
-#: plugin/plugin.py:714 plugin/plugin.py:713
+#: plugin/plugin.py:714 plugin/plugin.py:713 plugin/plugin.py:724
 msgid "Switch program"
 msgstr ""
 
-#: plugin/plugin.py:729 plugin/plugin.py:728
+#: plugin/plugin.py:729 plugin/plugin.py:728 plugin/plugin.py:739
 msgid "Frequency input"
 msgstr ""
 
-#: plugin/plugin.py:735 plugin/plugin.py:734
+#: plugin/plugin.py:735 plugin/plugin.py:734 plugin/plugin.py:745
 msgid "Info"
 msgstr ""
 
-#: plugin/plugin.py:739
+#: plugin/plugin.py:739 plugin/plugin.py:750
 msgid "Log"
 msgstr ""
 
-#: plugin/plugin.py:747
+#: plugin/plugin.py:747 plugin/plugin.py:758
 msgid "Choose a radio program"
 msgstr ""
 
-#: plugin/plugin.py:749
+#: plugin/plugin.py:749 plugin/plugin.py:760
 msgid "There are no programs available on this frequency."
 msgstr ""
 
-#: plugin/plugin.py:768
+#: plugin/plugin.py:768 plugin/plugin.py:779
 msgid "Setup menu"
 msgstr ""
 
-#: plugin/plugin.py:769 plugin/plugin.py:266
+#: plugin/plugin.py:769 plugin/plugin.py:266 plugin/plugin.py:271
+#: plugin/plugin.py:780
 msgid "Cmd execution log"
 msgstr ""
 
-#: plugin/plugin.py:770
+#: plugin/plugin.py:770 plugin/plugin.py:781
 msgid "SDR device information"
 msgstr ""
 
-#: plugin/plugin.py:774
+#: plugin/plugin.py:774 plugin/plugin.py:785
 msgid "Choose an action"
 msgstr ""
 
-#: plugin/plugin.py:810 plugin/plugin.py:814
+#: plugin/plugin.py:810 plugin/plugin.py:814 plugin/plugin.py:825
 msgid "Listen to radio using a RTL-SDR USB tuner"
 msgstr ""
 
 #: plugin/plugin.py:268 plugin/plugin.py:269 plugin/plugin.py:270
 #: plugin/plugin.py:271 plugin/plugin.py:272 plugin/plugin.py:273
 #: plugin/plugin.py:274 plugin/plugin.py:275 plugin/plugin.py:276
-#: plugin/plugin.py:277
+#: plugin/plugin.py:277 plugin/plugin.py:278 plugin/plugin.py:279
+#: plugin/plugin.py:280 plugin/plugin.py:281 plugin/plugin.py:282
 #, python-format
 msgid "Play memory preset %d"
 msgstr ""
@@ -405,7 +411,24 @@ msgstr ""
 #: plugin/plugin.py:279 plugin/plugin.py:280 plugin/plugin.py:281
 #: plugin/plugin.py:282 plugin/plugin.py:283 plugin/plugin.py:284
 #: plugin/plugin.py:285 plugin/plugin.py:286 plugin/plugin.py:287
-#: plugin/plugin.py:288
+#: plugin/plugin.py:288 plugin/plugin.py:289 plugin/plugin.py:290
+#: plugin/plugin.py:291 plugin/plugin.py:292 plugin/plugin.py:293
 #, python-format
 msgid "Store frequency to memory preset %d"
+msgstr ""
+
+#: plugin/plugin.py:113
+msgid "Set the tuner gain value for FM band (default = auto)."
+msgstr ""
+
+#: plugin/plugin.py:115
+msgid "Tuner gain for DAB/DAB+"
+msgstr ""
+
+#: plugin/plugin.py:117
+msgid "Set the tuner gain value for DAB/DAB+ (default = auto)."
+msgstr ""
+
+#: plugin/plugin.py:121
+msgid "Set the tuner gain value for AM, NFM, LSB, and USB (default = auto)."
 msgstr ""

@@ -51,11 +51,12 @@ config.plugins.SDGRadio.tuning = ConfigSelection(default="simple", choices=[
 	("advanced", _("advanced"))
 ])
 config.plugins.SDGRadio.ppmoffset = ConfigSelectionNumber(-100, 100, 1, 0)
-config.plugins.SDGRadio.fmgain = ConfigSelectionNumber(0, 50, 1, 20)
 choicelist = [("automatic", _("auto"))]
 for i in range(0, 51): # 0 to 50
 	choicelist.append((str(i)))
-config.plugins.SDGRadio.gain = ConfigSelection(default="50", choices=choicelist)
+config.plugins.SDGRadio.fmgain = ConfigSelection(default="automatic", choices=choicelist)
+config.plugins.SDGRadio.dabgain = ConfigSelection(default="automatic", choices=choicelist)
+config.plugins.SDGRadio.gain = ConfigSelection(default="automatic", choices=choicelist)
 config.plugins.SDGRadio.fmbandwidth = ConfigSelectionNumber(50, 180, 1, 171)
 config.plugins.SDGRadio.bandwidth = ConfigSelectionNumber(1, 32, 1, 20)
 config.plugins.SDGRadio.sbbandwidth = ConfigSelectionNumber(1, 16, 1, 5)
@@ -109,11 +110,15 @@ class SDGRadioSetup(ConfigListScreen, Screen):
 
 		configlist.append(getConfigListEntry(_('Tuner gain for FM'),
 			config.plugins.SDGRadio.fmgain,
-			_('Set the tuner gain value for FM band (default = 20).')))
+			_('Set the tuner gain value for FM band (default = auto).')))
+
+		configlist.append(getConfigListEntry(_('Tuner gain for DAB/DAB+'),
+			config.plugins.SDGRadio.dabgain,
+			_('Set the tuner gain value for DAB/DAB+ (default = auto).')))
 
 		configlist.append(getConfigListEntry(_('Tuner gain for other bands and DAB'),
 			config.plugins.SDGRadio.gain,
-			_('Set the tuner gain value for all bands and DAB/DAB+ except FM (default = 50).')))
+			_('Set the tuner gain value for AM, NFM, LSB, and USB (default = auto).')))
 
 		configlist.append(getConfigListEntry(_('Bandwidth for FM in k/sec'),
 			config.plugins.SDGRadio.fmbandwidth,
@@ -342,17 +347,17 @@ class SDGRadioScreen(Screen, HelpableScreen):
 
 		if self.modulation.value == "fm":
 			if config.plugins.SDGRadio.rds.value:
-				cmd = "rtl_fm -f %sM -M fm -l 0 -A std -s %sk -g %s -p %s %s %s %s %s %s -F 9 - | %s | gst-launch-1.0 fdsrc ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=%s000 ! audioresample ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=48000 ! dvbaudiosink" % (self.frequency.value, self.fmbandwidth, self.fmgain, self.ppmoffset, self.getEdge(), self.getDc(), self.getDeemp(), self.getDirect(), self.getOffset(), self.rdsOptions(), self.fmbandwidth)
+				cmd = "rtl_fm -f %sM -M fm -l 0 -A std -s %sk %s -p %s %s %s %s %s %s -F 9 - | %s | gst-launch-1.0 fdsrc ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=%s000 ! audioresample ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=48000 ! dvbaudiosink" % (self.frequency.value, self.fmbandwidth, self.getFmGain(), self.ppmoffset, self.getEdge(), self.getDc(), self.getDeemp(), self.getDirect(), self.getOffset(), self.rdsOptions(), self.fmbandwidth)
 			else:
-				cmd = "rtl_fm -f %sM -M fm -l 0 -A std -s %sk -g %s -p %s %s %s %s %s %s -F 0 - | gst-launch-1.0 fdsrc ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=%s000 ! audioresample ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=48000 ! dvbaudiosink" % (self.frequency.value, self.fmbandwidth, self.fmgain, self.ppmoffset, self.getEdge(), self.getDc(), self.getDeemp(), self.getDirect(), self.getOffset(), self.fmbandwidth)
+				cmd = "rtl_fm -f %sM -M fm -l 0 -A std -s %sk %s -p %s %s %s %s %s %s -F 0 - | gst-launch-1.0 fdsrc ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=%s000 ! audioresample ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=48000 ! dvbaudiosink" % (self.frequency.value, self.fmbandwidth, self.getFmGain(), self.ppmoffset, self.getEdge(), self.getDc(), self.getDeemp(), self.getDirect(), self.getOffset(), self.fmbandwidth)
 		elif self.modulation.value == "nfm":
-			cmd = "rtl_fm -f %sM -M fm -A std -s %sk -g %s -p %s %s %s %s %s %s - | gst-launch-1.0 fdsrc ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=%s000 ! audioresample ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=48000 ! dvbaudiosink" % (self.frequency.value, self.bandwidth, self.gain, self.ppmoffset, self.getEdge(), self.getDc(), self.getDeemp(), self.getDirect(), self.getOffset(), self.bandwidth)
+			cmd = "rtl_fm -f %sM -M fm -A std -s %sk %s -p %s %s %s %s %s %s - | gst-launch-1.0 fdsrc ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=%s000 ! audioresample ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=48000 ! dvbaudiosink" % (self.frequency.value, self.bandwidth, self.getGain(), self.ppmoffset, self.getEdge(), self.getDc(), self.getDeemp(), self.getDirect(), self.getOffset(), self.bandwidth)
 		elif self.modulation.value == "am":
-			cmd = "rtl_fm -f %sM -M am -A std -s %sk -g %s -p %s %s %s %s %s %s - | gst-launch-1.0 fdsrc ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=%s000 ! audioresample ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=48000 ! dvbaudiosink" % (self.frequency.value, self.bandwidth, self.gain, self.ppmoffset, self.getEdge(), self.getDc(), self.getDeemp(), self.getDirect(), self.getOffset(), self.bandwidth)
+			cmd = "rtl_fm -f %sM -M am -A std -s %sk %s -p %s %s %s %s %s %s - | gst-launch-1.0 fdsrc ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=%s000 ! audioresample ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=48000 ! dvbaudiosink" % (self.frequency.value, self.bandwidth, self.getGain(), self.ppmoffset, self.getEdge(), self.getDc(), self.getDeemp(), self.getDirect(), self.getOffset(), self.bandwidth)
 		elif self.modulation.value == "lsb":
-			cmd = "rtl_fm -f %sM -M lsb -A std -s %sk -g %s -p %s %s %s %s %s %s - | gst-launch-1.0 fdsrc ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=%s000 ! audioresample ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=48000 ! dvbaudiosink" % (self.frequency.value, self.sbbandwidth, self.gain, self.ppmoffset, self.getEdge(), self.getDc(), self.getDeemp(), self.getDirect(), self.getOffset(), self.sbbandwidth)
+			cmd = "rtl_fm -f %sM -M lsb -A std -s %sk %s -p %s %s %s %s %s %s - | gst-launch-1.0 fdsrc ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=%s000 ! audioresample ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=48000 ! dvbaudiosink" % (self.frequency.value, self.sbbandwidth, self.getGain(), self.ppmoffset, self.getEdge(), self.getDc(), self.getDeemp(), self.getDirect(), self.getOffset(), self.sbbandwidth)
 		elif self.modulation.value == "usb":
-			cmd = "rtl_fm -f %sM -M usb -A std -s %sk -g %s -p %s %s %s %s %s %s - | gst-launch-1.0 fdsrc ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=%s000 ! audioresample ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=48000 ! dvbaudiosink" % (self.frequency.value, self.sbbandwidth, self.gain, self.ppmoffset, self.getEdge(), self.getDc(), self.getDeemp(), self.getDirect(), self.getOffset(), self.sbbandwidth)
+			cmd = "rtl_fm -f %sM -M usb -A std -s %sk %s -p %s %s %s %s %s %s - | gst-launch-1.0 fdsrc ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=%s000 ! audioresample ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=48000 ! dvbaudiosink" % (self.frequency.value, self.sbbandwidth, self.getGain(), self.ppmoffset, self.getEdge(), self.getDc(), self.getDeemp(), self.getDirect(), self.getOffset(), self.sbbandwidth)
 		elif self.modulation.value == "dab":
 			if self.pcm:
 				cmd = "dab-rtlsdr-sdgradio-pcm -C %s -W30 -p %s %s | gst-launch-1.0 fdsrc ! audio/x-raw, format=S16LE, channels=2, layout=interleaved, rate=48000 ! dvbaudiosink" % (DAB_FREQ.get(Decimal(self.frequency.value), "5A"), self.ppmoffset, self.getDabGain())
@@ -448,8 +453,14 @@ class SDGRadioScreen(Screen, HelpableScreen):
 		else:
 			return "redsea -e"
 
+	def getFmGain(self):
+		return "-g %s" % self.fmgain if self.fmgain != "automatic" else ""
+
 	def getDabGain(self):
-		return "-G %s" % self.gain if self.gain != "automatic" else "-Q"
+		return "-G %s" % self.dabgain if self.dabgain != "automatic" else "-Q"
+
+	def getGain(self):
+		return "-g %s" % self.gain if self.gain != "automatic" else ""
 
 	def getEdge(self):
 		return "-E edge" if self.edge is True else ""
