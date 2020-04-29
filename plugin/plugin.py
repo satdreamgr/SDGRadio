@@ -317,7 +317,8 @@ class SDGRadioScreen(Screen, HelpableScreen):
 	def getConfigOptions(self):
 		self.tuning = config.plugins.SDGRadio.tuning.value
 		self.ppmoffset = str(config.plugins.SDGRadio.ppmoffset.value)
-		self.fmgain = str(config.plugins.SDGRadio.fmgain.value)
+		self.fmgain = config.plugins.SDGRadio.fmgain.value
+		self.dabgain = config.plugins.SDGRadio.dabgain.value
 		self.gain = config.plugins.SDGRadio.gain.value
 		self.fmbandwidth = str(config.plugins.SDGRadio.fmbandwidth.value)
 		self.bandwidth = str(config.plugins.SDGRadio.bandwidth.value)
