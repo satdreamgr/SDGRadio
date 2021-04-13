@@ -91,7 +91,7 @@ class SDGRadioSetup(ConfigListScreen, Screen):
 		self["setupActions"] = ActionMap(["OkCancelActions", "ColorActions"],
 			{
 				"cancel": self.keyCancel,
-				"red":self.keyCancel,
+				"red": self.keyCancel,
 				"ok": self.keySave,
 				"green": self.keySave
 			}, -2)
@@ -186,7 +186,7 @@ class SDGRadioInput(ConfigListScreen, Screen):
 		self["setupActions"] = ActionMap(["OkCancelActions", "ColorActions"],
 		{
 			"cancel": self.keyCancel,
-			"red":self.keyCancel,
+			"red": self.keyCancel,
 			"ok": self.ok,
 			"green": self.ok
 		}, -2)
@@ -396,7 +396,7 @@ class SDGRadioScreen(Screen, HelpableScreen):
 				self["prog_type"].setText(rds["prog_type"].encode("utf8"))
 
 			if "pi" in rds and not "callsign" in rds and self["pi"].getText() != rds["pi"].encode("utf8"):
-				self["pi"].setText(rds["pi"].encode("utf8").replace("0x","PI: "))
+				self["pi"].setText(rds["pi"].encode("utf8").replace("0x", "PI: "))
 
 			if "callsign" in rds and self["pi"].getText() != rds["callsign"].encode("utf8"):
 				self["pi"].setText(rds["callsign"].encode("utf8"))
