@@ -780,6 +780,7 @@ class SDGRadioScreen(Screen, HelpableScreen):
 		choices.append((_("Setup menu"), self.showSetup, "menu"))
 		choices.append((_("Cmd execution log"), self.showLog, "log"))
 		choices.append((_("SDR device information"), self.showInfo, "info"))
+
 		def showMenuCb(choice):
 			if choice is not None:
 				choice[1]()
