@@ -30,11 +30,11 @@ class build_trans(cmd.Command):
 					for lang_domain in lang_domains:
 						lang_domain = lang_domain.rsplit('/', 1)[1]
 						dest = os.path.join(destdir, lang_domain[:-3] + 'mo')
-						print "Language compile %s -> %s" % (src, dest)
+						print("Language compile %s -> %s" % (src, dest))
 						if os.system("msgfmt '%s' -o '%s'" % (src, dest)) != 0:
-							raise Exception, "Failed to compile: " + src
+							raise Exception("Failed to compile: " + src)
 		else:
-			print "we got no domain -> no translation was compiled"
+			print("we got no domain -> no translation was compiled")
 
 
 class build(_build):
