@@ -1,13 +1,19 @@
 from __future__ import print_function
-from . import _
-from .utils import SDR_MIN_FREQ, SDR_MAX_FREQ, DAB_FREQ, SKIN
-from Components.ActionMap import HelpableActionMap, ActionMap
+
+from binascii import hexlify
+from decimal import Decimal
+from json import loads
+from os import remove
+from os.path import exists
+
+from Components.ActionMap import ActionMap, HelpableActionMap
 from Components.AVSwitch import AVSwitch
-from Components.config import config, getConfigListEntry, ConfigSubsection, ConfigText, ConfigSelection, ConfigSelectionNumber, ConfigYesNo, ConfigFloat
+from Components.config import ConfigFloat, ConfigSelection, ConfigSelectionNumber, ConfigSubsection, ConfigText, ConfigYesNo, config, getConfigListEntry
 from Components.ConfigList import ConfigListScreen
 from Components.Label import Label
-from Components.Pixmap import Pixmap, MultiPixmap
+from Components.Pixmap import MultiPixmap, Pixmap
 from Components.Sources.StaticText import StaticText
+from enigma import eConsoleAppContainer, ePicLoad
 from Plugins.Plugin import PluginDescriptor
 from Screens.ChoiceBox import ChoiceBox
 from Screens.Console import Console
@@ -15,15 +21,10 @@ from Screens.HelpMenu import HelpableScreen
 from Screens.MessageBox import MessageBox
 from Screens.Screen import Screen
 from Tools.BoundFunction import boundFunction
-from Tools.Directories import resolveFilename, SCOPE_PLUGINS
-from enigma import eConsoleAppContainer, ePicLoad
+from Tools.Directories import SCOPE_PLUGINS, resolveFilename
 
-import os
-import json
-import time
-import binascii
-from decimal import Decimal
-
+from . import _
+from .utils import DAB_FREQ, SDR_MAX_FREQ, SDR_MIN_FREQ, SKIN
 
 config.plugins.SDGRadio = ConfigSubsection()
 config.plugins.SDGRadio.frequency_fm = ConfigText(default="89.0")
@@ -345,7 +346,6 @@ class SDGRadioScreen(Screen, HelpableScreen):
 		self.updateMiscWidgets(True)
 		self.console = eConsoleAppContainer()
 		self.console.stderrAvail.append(self.cbStderrAvail)
-		#self.console.appClosed.append(self.cbAppClosed)
 
 		if self.modulation.value == "fm":
 			if config.plugins.SDGRadio.rds.value:
@@ -373,7 +373,7 @@ class SDGRadioScreen(Screen, HelpableScreen):
 
 	def processRds(self, data):
 		try:
-			rds = json.loads(data.decode("utf8", "ignore"))
+			rds = loads(data.decode("utf8", "ignore"))
 
 			if "ps" in rds and self.getTitle() != rds["ps"].encode("utf8"):
 				self.setTitle(rds["ps"].encode("utf8"))
@@ -441,7 +441,7 @@ class SDGRadioScreen(Screen, HelpableScreen):
 			self["traffic"].setText(traffic)
 
 		except Exception as e:
-			msg = "processRds exception: %s data: %s\n" % (e, binascii.hexlify(data))
+			msg = "processRds exception: %s data: %s\n" % (e, hexlify(data))
 			self.log.append(msg)
 			print("[SDGRadio] %s" % msg)
 
@@ -521,7 +521,6 @@ class SDGRadioScreen(Screen, HelpableScreen):
 		oldFreq = Decimal(self.frequency.value)
 
 		if self.modulation.value == "dab":
-			#oldFreq = Decimal(self.frequency.value)
 			newFreq = oldFreq + value
 			if newFreq < Decimal("174.928"):
 				newFreq = Decimal("174.928")
@@ -788,7 +787,7 @@ class SDGRadioScreen(Screen, HelpableScreen):
 		self.session.openWithCallback(showMenuCb, ChoiceBox, title=_("Choose an action"), list=choices, keys=keys)
 
 	def showPicture(self, image):
-		if os.path.exists(image):
+		if exists(image):
 			sc = AVSwitch().getFramebufferScale()
 			self.picloads = ePicLoad()
 			self.picloads.PictureData.get().append(boundFunction(self.showPictureFinish, image))
@@ -801,13 +800,13 @@ class SDGRadioScreen(Screen, HelpableScreen):
 			msg = "showPicture: cannot find image: %s\n" % image
 			self.log.append(msg)
 
-	def showPictureFinish(self, image, picInfo=None):
+	def showPictureFinish(self, image):
 		ptr = self.picloads.getData()
 		if ptr:
 			self["pic"].instance.setPixmap(ptr.__deref__())
 			self["pic"].show()
 			del self.picloads
-			os.remove(image)
+			remove(image)
 
 	def cancel(self):
 		self.doConsoleStop()
