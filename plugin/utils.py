@@ -7,7 +7,7 @@ from Tools.Directories import resolveFilename, SCOPE_PLUGINS
 try:
 	addFont(resolveFilename(SCOPE_PLUGINS, "Extensions/SDGRadio/fonts/DSEG7Classic-BoldItalic.ttf"), "SDGRadio", 100, 1)
 except:
-	print "[SDGRadio] failed to add font"
+	print("[SDGRadio] failed to add font")
 
 
 SDR_MIN_FREQ = 0
@@ -132,4 +132,4 @@ SKIN = """
 		<widget source="global.CurrentTime" render="Label" position="%d,%d" size="%d,%d" font="SDGRadio;%d" valign="center" foregroundColor="#00deff" backgroundColor="#003258" transparent="1">
 			<convert type="ClockToText">Default</convert>
 		</widget>
-	</screen>""" % tuple([i * getDesktop(0).size().height() / 1080 for i in SKIN_DATA])
+	</screen>""" % tuple([i * getDesktop(0).size().height() // 1080 for i in SKIN_DATA])

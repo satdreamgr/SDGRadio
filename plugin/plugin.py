@@ -1,5 +1,6 @@
+from __future__ import print_function
 from . import _
-from utils import SDR_MIN_FREQ, SDR_MAX_FREQ, DAB_FREQ, SKIN
+from .utils import SDR_MIN_FREQ, SDR_MAX_FREQ, DAB_FREQ, SKIN
 from Components.ActionMap import HelpableActionMap, ActionMap
 from Components.AVSwitch import AVSwitch
 from Components.config import config, getConfigListEntry, ConfigSubsection, ConfigText, ConfigSelection, ConfigSelectionNumber, ConfigYesNo, ConfigFloat
@@ -367,7 +368,7 @@ class SDGRadioScreen(Screen, HelpableScreen):
 		else:
 			cmd = "rtl_fm -f %sM -M wbfm -s 200000 -r 48000 - | gst-launch-1.0 fdsrc ! audio/x-raw, format=S16LE, channels=1, layout=interleaved, rate=48000 ! dvbaudiosink" % self.frequency.value
 
-		print "[SDGRadio] playRadio cmd: %s" % cmd
+		print("[SDGRadio] playRadio cmd: %s" % cmd)
 		self.console.execute(cmd)
 
 	def processRds(self, data):
@@ -442,7 +443,7 @@ class SDGRadioScreen(Screen, HelpableScreen):
 		except Exception as e:
 			msg = "processRds exception: %s data: %s\n" % (e, binascii.hexlify(data))
 			self.log.append(msg)
-			print "[SDGRadio] %s" % msg
+			print("[SDGRadio] %s" % msg)
 
 	def rdsOptions(self):
 		if self.usepartial and not self.userbds:
@@ -479,7 +480,7 @@ class SDGRadioScreen(Screen, HelpableScreen):
 		return "-E offset" if self.offset is True else ""
 
 	def cbStderrAvail(self, data):
-		#print "[SDGRadio] cbStderrAvail ", data
+		#print("[SDGRadio] cbStderrAvail %s" % data)
 		for line in data.splitlines():
 			if not line:
 				continue
@@ -527,9 +528,9 @@ class SDGRadioScreen(Screen, HelpableScreen):
 			if newFreq > Decimal("239.200"):
 				newFreq = Decimal("239.200")
 			if newFreq > oldFreq:
-				newFreq = min(filter(lambda x: x >= newFreq, DAB_FREQ.keys()))
+				newFreq = min(list(filter(lambda x: x >= newFreq, DAB_FREQ.keys())))
 			else:
-				newFreq = max(filter(lambda x: x <= newFreq, DAB_FREQ.keys()))
+				newFreq = max(list(filter(lambda x: x <= newFreq, DAB_FREQ.keys())))
 		else:
 			if self.tuning == "simple":
 				if self.modulation.value in ("am", "lsb", "usb"):
