@@ -1,3 +1,5 @@
+from six import ensure_binary, ensure_str
+
 from binascii import hexlify
 from decimal import Decimal
 from json import loads
@@ -370,55 +372,55 @@ class SDGRadioScreen(HelpableScreen, Screen):
 
 	def processRds(self, data):
 		try:
-			rds = loads(data.decode("utf8", "ignore"))
+			rds = loads(data)
 
-			if "ps" in rds and self.getTitle() != rds["ps"].encode("utf8"):
-				self.setTitle(rds["ps"].encode("utf8"))
+			if "ps" in rds and self.getTitle() != ensure_str(rds["ps"]):
+				self.setTitle(ensure_str(rds["ps"]))
 				self["pic"].hide()
 				self["ps_icon"].show()
 
-			if "partial_ps" in rds and self.getTitle() != rds["partial_ps"].encode("utf8"):
-				self.setTitle(rds["partial_ps"].encode("utf8"))
+			if "partial_ps" in rds and self.getTitle() != ensure_str(rds["partial_ps"]):
+				self.setTitle(ensure_str(rds["partial_ps"]))
 				self["pic"].hide()
 				self["ps_icon"].show()
 
-			if "radiotext" in rds and self["radiotext"].getText() != rds["radiotext"].encode("utf8"):
-				self["radiotext"].setText(rds["radiotext"].encode("utf8"))
+			if "radiotext" in rds and self["radiotext"].getText() != ensure_str(rds["radiotext"]):
+				self["radiotext"].setText(ensure_str(rds["radiotext"]))
 				self["rt_icon"].show()
 
-			if "partial_radiotext" in rds and self["radiotext"].getText() != rds["partial_radiotext"].encode("utf8"):
-				self["radiotext"].setText(rds["partial_radiotext"].encode("utf8"))
+			if "partial_radiotext" in rds and self["radiotext"].getText() != ensure_str(rds["partial_radiotext"]):
+				self["radiotext"].setText(ensure_str(rds["partial_radiotext"]))
 				self["rt_icon"].show()
 
-			if "prog_type" in rds and self["prog_type"].getText() != rds["prog_type"].encode("utf8"):
-				self["prog_type"].setText(rds["prog_type"].encode("utf8"))
+			if "prog_type" in rds and self["prog_type"].getText() != ensure_str(rds["prog_type"]):
+				self["prog_type"].setText(ensure_str(rds["prog_type"]))
 
-			if "pi" in rds and not "callsign" in rds and self["pi"].getText() != rds["pi"].encode("utf8"):
-				self["pi"].setText(rds["pi"].encode("utf8").replace("0x", "PI: "))
+			if "pi" in rds and not "callsign" in rds and self["pi"].getText() != ensure_str(rds["pi"]):
+				self["pi"].setText(ensure_str(rds["pi"]).replace("0x", "PI: "))
 
-			if "callsign" in rds and self["pi"].getText() != rds["callsign"].encode("utf8"):
-				self["pi"].setText(rds["callsign"].encode("utf8"))
+			if "callsign" in rds and self["pi"].getText() != ensure_str(rds["callsign"]):
+				self["pi"].setText(ensure_str(rds["callsign"]))
 
-			if "callsign_uncertain" in rds and self["pi"].getText() != rds["callsign_uncertain"].encode("utf8"):
-				self["pi"].setText(rds["callsign_uncertain"].encode("utf8"))
+			if "callsign_uncertain" in rds and self["pi"].getText() != ensure_str(rds["callsign_uncertain"]):
+				self["pi"].setText(ensure_str(rds["callsign_uncertain"]))
 
-			if "pi" in rds and rds["pi"] != "0x0000" or "callsign" in rds or "callsign_uncertain" in rds or "pi" in rds and rds["pi"] == "0x0000" or "partial_ps" in rds and rds["pi"] == "0x0000":
+			if "pi" in rds and ensure_str(rds["pi"]) != "0x0000" or "callsign" in rds or "callsign_uncertain" in rds or "pi" in rds and ensure_str(rds["pi"]) == "0x0000" or "partial_ps" in rds and ensure_str(rds["pi"]) == "0x0000":
 				self["rds_icon"].show()
 
 			if "programType" in rds:
 				txt = u"%s kbps %s %s" % (rds["bitrate"], rds["dabType"], rds["programType"])
-				self["prog_type"].setText(txt.encode("utf8"))
+				self["prog_type"].setText(ensure_str(txt))
 
 			if "programName" in rds and "programId" in rds:
-				self.programs.append((rds["programName"].encode("utf8"), rds["programId"]))
+				self.programs.append((ensure_str(rds["programName"]), ensure_str(rds["programId"])))
 
 			if "mot" in rds:
-				self.showPicture(rds["mot"].encode("utf8"))
+				self.showPicture(ensure_str(rds["mot"]))
 
-			if "alt_kilohertz" in rds and self["af"].getText() != rds["alt_kilohertz"]:
+			if "alt_kilohertz" in rds and self["af"].getText() != ensure_str(rds["alt_kilohertz"]):
 				self["af"].setText("AF")
 
-			if "other_network" in rds and self["eon"].getText() != rds["other_network"]:
+			if "other_network" in rds and self["eon"].getText() != ensure_str(rds["other_network"]):
 				self["eon"].setText("EON")
 
 			if "clock_time" in rds:
@@ -428,9 +430,9 @@ class SDGRadioScreen(HelpableScreen, Screen):
 				self["rt+"].setText("RT+")
 
 			traffic = ""
-			if "tp" in rds and rds["tp"] == "True":
+			if "tp" in rds and ensure_str(rds["tp"]) == "True":
 				traffic = "TP"
-			if "ta" in rds and rds["ta"] == "True":
+			if "ta" in rds and ensure_str(rds["ta"]) == "True":
 				if traffic:
 					traffic += " TA"
 				else:
@@ -438,7 +440,7 @@ class SDGRadioScreen(HelpableScreen, Screen):
 			self["traffic"].setText(traffic)
 
 		except Exception as e:
-			msg = "processRds exception: %s data: %s\n" % (e, hexlify(data))
+			msg = "processRds exception: %s data: %s\n" % (e, hexlify(ensure_binary(data)))
 			self.log.append(msg)
 			print("[SDGRadio] %s" % msg)
 
@@ -477,6 +479,7 @@ class SDGRadioScreen(HelpableScreen, Screen):
 		return "-E offset" if self.offset else ""
 
 	def cbStderrAvail(self, data):
+		data = data.decode("UTF-8", errors="ignore")
 		#print("[SDGRadio] cbStderrAvail %s" % data)
 		for line in data.splitlines():
 			if not line:
