@@ -800,7 +800,7 @@ class SDGRadioScreen(HelpableScreen, Screen):
 			msg = "showPicture: cannot find image: %s\n" % image
 			self.log.append(msg)
 
-	def showPictureFinish(self, image):
+	def showPictureFinish(self, image, picInfo=None):
 		ptr = self.picloads.getData()
 		if ptr:
 			self["pic"].instance.setPixmap(ptr.__deref__())
